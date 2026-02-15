@@ -4,7 +4,7 @@ Interactive Anki flashcards for the **Microsoft Azure Developer Associate (AZ-20
 
 ## What's Inside
 
-~519 interactive quiz cards across 14 domains, covering all AZ-204 exam topics.
+471 interactive quiz cards across 14 domains, covering all AZ-204 exam topics.
 
 ### Card Types
 
@@ -34,13 +34,27 @@ Interactive Anki flashcards for the **Microsoft Azure Developer Associate (AZ-20
 | 13 | Monitoring | ~35 |
 | — | Cross-domain | ~27 |
 
-## Prerequisites
+## Quick Start — Import the Deck
+
+Just want the cards? Download and import the pre-built deck:
+
+1. Install [Anki](https://apps.ankiweb.net/)
+2. Download [`AZ-204-PREP-ANKI.apkg`](AZ-204-PREP-ANKI.apkg) from this repo
+3. Open Anki → File → Import → select the `.apkg` file
+
+Done — all 471 cards ready to study.
+
+## Advanced — Push from Source
+
+If you want to customize cards or push updates from the JSON source files:
+
+### Prerequisites
 
 1. [Anki](https://apps.ankiweb.net/) installed and running
 2. [AnkiConnect](https://ankiweb.net/shared/info/2055492159) add-on installed
 3. Python 3.8+
 
-## How to Use
+### Usage
 
 Push all cards to Anki:
 
