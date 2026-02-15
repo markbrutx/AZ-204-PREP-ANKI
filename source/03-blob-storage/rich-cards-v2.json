@@ -1,0 +1,765 @@
+{
+  "domain": "03-blob-storage",
+  "deckName": "AZ-204-PREP-ANKI::03-Blob Storage",
+  "cards": [
+    {
+      "id": "RBS-001",
+      "type": "single-choice",
+      "question": "Your application stores user profile photos that are accessed multiple times per day. Which access tier is most cost-effective?",
+      "options": [
+        "Archive tier for lowest storage cost",
+        "Hot tier for frequently accessed data",
+        "Cool tier for infrequently accessed data",
+        "Cold tier for rarely accessed data"
+      ],
+      "answer": "B",
+      "explanation": "Hot tier is built for data you access A LOT. Storage costs more, but reading and writing is the cheapest. Profile photos get accessed all the time, so Hot is the right pick.",
+      "keyPoints": [
+        "Hot = frequent access, expensive storage, cheap reads/writes",
+        "Cool = access less than once every 30 days",
+        "Cold = access less than once every 90 days",
+        "Archive = offline, needs rehydration before you can read"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers"
+      ]
+    },
+    {
+      "id": "RBS-002",
+      "type": "single-choice",
+      "question": "You need to store VM virtual hard disks in Azure Blob Storage. Which blob type should you use?",
+      "options": [
+        "Block blobs optimized for sequential reads",
+        "Append blobs optimized for append operations",
+        "Page blobs optimized for random read/write operations",
+        "Block blobs with Premium performance tier"
+      ],
+      "answer": "C",
+      "explanation": "Page blobs are built for random read/write and can store up to 8 TiB. Azure VMs use page blobs for their VHD disks. This is the only blob type that works for virtual machine disks.",
+      "keyPoints": [
+        "Page blobs = VHD disks for Azure VMs",
+        "Page blobs support random read/write",
+        "Max page blob size = 8 TiB",
+        "Block blobs = files, images, videos"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview",
+      "tags": [
+        "az204::blob-storage::blob-types"
+      ]
+    },
+    {
+      "id": "RBS-003",
+      "type": "single-choice",
+      "question": "A company moves a blob from Hot to Cool tier after 15 days and then deletes it on day 20. What happens?",
+      "options": [
+        "No penalty because the blob was originally in Hot tier",
+        "Early deletion penalty for the remaining 10 days of Cool tier minimum retention",
+        "The delete operation is blocked until day 30",
+        "Early deletion penalty for the remaining 15 days of Hot tier minimum retention"
+      ],
+      "answer": "B",
+      "explanation": "Cool tier requires a minimum of 30 days of storage. The blob was deleted on day 5 in Cool (moved on day 15, deleted on day 20). Penalty = you pay for the remaining 25 days. The delete is NOT blocked — Azure just charges you extra.",
+      "keyPoints": [
+        "Cool = 30-day minimum, otherwise early deletion penalty",
+        "Cold = 90-day minimum",
+        "Archive = 180-day minimum",
+        "Hot = no minimum retention period"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers"
+      ]
+    },
+    {
+      "id": "RBS-004",
+      "type": "single-choice",
+      "question": "Which SAS type does Microsoft recommend as the most secure option for granting access to Blob Storage?",
+      "options": [
+        "Account SAS signed with the storage account key",
+        "Service SAS with a stored access policy",
+        "User delegation SAS signed with Microsoft Entra credentials",
+        "Service SAS signed with the storage account key"
+      ],
+      "answer": "C",
+      "explanation": "User delegation SAS is signed with Microsoft Entra (Azure AD) credentials, NOT a storage account key. This is safer because: 1) no key to store or leak, 2) if the SAS is compromised, damage is limited to that identity's permissions, 3) you can manage access through RBAC.",
+      "keyPoints": [
+        "User delegation SAS = signed via Entra ID",
+        "Service SAS = signed with account key",
+        "Account SAS = signed with account key",
+        "User delegation works ONLY with Blob Storage"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview",
+      "tags": [
+        "az204::blob-storage::sas"
+      ]
+    },
+    {
+      "id": "RBS-005",
+      "type": "single-choice",
+      "question": "You need to revoke access granted by a SAS token without regenerating storage account keys. Which approach should you use?",
+      "options": [
+        "Delete the blob the SAS grants access to",
+        "Use a service SAS linked to a stored access policy and modify the policy",
+        "Change the storage account's default access tier",
+        "Disable public access on the container"
+      ],
+      "answer": "B",
+      "explanation": "A stored access policy lets you revoke a SAS by changing or deleting the policy. Only service SAS can be linked to a stored access policy. User delegation and account SAS are always ad-hoc — you can't revoke them without rotating keys.",
+      "keyPoints": [
+        "Stored access policy = you can revoke SAS tokens",
+        "Only service SAS supports stored access policies",
+        "Max 5 policies per container",
+        "Ad-hoc SAS can only be revoked by rotating keys"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview",
+      "tags": [
+        "az204::blob-storage::sas",
+        "az204::blob-storage::stored-access-policy"
+      ]
+    },
+    {
+      "id": "RBS-006",
+      "type": "single-choice",
+      "question": "Your company must store financial records that cannot be modified or deleted for 7 years to meet SEC 17a-4(f) compliance. Which feature should you use?",
+      "options": [
+        "Blob soft delete with 365-day retention",
+        "Immutable storage with a locked time-based retention policy",
+        "Blob versioning with lifecycle management",
+        "Immutable storage with an unlocked time-based retention policy"
+      ],
+      "answer": "B",
+      "explanation": "For SEC 17a-4(f) you need a LOCKED time-based retention policy. Unlocked = for testing, you can still delete the policy. Locked = can't delete, can only extend the duration. Soft delete and versioning do NOT meet compliance requirements.",
+      "keyPoints": [
+        "Locked policy = SEC 17a-4(f) compliance",
+        "Unlocked = for testing, can be deleted",
+        "Locked can't be deleted, only extended",
+        "Microsoft recommends locking within 24 hours"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview",
+      "tags": [
+        "az204::blob-storage::immutable-storage"
+      ]
+    },
+    {
+      "id": "RBS-007",
+      "type": "single-choice",
+      "question": "Which blob type supports setting access tiers (Hot, Cool, Cold, Archive)?",
+      "options": [
+        "Page blobs only",
+        "Append blobs only",
+        "Block blobs only",
+        "All blob types (Block, Append, Page)"
+      ],
+      "answer": "C",
+      "explanation": "Only block blobs support access tiers. Append blobs and page blobs do NOT support tier settings. Block blobs are the most common type — used for files, images, and videos.",
+      "keyPoints": [
+        "Block blobs = the only type with access tiers",
+        "Append blobs = for logs only (no tiers)",
+        "Page blobs = for VHD disks (no tiers)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers",
+        "az204::blob-storage::blob-types"
+      ]
+    },
+    {
+      "id": "RBS-008",
+      "type": "single-choice",
+      "question": "What is the default access tier when you create a new general-purpose v2 storage account?",
+      "options": [
+        "Cool — to minimize storage costs by default",
+        "Hot — optimized for frequently accessed data",
+        "Cold — balanced cost and performance",
+        "Archive — lowest storage cost"
+      ],
+      "answer": "B",
+      "explanation": "By default, a general-purpose v2 storage account is created with Hot tier. You can change the default to Cool or Cold (but NOT Archive) at the account level. Blobs without an explicit tier inherit the account's default.",
+      "keyPoints": [
+        "Default tier = Hot",
+        "You can change the default to Cool or Cold",
+        "Archive CANNOT be set as default",
+        "Blobs without an explicit tier show as 'inferred'"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers"
+      ]
+    },
+    {
+      "id": "RBS-009",
+      "type": "single-choice",
+      "question": "You have a blob in Archive tier and need to read its content urgently. What must you do first?",
+      "options": [
+        "Change the container's access level to public",
+        "Rehydrate the blob to an online tier (Hot, Cool, or Cold)",
+        "Copy the blob to a different storage account",
+        "Download the blob using AzCopy with --force flag"
+      ],
+      "answer": "B",
+      "explanation": "Archive tier = offline. You can't read the content directly. You must rehydrate the blob first — move it to an online tier (Hot/Cool/Cold). Two priorities: Standard (up to 15 hours) and High (faster, more expensive). Metadata is readable without rehydration.",
+      "keyPoints": [
+        "Archive = offline, needs rehydration",
+        "Standard rehydration = up to 15 hours",
+        "High priority = faster but more expensive",
+        "Metadata is readable without rehydration"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers",
+        "az204::blob-storage::rehydration"
+      ]
+    },
+    {
+      "id": "RBS-010",
+      "type": "single-choice",
+      "question": "A lifecycle management policy runs on your storage account. How often does it execute?",
+      "options": [
+        "Every hour for real-time tier management",
+        "Every 15 minutes for near-real-time processing",
+        "Once per day with changes taking up to 24 hours",
+        "Every 6 hours for periodic maintenance"
+      ],
+      "answer": "C",
+      "explanation": "Lifecycle management policies run once per day. Changes can take up to 24 hours to apply. This is NOT a real-time process. Policies automatically move blobs between tiers or delete them based on your rules.",
+      "keyPoints": [
+        "Lifecycle policy = runs once per day",
+        "Changes = up to 24 hours to take effect",
+        "Actions: tierToCool, tierToCold, tierToArchive, delete",
+        "Cannot rehydrate from Archive via policy"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview",
+      "tags": [
+        "az204::blob-storage::lifecycle-management"
+      ]
+    },
+    {
+      "id": "RBS-011",
+      "type": "single-choice",
+      "question": "What is the maximum number of stored access policies you can define on a single blob container?",
+      "options": [
+        "3 stored access policies",
+        "5 stored access policies",
+        "10 stored access policies",
+        "Unlimited stored access policies"
+      ],
+      "answer": "B",
+      "explanation": "Max 5 stored access policies per container (same limit for queues, tables, and file shares). If you need more, delete old ones first. Stored access policies are supported ONLY for service SAS.",
+      "keyPoints": [
+        "Limit = 5 policies per container",
+        "Only service SAS supports stored access policies",
+        "You can set start time, expiry, and permissions",
+        "Changing a policy = revokes all linked SAS tokens"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview",
+      "tags": [
+        "az204::blob-storage::stored-access-policy"
+      ]
+    },
+    {
+      "id": "RBS-012",
+      "type": "single-choice",
+      "question": "You enable both blob versioning and soft delete. A user deletes the current version of a blob. What happens?",
+      "options": [
+        "Both the blob and all versions are permanently deleted",
+        "The current version becomes a previous version, all versions are retained",
+        "A soft-deleted snapshot is created alongside versions",
+        "The blob is moved to a recycle bin container"
+      ],
+      "answer": "B",
+      "explanation": "With versioning + soft delete enabled: deleting the current version turns it into a previous version. No new current version is created. All previous versions are kept. This gives you maximum data protection.",
+      "keyPoints": [
+        "Versioning = automatically saves previous versions",
+        "Soft delete = protects versions from being deleted",
+        "Together = maximum data protection",
+        "Soft delete retention = 1-365 days"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/versioning-overview",
+      "tags": [
+        "az204::blob-storage::versioning",
+        "az204::blob-storage::soft-delete"
+      ]
+    },
+    {
+      "id": "RBS-013",
+      "type": "single-choice",
+      "question": "Your application writes audit logs that should never be modified after writing. Which blob type is best suited?",
+      "options": [
+        "Block blobs with immutable storage policy",
+        "Page blobs with read-only access",
+        "Append blobs optimized for append-only operations",
+        "Block blobs with blob versioning enabled"
+      ],
+      "answer": "C",
+      "explanation": "Append blobs are built for append operations. You can only add blocks to the end — you can't modify or delete existing blocks. Perfect for logs, audit trails, and any data that only grows.",
+      "keyPoints": [
+        "Append blob = add to the end only",
+        "Can't modify or delete existing blocks",
+        "Perfect for logs and audit trails",
+        "Block blob = for files with random access"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview",
+      "tags": [
+        "az204::blob-storage::blob-types"
+      ]
+    },
+    {
+      "id": "RBS-014",
+      "type": "single-choice",
+      "question": "Which Azure CLI command creates a new blob container in a storage account?",
+      "options": [
+        "az blob container create --name mycontainer --account-name myaccount",
+        "az storage container create --name mycontainer --account-name myaccount",
+        "az storage blob create-container --name mycontainer --account myaccount",
+        "az container create --name mycontainer --storage-account myaccount"
+      ],
+      "answer": "B",
+      "explanation": "The correct command is: az storage container create. Parameters: --name (container name) and --account-name (storage account name). Watch out: az container create is for Azure Container Instances, NOT blob storage!",
+      "keyPoints": [
+        "az storage container create = create a blob container",
+        "az storage account create = create a storage account",
+        "az container create = ACI, NOT blob storage",
+        "--account-name specifies which storage account"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/storage/container",
+      "tags": [
+        "az204::blob-storage::cli"
+      ]
+    },
+    {
+      "id": "RBS-015",
+      "type": "single-choice",
+      "question": "You need to copy 10 TB of data from an on-premises server to Azure Blob Storage. Which tool is designed for this scenario?",
+      "options": [
+        "Azure Storage Explorer desktop application",
+        "Azure portal upload feature",
+        "AzCopy command-line utility",
+        "Azure PowerShell Set-AzStorageBlobContent cmdlet"
+      ],
+      "answer": "C",
+      "explanation": "AzCopy is a command-line tool for copying large amounts of data to and from Azure Storage. It supports parallel uploads and can resume interrupted transfers. Works on Windows, Linux, and macOS. Authenticates via Entra ID or SAS tokens.",
+      "keyPoints": [
+        "AzCopy = tool for bulk data copy",
+        "Supports copy, sync, make, remove",
+        "Auth: azcopy login (Entra ID) or SAS",
+        "--recursive for nested folders"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10",
+      "tags": [
+        "az204::blob-storage::azcopy"
+      ]
+    },
+    {
+      "id": "RBS-016",
+      "type": "single-choice",
+      "question": "What is the resource hierarchy in Azure Blob Storage from top to bottom?",
+      "options": [
+        "Blob > Container > Storage Account",
+        "Storage Account > Blob > Container",
+        "Container > Storage Account > Blob",
+        "Storage Account > Container > Blob"
+      ],
+      "answer": "D",
+      "explanation": "The hierarchy goes: Storage Account > Container > Blob. Storage Account = unique namespace. Container = groups blobs together (like a folder). Blob = the actual data file. URL pattern: https://<account>.blob.core.windows.net/<container>/<blob>",
+      "keyPoints": [
+        "Storage Account = top level",
+        "Container = groups blobs together",
+        "Blob = the data object",
+        "An account can have unlimited containers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blobs-overview",
+      "tags": [
+        "az204::blob-storage::overview"
+      ]
+    },
+    {
+      "id": "RBS-017",
+      "type": "single-choice",
+      "question": "Can a lifecycle management policy rehydrate a blob from Archive to an online tier?",
+      "options": [
+        "Yes, using the tierToHot action",
+        "Yes, using the rehydrate action with priority setting",
+        "No, rehydration requires Set Blob Tier API or Copy Blob operation",
+        "Yes, but only with High priority rehydration"
+      ],
+      "answer": "C",
+      "explanation": "Lifecycle management policies CANNOT rehydrate blobs from Archive. They can only move blobs to colder tiers or delete them. For rehydration, use the Set Blob Tier REST API or Copy Blob operation — manually or through code.",
+      "keyPoints": [
+        "Lifecycle policy CANNOT rehydrate from Archive",
+        "Can do: tierToCool, tierToCold, tierToArchive, delete",
+        "Rehydration: Set Blob Tier API or Copy Blob",
+        "Two priorities: Standard and High"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview",
+      "tags": [
+        "az204::blob-storage::lifecycle-management"
+      ]
+    },
+    {
+      "id": "RBS-018",
+      "type": "single-choice",
+      "question": "Which redundancy options support the Archive access tier?",
+      "options": [
+        "LRS, ZRS, GRS, RA-GRS",
+        "LRS, GRS, RA-GRS only",
+        "All redundancy options (LRS, ZRS, GRS, GZRS, RA-GRS, RA-GZRS)",
+        "GRS and RA-GRS only"
+      ],
+      "answer": "B",
+      "explanation": "Archive tier supports only LRS, GRS, and RA-GRS. It does NOT support ZRS, GZRS, or RA-GZRS. If you need zone-redundant storage, use an online tier (Hot, Cool, Cold).",
+      "keyPoints": [
+        "Archive = LRS, GRS, RA-GRS",
+        "Archive does NOT support ZRS, GZRS, RA-GZRS",
+        "ZRS = zone redundancy, not available for Archive",
+        "For zone redundancy, use online tiers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers",
+        "az204::blob-storage::redundancy"
+      ]
+    },
+    {
+      "id": "RBS-019",
+      "type": "multi-select",
+      "question": "Which two immutable storage policy types can be applied to Azure Blob Storage? (Select 2)",
+      "options": [
+        "Time-based retention policy",
+        "Encryption-based protection policy",
+        "Legal hold policy",
+        "Geo-replication lock policy"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Two types of immutable storage policies: 1) Time-based retention — protects data for a set period (1 day to 400 years). 2) Legal hold — protects data until you explicitly remove the hold (for legal investigations). Both can be active at the same time on the same data.",
+      "keyPoints": [
+        "Time-based retention = protection for a set period",
+        "Legal hold = protection until explicitly removed",
+        "Both types can be active at the same time",
+        "WORM = Write Once, Read Many"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/immutable-storage-overview",
+      "tags": [
+        "az204::blob-storage::immutable-storage"
+      ]
+    },
+    {
+      "id": "RBS-020",
+      "type": "multi-select",
+      "question": "Which two operations can you perform on a blob in Archive tier WITHOUT rehydrating it? (Select 2)",
+      "options": [
+        "Read the blob content",
+        "Read the blob metadata and properties",
+        "Download the blob to local storage",
+        "List the blob and read its index tags"
+      ],
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "Archive blobs are offline — the content is not accessible. But metadata, properties, index tags, and listing ARE available without rehydration. You CANNOT read or download the blob's actual content.",
+      "keyPoints": [
+        "Metadata = available without rehydration",
+        "Properties = available without rehydration",
+        "Index tags = available without rehydration",
+        "Content = requires rehydration"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers"
+      ]
+    },
+    {
+      "id": "RBS-021",
+      "type": "multi-select",
+      "question": "Which three are valid SAS types in Azure Storage? (Select 3)",
+      "options": [
+        "User delegation SAS",
+        "Service SAS",
+        "Account SAS",
+        "Container SAS"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "Three SAS types: 1) User delegation — signed with Entra ID (most secure, Blob only). 2) Service — signed with account key, access to one service. 3) Account — signed with account key, access to multiple services. 'Container SAS' does not exist as a separate type.",
+      "keyPoints": [
+        "User delegation = Entra ID, most secure",
+        "Service SAS = account key, one service",
+        "Account SAS = account key, multiple services",
+        "Container SAS = NOT a real type"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview",
+      "tags": [
+        "az204::blob-storage::sas"
+      ]
+    },
+    {
+      "id": "RBS-022",
+      "type": "multi-select",
+      "question": "Which two SAS best practices does Microsoft recommend for securing blob access? (Select 2)",
+      "options": [
+        "Use HTTP for better compatibility with older clients",
+        "Set the longest possible expiry for convenience",
+        "Always use HTTPS for creating and distributing SAS tokens",
+        "Prefer user delegation SAS over account key-based SAS"
+      ],
+      "answer": [
+        "C",
+        "D"
+      ],
+      "explanation": "Microsoft recommends: 1) ALWAYS use HTTPS for SAS (protects against interception). 2) Use user delegation SAS instead of account keys (safer). Also: shortest possible expiry, minimum permissions, and stored access policies for revocation.",
+      "keyPoints": [
+        "HTTPS = mandatory for SAS",
+        "User delegation SAS = preferred type",
+        "Shortest possible expiry time",
+        "Least privilege = only the permissions you need"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/common/storage-sas-overview",
+      "tags": [
+        "az204::blob-storage::sas",
+        "az204::blob-storage::security"
+      ]
+    },
+    {
+      "id": "RBS-023",
+      "type": "multi-select",
+      "question": "Which two data protection features together provide the strongest protection against accidental data loss in Blob Storage? (Select 2)",
+      "options": [
+        "Lifecycle management policies",
+        "Blob versioning",
+        "Access tier optimization",
+        "Blob soft delete"
+      ],
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "Versioning + soft delete = maximum protection. Versioning saves previous versions when you overwrite. Soft delete protects versions from being deleted (retention 1-365 days). Together they cover both data loss scenarios.",
+      "keyPoints": [
+        "Versioning = protects against overwrites",
+        "Soft delete = protects against deletion",
+        "Together = maximum data protection",
+        "Lifecycle management = automation, NOT protection"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/versioning-overview",
+      "tags": [
+        "az204::blob-storage::versioning",
+        "az204::blob-storage::soft-delete"
+      ]
+    },
+    {
+      "id": "RBS-024",
+      "type": "multi-select",
+      "question": "Which two authentication methods does AzCopy support for accessing Azure Blob Storage? (Select 2)",
+      "options": [
+        "Storage account name and key pair",
+        "Microsoft Entra ID via azcopy login",
+        "SAS tokens appended to URLs",
+        "SSH keys for secure shell access"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "AzCopy supports two auth methods: 1) Microsoft Entra ID via the 'azcopy login' command. 2) SAS tokens appended to the URL. SSH keys are NOT supported for blob storage.",
+      "keyPoints": [
+        "azcopy login = Entra ID authentication",
+        "SAS tokens = appended to the URL",
+        "SSH keys are NOT supported",
+        "Entra ID = the recommended method"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-v10",
+      "tags": [
+        "az204::blob-storage::azcopy"
+      ]
+    },
+    {
+      "id": "RBS-025",
+      "type": "ordering",
+      "question": "Arrange the steps to upload a blob using the Azure Storage .NET SDK in the correct order.",
+      "orderItems": [
+        "Install Azure.Storage.Blobs and Azure.Identity NuGet packages",
+        "Create a BlobServiceClient with account URI and DefaultAzureCredential",
+        "Get a BlobContainerClient using GetBlobContainerClient()",
+        "Get a BlobClient using GetBlobClient() with the blob name",
+        "Call UploadAsync() with the file path or stream"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "The SDK workflow: 1) Install NuGet packages. 2) Create BlobServiceClient (account level). 3) Get BlobContainerClient (container level). 4) Get BlobClient (blob level). 5) Call UploadAsync to upload the file.",
+      "keyPoints": [
+        "BlobServiceClient > BlobContainerClient > BlobClient",
+        "DefaultAzureCredential = recommended auth method",
+        "UploadAsync accepts file path, Stream, or BinaryData",
+        "overwrite: true to replace an existing blob"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-dotnet-get-started",
+      "tags": [
+        "az204::blob-storage::sdk"
+      ]
+    },
+    {
+      "id": "RBS-026",
+      "type": "ordering",
+      "question": "Arrange the lifecycle management policy actions from hottest to coldest tier transition.",
+      "orderItems": [
+        "tierToCool (move to Cool tier)",
+        "tierToCold (move to Cold tier)",
+        "tierToArchive (move to Archive tier)",
+        "delete (remove the blob)"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "explanation": "Lifecycle policy actions go from hot to cold: tierToCool > tierToCold > tierToArchive > delete. Policies can only move blobs to colder tiers (or delete them). Rehydration (moving to a warmer tier) through lifecycle policy is NOT possible.",
+      "keyPoints": [
+        "Lifecycle = only moves to colder tiers or deletes",
+        "Hot > Cool > Cold > Archive > Delete",
+        "Cannot move to a warmer tier via lifecycle policy",
+        "Condition: daysAfterModificationGreaterThan"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview",
+      "tags": [
+        "az204::blob-storage::lifecycle-management"
+      ]
+    },
+    {
+      "id": "RBS-027",
+      "type": "ordering",
+      "question": "Arrange the blob access tiers from lowest storage cost to highest storage cost.",
+      "orderItems": [
+        "Archive — offline, lowest storage cost",
+        "Cold — rarely accessed, very low storage cost",
+        "Cool — infrequently accessed, low storage cost",
+        "Hot — frequently accessed, highest storage cost"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "explanation": "By storage cost: Archive (cheapest) > Cold > Cool > Hot (most expensive). But for access cost it's the opposite: Archive is most expensive to read, Hot is cheapest. Pick your tier based on how often you access the data.",
+      "keyPoints": [
+        "Storage cost: Archive < Cold < Cool < Hot",
+        "Access cost: Hot < Cool < Cold < Archive",
+        "Archive = offline, needs rehydration",
+        "Minimum retention: Cool=30d, Cold=90d, Archive=180d"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview",
+      "tags": [
+        "az204::blob-storage::access-tiers"
+      ]
+    },
+    {
+      "id": "RBS-028",
+      "type": "code-hotarea",
+      "question": "This C# code attempts to upload a blob using the Azure Storage SDK. Click on the line(s) with errors.",
+      "codeLines": [
+        "using Azure.Storage.Blobs;",
+        "using Azure.Identity;",
+        "",
+        "var serviceClient = new BlobServiceClient(",
+        "    new Uri(\"https://myaccount.blob.core.windows.net\"),",
+        "    new DefaultAzureCredential());",
+        "",
+        "var containerClient = serviceClient.GetBlobClient(\"mycontainer\");",
+        "var blobClient = containerClient.GetBlobClient(\"myfile.txt\");",
+        "await blobClient.UploadAsync(\"localfile.txt\", overwrite: true);"
+      ],
+      "language": "csharp",
+      "answer": [
+        7
+      ],
+      "explanation": "Line 8: serviceClient.GetBlobClient() — WRONG. BlobServiceClient does not have a GetBlobClient() method. The correct call is: serviceClient.GetBlobContainerClient(\"mycontainer\"). The hierarchy is: BlobServiceClient > GetBlobContainerClient() > GetBlobClient().",
+      "keyPoints": [
+        "BlobServiceClient.GetBlobContainerClient() = get a container",
+        "BlobContainerClient.GetBlobClient() = get a blob",
+        "You can't get a BlobClient directly from BlobServiceClient",
+        "Hierarchy: Service > Container > Blob"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-dotnet-get-started",
+      "tags": [
+        "az204::blob-storage::sdk"
+      ]
+    },
+    {
+      "id": "RBS-029",
+      "type": "code-hotarea",
+      "question": "This lifecycle management policy JSON has errors. Click on the line(s) with mistakes.",
+      "codeLines": [
+        "\"rules\": [{",
+        "  \"name\": \"archiveOldData\",",
+        "  \"type\": \"Lifecycle\",",
+        "  \"definition\": {",
+        "    \"actions\": { \"baseBlob\": { \"tierToArchive\": { \"daysAfterCreationGreaterThan\": 90 } } },",
+        "    \"filters\": {",
+        "      \"blobTypes\": [\"appendBlob\"]",
+        "    }",
+        "  }",
+        "}]"
+      ],
+      "language": "json",
+      "answer": [
+        6
+      ],
+      "explanation": "Line 7: blobTypes = appendBlob — ERROR. Append blobs do NOT support access tiers (tierToArchive). Only blockBlob supports tier actions. The correct value is: \"blobTypes\": [\"blockBlob\"].",
+      "keyPoints": [
+        "tierToArchive works ONLY with blockBlob",
+        "appendBlob and pageBlob do not support access tiers",
+        "blobTypes filter controls which blob types the rule applies to",
+        "Lifecycle tier actions = block blobs only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview",
+      "tags": [
+        "az204::blob-storage::lifecycle-management"
+      ]
+    },
+    {
+      "id": "RBS-030",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates a storage account and generates a SAS token. Click on the line(s) with errors.",
+      "codeLines": [
+        "az storage account create --name mystorageacct --resource-group myRG --sku Standard_LRS",
+        "az storage container create --name mycontainer --account-name mystorageacct",
+        "az storage blob generate-sas \\",
+        "  --account-name mystorageacct \\",
+        "  --container-name mycontainer \\",
+        "  --name myfile.txt \\",
+        "  --permissions rw \\",
+        "  --expiry 2025-12-31 \\",
+        "  --auth-mode login"
+      ],
+      "language": "bash",
+      "answer": [
+        8
+      ],
+      "explanation": "Line 9: --auth-mode login is NOT supported for generate-sas. Generating a SAS requires an account key (--account-key) or Entra ID (--as-user for user delegation SAS). The --auth-mode login flag is for data-plane operations, NOT for SAS generation.",
+      "keyPoints": [
+        "generate-sas does NOT support --auth-mode login",
+        "For SAS you need --account-key or --as-user",
+        "--as-user = user delegation SAS (recommended)",
+        "--auth-mode login = for data-plane operations (upload, download)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/storage/blob",
+      "tags": [
+        "az204::blob-storage::sas",
+        "az204::blob-storage::cli"
+      ]
+    }
+  ]
+}
