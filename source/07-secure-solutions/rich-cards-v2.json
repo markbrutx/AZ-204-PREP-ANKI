@@ -1,0 +1,783 @@
+{
+  "domain": "07-secure-solutions",
+  "deckName": "AZ-204-PREP-ANKI::07-Secure Solutions",
+  "cards": [
+    {
+      "id": "RSS-001",
+      "type": "single-choice",
+      "question": "What is Azure Key Vault primarily used for?",
+      "options": [
+        "Hosting web applications with autoscale",
+        "Centrally managing secrets, encryption keys, and certificates",
+        "Storing large binary objects like images and videos",
+        "Managing virtual machine disk encryption policies"
+      ],
+      "answer": "B",
+      "explanation": "Key Vault is a cloud service for securely storing three types of objects: secrets (passwords, connection strings), keys (encryption), and certificates (TLS/SSL). It is NOT hosting, NOT file storage.",
+      "keyPoints": [
+        "Key Vault stores: secrets, keys, certificates",
+        "Secrets are strings up to 25 KB",
+        "Keys are RSA/EC for encryption",
+        "Certificates are X.509 with auto-renewal"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/overview",
+      "tags": ["az204::secure-solutions::key-vault-overview"]
+    },
+    {
+      "id": "RSS-002",
+      "type": "single-choice",
+      "question": "Which Key Vault tier provides HSM-protected keys with FIPS 140-3 Level 3 validation?",
+      "options": [
+        "Free tier",
+        "Standard tier",
+        "Premium tier",
+        "Enterprise tier"
+      ],
+      "answer": "C",
+      "explanation": "Premium tier adds HSM-protected keys (FIPS 140-3 Level 3). Standard tier uses software keys (FIPS 140 Level 1). Free and Enterprise tiers don't exist.",
+      "keyPoints": [
+        "Standard = software keys (FIPS 140 Level 1)",
+        "Premium = HSM keys (FIPS 140-3 Level 3)",
+        "HSM = Hardware Security Module",
+        "Keys never leave the HSM"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/overview",
+      "tags": ["az204::secure-solutions::key-vault-tiers"]
+    },
+    {
+      "id": "RSS-003",
+      "type": "single-choice",
+      "question": "A developer has the Key Vault Contributor RBAC role. Can they read secrets from the vault?",
+      "options": [
+        "Yes, Contributor has full access to all vault operations",
+        "Yes, but only secrets — not keys or certificates",
+        "No, Contributor is a control-plane role and cannot access data",
+        "No, but they can read secrets if purge protection is disabled"
+      ],
+      "answer": "C",
+      "explanation": "Trick question! Key Vault Contributor is a control plane ONLY role (creating/deleting vaults, configuring properties). To read secrets you need a data plane role like Key Vault Secrets User.",
+      "keyPoints": [
+        "Key Vault Contributor = control plane only",
+        "CANNOT read secrets, keys, or certificates",
+        "Data plane needs Key Vault Secrets User/Officer",
+        "Key Vault Administrator = full data plane access"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide",
+      "tags": ["az204::secure-solutions::contributor-gotcha"]
+    },
+    {
+      "id": "RSS-004",
+      "type": "single-choice",
+      "question": "You need to grant an application read-only access to Key Vault secrets. Which built-in RBAC role should you assign?",
+      "options": [
+        "Key Vault Administrator",
+        "Key Vault Secrets Officer",
+        "Key Vault Secrets User",
+        "Key Vault Contributor"
+      ],
+      "answer": "C",
+      "explanation": "Key Vault Secrets User is the read-only role for secrets. Administrator gives full access (overkill). Secrets Officer allows create/delete (also overkill). Contributor is control plane only — no data access at all.",
+      "keyPoints": [
+        "Secrets User = read-only for secrets",
+        "Secrets Officer = full CRUD on secrets",
+        "Administrator = full access to all data plane",
+        "Always follow least privilege!"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide",
+      "tags": ["az204::secure-solutions::key-vault-roles"]
+    },
+    {
+      "id": "RSS-005",
+      "type": "single-choice",
+      "question": "What happens when you switch a Key Vault from access policies to Azure RBAC?",
+      "options": [
+        "Both models work simultaneously during a transition period",
+        "Access policies are preserved as read-only backups",
+        "All existing access policies are immediately invalidated",
+        "Azure automatically converts policies to equivalent RBAC roles"
+      ],
+      "answer": "C",
+      "explanation": "When you switch to RBAC, all access policies STOP working immediately. This can break things if you haven't created equivalent RBAC roles first. You can't use both models at the same time.",
+      "keyPoints": [
+        "Switching to RBAC invalidates all policies instantly",
+        "You can't use both models at the same time",
+        "Create RBAC roles first, then switch",
+        "There is NO automatic migration"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-migration",
+      "tags": ["az204::secure-solutions::rbac-migration"]
+    },
+    {
+      "id": "RSS-006",
+      "type": "multi-select",
+      "question": "Which two access models can be used for Key Vault data plane operations? (Select 2)",
+      "options": [
+        "Azure RBAC",
+        "Key Vault access policies",
+        "Azure Policy assignments",
+        "Network security groups (NSGs)"
+      ],
+      "answer": ["A", "B"],
+      "explanation": "Key Vault data plane supports two options: Azure RBAC (recommended) and access policies (legacy). Azure Policy is for governance, NSG is for network security. Neither controls access to secrets.",
+      "keyPoints": [
+        "RBAC = Microsoft's recommended option",
+        "Access policies = legacy, vault-level only",
+        "RBAC allows scope down to individual objects",
+        "You can't use both at the same time"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide",
+      "tags": ["az204::secure-solutions::rbac-vs-policies"]
+    },
+    {
+      "id": "RSS-007",
+      "type": "single-choice",
+      "question": "What is the default retention period for soft-deleted Key Vault objects?",
+      "options": [
+        "7 days",
+        "30 days",
+        "90 days",
+        "365 days"
+      ],
+      "answer": "C",
+      "explanation": "By default, soft delete keeps deleted objects for 90 days. You can configure it from 7 to 90 days. Soft delete is enabled by default and CANNOT be turned off.",
+      "keyPoints": [
+        "Default = 90 days retention",
+        "Range: 7-90 days",
+        "Soft delete cannot be disabled",
+        "Purge protection — once on, can't be turned off"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/soft-delete-overview",
+      "tags": ["az204::secure-solutions::soft-delete"]
+    },
+    {
+      "id": "RSS-008",
+      "type": "single-choice",
+      "question": "Which NuGet package provides the SecretClient class for interacting with Key Vault secrets in .NET?",
+      "options": [
+        "Azure.Identity",
+        "Azure.Security.KeyVault.Secrets",
+        "Microsoft.Azure.KeyVault",
+        "Azure.Core"
+      ],
+      "answer": "B",
+      "explanation": "Azure.Security.KeyVault.Secrets contains SecretClient for working with secrets. Azure.Identity is for authentication (DefaultAzureCredential). Microsoft.Azure.KeyVault is the old deprecated package. Azure.Core is the base SDK package.",
+      "keyPoints": [
+        "Azure.Security.KeyVault.Secrets = SecretClient",
+        "Azure.Security.KeyVault.Keys = KeyClient",
+        "Azure.Security.KeyVault.Certificates = CertificateClient",
+        "Azure.Identity = authentication"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-net",
+      "tags": ["az204::secure-solutions::key-vault-sdk-packages"]
+    },
+    {
+      "id": "RSS-009",
+      "type": "single-choice",
+      "question": "What happens when you call SetSecretAsync with a secret name that already exists in Key Vault?",
+      "options": [
+        "The operation fails with a ConflictException",
+        "The existing secret is overwritten permanently",
+        "A new version of the secret is created automatically",
+        "You must delete the old secret first"
+      ],
+      "answer": "C",
+      "explanation": "Key Vault automatically creates a NEW VERSION of the secret. The old version is kept and accessible by its version ID. Without specifying a version, the latest one is returned.",
+      "keyPoints": [
+        "SetSecretAsync creates a new version",
+        "Old versions are NOT deleted",
+        "Without version ID → latest version returned",
+        "You can list all versions of a secret"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/secrets/about-secrets",
+      "tags": ["az204::secure-solutions::secret-versioning"]
+    },
+    {
+      "id": "RSS-010",
+      "type": "single-choice",
+      "question": "What is a managed identity in Azure?",
+      "options": [
+        "A username/password pair stored in Key Vault for service authentication",
+        "An identity automatically managed by Azure for passwordless authentication to Entra ID-supported services",
+        "A certificate-based authentication mechanism for on-premises applications",
+        "A shared access signature (SAS) token that rotates automatically"
+      ],
+      "answer": "B",
+      "explanation": "A managed identity is an identity that Azure automatically creates and manages. Your app authenticates without storing passwords in code. Think of it as a passport that Azure issues to your application.",
+      "keyPoints": [
+        "No secrets in code or config",
+        "Azure handles credential rotation automatically",
+        "Only works with services that support Entra ID",
+        "Two types: system-assigned and user-assigned"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+      "tags": ["az204::secure-solutions::managed-identity-overview"]
+    },
+    {
+      "id": "RSS-011",
+      "type": "multi-select",
+      "question": "Which two statements are true about system-assigned managed identity? (Select 2)",
+      "options": [
+        "It is tied to the lifecycle of the parent Azure resource",
+        "It can be shared across multiple Azure resources",
+        "It is deleted when the parent resource is deleted",
+        "It is created as a standalone Azure resource"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "A system-assigned identity is tied to its resource and gets deleted along with it. It CANNOT be shared across resources. User-assigned is the opposite: it's a standalone resource that can be shared.",
+      "keyPoints": [
+        "System-assigned = lifecycle tied to the resource",
+        "Automatically deleted with the resource",
+        "Cannot be shared across resources",
+        "User-assigned = standalone, can be shared"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+      "tags": ["az204::secure-solutions::managed-identity-types"]
+    },
+    {
+      "id": "RSS-012",
+      "type": "single-choice",
+      "question": "Your company has 5 App Services that all need the same identity to access Key Vault. Which managed identity type should you use?",
+      "options": [
+        "System-assigned — one per App Service",
+        "User-assigned — shared across all 5 App Services",
+        "System-assigned with access policy inheritance",
+        "Service principal registered in Entra ID manually"
+      ],
+      "answer": "B",
+      "explanation": "A user-assigned identity can be shared across multiple resources. If 5 App Services need the same identity, user-assigned is the perfect choice. System-assigned can't be shared.",
+      "keyPoints": [
+        "User-assigned = one identity for multiple resources",
+        "System-assigned = one identity per resource",
+        "User-assigned simplifies RBAC management",
+        "Microsoft recommends user-assigned for most scenarios"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+      "tags": ["az204::secure-solutions::managed-identity-types"]
+    },
+    {
+      "id": "RSS-013",
+      "type": "single-choice",
+      "question": "What is DefaultAzureCredential?",
+      "options": [
+        "A hard-coded API key used for local development only",
+        "A credential class that tries multiple auth methods in sequence until one succeeds",
+        "A managed identity type that works only in Azure",
+        "An Azure CLI command for generating access tokens"
+      ],
+      "answer": "B",
+      "explanation": "DefaultAzureCredential is a class from Azure.Identity that tries several authentication methods in order. The same code works both locally (az login) and in Azure (managed identity).",
+      "keyPoints": [
+        "Tries credentials in a chain",
+        "Stops at the first one that works",
+        "Works both locally and in the cloud",
+        "In production, replace with a specific credential"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains",
+      "tags": ["az204::secure-solutions::default-azure-credential"]
+    },
+    {
+      "id": "RSS-014",
+      "type": "ordering",
+      "question": "Arrange the DefaultAzureCredential chain in the correct order it tries credentials.",
+      "orderItems": [
+        "EnvironmentCredential",
+        "WorkloadIdentityCredential",
+        "ManagedIdentityCredential",
+        "AzureCliCredential",
+        "AzurePowerShellCredential"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "DefaultAzureCredential tries credentials in a strict order: first env vars (CI/CD), then Kubernetes workload, then managed identity (Azure), then CLI and PowerShell (local dev).",
+      "keyPoints": [
+        "Environment → Workload → Managed Identity → CLI → PowerShell",
+        "Stops at the first one that succeeds",
+        "VS Code credential is also in the chain (between Managed Identity and CLI)",
+        "The order is fixed and can't be changed"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains",
+      "tags": ["az204::secure-solutions::credential-chain-order"]
+    },
+    {
+      "id": "RSS-015",
+      "type": "ordering",
+      "question": "Arrange the steps to set up passwordless Key Vault access from an App Service.",
+      "orderItems": [
+        "Enable managed identity on the App Service",
+        "Note the principalId returned by identity assignment",
+        "Create an RBAC role assignment (Key Vault Secrets User) for that principalId",
+        "Use DefaultAzureCredential in application code to create SecretClient",
+        "Deploy and verify the app can read secrets"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First enable managed identity, then grab the principalId, grant RBAC access to Key Vault, use DefaultAzureCredential in code, and finally deploy and verify.",
+      "keyPoints": [
+        "Identity → RBAC → Code → Deploy",
+        "DefaultAzureCredential automatically picks up managed identity in Azure",
+        "No secrets need to be stored in code",
+        "Use least privilege when choosing the RBAC role"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-managed-identity",
+      "tags": ["az204::secure-solutions::scenario-app-keyvault"]
+    },
+    {
+      "id": "RSS-016",
+      "type": "multi-select",
+      "question": "Which three environment variables does EnvironmentCredential check for service principal authentication? (Select 3)",
+      "options": [
+        "AZURE_TENANT_ID",
+        "AZURE_CLIENT_ID",
+        "AZURE_SUBSCRIPTION_ID",
+        "AZURE_CLIENT_SECRET"
+      ],
+      "answer": ["A", "B", "D"],
+      "explanation": "EnvironmentCredential checks AZURE_TENANT_ID, AZURE_CLIENT_ID, and AZURE_CLIENT_SECRET. AZURE_SUBSCRIPTION_ID is not needed — authentication happens at the tenant level, not subscription level.",
+      "keyPoints": [
+        "AZURE_TENANT_ID = Azure AD tenant ID",
+        "AZURE_CLIENT_ID = application ID (app registration)",
+        "AZURE_CLIENT_SECRET = service principal secret",
+        "AZURE_SUBSCRIPTION_ID is NOT used for authentication"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains",
+      "tags": ["az204::secure-solutions::environment-credential"]
+    },
+    {
+      "id": "RSS-017",
+      "type": "single-choice",
+      "question": "Why does Microsoft recommend replacing DefaultAzureCredential with a specific credential in production?",
+      "options": [
+        "DefaultAzureCredential does not support managed identity",
+        "DefaultAzureCredential is slower, harder to debug, and can behave unpredictably",
+        "DefaultAzureCredential requires storing secrets in environment variables",
+        "DefaultAzureCredential only works in development environments"
+      ],
+      "answer": "B",
+      "explanation": "DefaultAzureCredential tries all credentials in the chain — that's slower, harder to debug (which one failed?), and env vars on the host could change behavior unexpectedly. In production, use ManagedIdentityCredential directly.",
+      "keyPoints": [
+        "Slower because it tries credentials one by one",
+        "Hard to debug — unclear which credential failed",
+        "Env vars can change behavior unexpectedly",
+        "In production: use ManagedIdentityCredential directly"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains",
+      "tags": ["az204::secure-solutions::production-credentials"]
+    },
+    {
+      "id": "RSS-018",
+      "type": "single-choice",
+      "question": "What is ChainedTokenCredential used for?",
+      "options": [
+        "Chaining multiple Key Vaults together for failover",
+        "Building a custom credential chain with only the credentials you need",
+        "Connecting managed identities across different Azure subscriptions",
+        "Automatically rotating service principal secrets"
+      ],
+      "answer": "B",
+      "explanation": "ChainedTokenCredential is an empty chain where you add ONLY the credentials you need. DefaultAzureCredential = 'remove what you don't need', ChainedTokenCredential = 'add what you need'. More predictable and faster.",
+      "keyPoints": [
+        "Build-up approach vs tear-down in DefaultAzureCredential",
+        "Better performance — fewer credentials in the chain",
+        "More predictable behavior",
+        "Example: new ChainedTokenCredential(ManagedIdentityCredential, AzureCliCredential)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains",
+      "tags": ["az204::secure-solutions::chained-token-credential"]
+    },
+    {
+      "id": "RSS-019",
+      "type": "code-hotarea",
+      "question": "This C# code creates a SecretClient to read a Key Vault secret. Click on the line(s) with errors.",
+      "codeLines": [
+        "using Azure.Identity;",
+        "using Azure.Security.KeyVault.Secrets;",
+        "",
+        "var client = new SecretClient(",
+        "    \"https://myVault.vault.azure.net\",",
+        "    new DefaultAzureCredential());",
+        "",
+        "var secret = await client.GetSecretAsync(\"mySecret\");",
+        "string value = secret.Value;"
+      ],
+      "language": "csharp",
+      "answer": [4, 8],
+      "explanation": "Line 5: SecretClient takes a Uri, not a string. You need new Uri(\"https://myVault.vault.azure.net\"). Line 9: secret.Value returns a KeyVaultSecret object — to get the actual value you need secret.Value.Value.",
+      "keyPoints": [
+        "SecretClient takes Uri, not string",
+        "GetSecretAsync returns Response<KeyVaultSecret>",
+        "secret.Value = KeyVaultSecret, secret.Value.Value = string",
+        "Always use new Uri() for the vault endpoint"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-net",
+      "tags": ["az204::secure-solutions::secret-client-code"]
+    },
+    {
+      "id": "RSS-020",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates a Key Vault and sets a secret. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az keyvault create --name myVault --resource-group myRG",
+        "az keyvault secret set --vault-name myVault --name dbPass --value \"P@ss123\"",
+        "az keyvault secret show --vault-name myVault --name dbPass --query value",
+        "az keyvault secret list --vault-name myVault --output table"
+      ],
+      "language": "bash",
+      "answer": [3],
+      "explanation": "Line 4: the --query parameter is wrong. The secret value lives in the 'value' field, but without -o tsv it outputs a JSON object, which is usually not what you want. The correct way to get the plain value is: --query value -o tsv.",
+      "keyPoints": [
+        "az keyvault secret show returns the full SecretBundle object",
+        "For plain text value: --query value -o tsv",
+        "az keyvault secret set creates or updates a secret",
+        "az keyvault secret list shows metadata, not values"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-cli",
+      "tags": ["az204::secure-solutions::key-vault-cli"]
+    },
+    {
+      "id": "RSS-021",
+      "type": "single-choice",
+      "question": "What is Azure App Configuration used for?",
+      "options": [
+        "Storing sensitive secrets like passwords and API keys",
+        "Centrally managing non-sensitive application settings and feature flags",
+        "Configuring Azure resource deployment templates",
+        "Managing Azure Active Directory application registrations"
+      ],
+      "answer": "B",
+      "explanation": "App Configuration is for NON-secret settings: feature flags, UI settings, connection strings without secrets. For secrets — use Key Vault. App Config can reference Key Vault through Key Vault references.",
+      "keyPoints": [
+        "App Configuration = non-secret settings",
+        "Key Vault = secrets",
+        "App Config + Key Vault = complete solution",
+        "Supports dynamic refresh without restart"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/overview",
+      "tags": ["az204::secure-solutions::app-configuration-overview"]
+    },
+    {
+      "id": "RSS-022",
+      "type": "single-choice",
+      "question": "What is a Key Vault reference in Azure App Configuration?",
+      "options": [
+        "A backup copy of Key Vault data stored in App Configuration",
+        "A special key-value that points to a secret in Key Vault, resolved transparently at read time",
+        "A DNS alias that redirects App Configuration requests to Key Vault",
+        "A shared access policy between App Configuration and Key Vault"
+      ],
+      "answer": "B",
+      "explanation": "A Key Vault reference is a special value in App Configuration that points to a secret in Key Vault. When your app reads it, the SDK automatically fetches the real value from Key Vault. One interface for the app.",
+      "keyPoints": [
+        "It's a reference to a secret, not a copy",
+        "SDK automatically resolves the value from Key Vault",
+        "App only talks to the App Configuration API",
+        "Secrets stay in Key Vault (single source of truth)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/use-key-vault-references-dotnet-core",
+      "tags": ["az204::secure-solutions::keyvault-reference"]
+    },
+    {
+      "id": "RSS-023",
+      "type": "single-choice",
+      "question": "What are labels in Azure App Configuration?",
+      "options": [
+        "Security tags that restrict access to key-value pairs",
+        "Optional tags on key-value pairs to create variants for different environments",
+        "Version numbers automatically assigned to each configuration change",
+        "Metadata required for feature flag evaluation"
+      ],
+      "answer": "B",
+      "explanation": "Labels are optional tags for creating variants of the same key. For example, ConnectionString with label Development and Production gives different values for different environments. Your app loads the label it needs.",
+      "keyPoints": [
+        "Labels = variants of the same key",
+        "Typical use: per-environment settings",
+        "Key: ConnectionString, Label: dev → dev DB",
+        "Key: ConnectionString, Label: prod → prod DB"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/concept-key-value",
+      "tags": ["az204::secure-solutions::app-config-labels"]
+    },
+    {
+      "id": "RSS-024",
+      "type": "multi-select",
+      "question": "Which two are core concepts of feature management in Azure App Configuration? (Select 2)",
+      "options": [
+        "Feature flag — a variable with on/off state",
+        "Feature gateway — a proxy that routes traffic based on features",
+        "Feature filter — a rule that evaluates flag state dynamically",
+        "Feature pipeline — CI/CD integration for deploying flags"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Three core concepts: feature flag (on/off variable), feature manager (lifecycle library), feature filter (evaluation rule — targeting, time window, percentage). Gateway and pipeline are not part of feature management.",
+      "keyPoints": [
+        "Feature flag = on/off variable",
+        "Feature manager = library for lifecycle management",
+        "Feature filter = rule: targeting, time window, percentage",
+        "No redeployment needed — toggle via portal or API"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/concept-feature-management",
+      "tags": ["az204::secure-solutions::feature-management-concepts"]
+    },
+    {
+      "id": "RSS-025",
+      "type": "single-choice",
+      "question": "A company wants to gradually roll out a new feature to 20% of users without redeploying. Which App Configuration feature should they use?",
+      "options": [
+        "Labels with environment-based filtering",
+        "Feature flags with a percentage filter",
+        "Key Vault references with version pinning",
+        "Sentinel keys with dynamic refresh"
+      ],
+      "answer": "B",
+      "explanation": "Feature flags with a percentage filter let you enable a feature for a specific percentage of users. No redeployment needed — just change the percentage in Azure Portal.",
+      "keyPoints": [
+        "Percentage filter = gradual rollout",
+        "Targeting filter = specific users/groups",
+        "Time window filter = scheduled activation",
+        "All without redeployment"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/concept-feature-management",
+      "tags": ["az204::secure-solutions::feature-flags"]
+    },
+    {
+      "id": "RSS-026",
+      "type": "single-choice",
+      "question": "What is the URI format for accessing Key Vault objects?",
+      "options": [
+        "https://{vault-name}.azure.com/{object-type}/{name}",
+        "https://{vault-name}.vault.azure.net/{object-type}/{name}/{version}",
+        "https://vault.azure.com/{vault-name}/{object-type}/{name}",
+        "https://{vault-name}.keyvault.azure.com/{object-type}/{name}"
+      ],
+      "answer": "B",
+      "explanation": "Key Vault URI format: https://{vault-name}.vault.azure.net/{object-type}/{name}/{version}. Object-type can be: secrets, keys, certificates. Version is optional — omit it and you get the latest.",
+      "keyPoints": [
+        "Domain: vault.azure.net",
+        "Object types: secrets, keys, certificates",
+        "Version is optional (latest by default)",
+        "Every object has a unique URI"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/about-keys-secrets-certificates",
+      "tags": ["az204::secure-solutions::key-vault-uri"]
+    },
+    {
+      "id": "RSS-027",
+      "type": "multi-select",
+      "question": "Which two planes does Azure Key Vault use for access control? (Select 2)",
+      "options": [
+        "Control plane (management.azure.com)",
+        "Data plane (vault-name.vault.azure.net)",
+        "Network plane (vault-name.vnet.azure.net)",
+        "Identity plane (vault-name.identity.azure.net)"
+      ],
+      "answer": ["A", "B"],
+      "explanation": "Key Vault has two planes: control plane (managing the vault itself through management.azure.com) and data plane (working with data through vault-name.vault.azure.net). Control plane always uses RBAC, data plane uses RBAC or access policies.",
+      "keyPoints": [
+        "Control plane = creating/deleting vaults, settings",
+        "Data plane = read/write keys, secrets, certificates",
+        "Control plane = ALWAYS Azure RBAC",
+        "Data plane = RBAC or access policies"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide",
+      "tags": ["az204::secure-solutions::key-vault-planes"]
+    },
+    {
+      "id": "RSS-028",
+      "type": "code-hotarea",
+      "question": "This C# code attempts to delete and purge a secret from Key Vault. Click on the line(s) with errors.",
+      "codeLines": [
+        "var client = new SecretClient(",
+        "    new Uri(\"https://myVault.vault.azure.net\"),",
+        "    new DefaultAzureCredential());",
+        "",
+        "await client.DeleteSecretAsync(\"mySecret\");",
+        "",
+        "await client.PurgeDeletedSecretAsync(\"mySecret\");"
+      ],
+      "language": "csharp",
+      "answer": [4],
+      "explanation": "Line 5: DeleteSecretAsync is the wrong method. The correct one is StartDeleteSecretAsync(), which returns an operation. You must wait for it to finish with WaitForCompletionAsync() before purging.",
+      "keyPoints": [
+        "Delete is a two-step process: start + wait",
+        "StartDeleteSecretAsync → WaitForCompletionAsync → PurgeDeletedSecretAsync",
+        "Purging before delete finishes throws an error",
+        "Purge is impossible if purge protection is enabled"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-net",
+      "tags": ["az204::secure-solutions::delete-secret-code"]
+    },
+    {
+      "id": "RSS-029",
+      "type": "single-choice",
+      "question": "You need to enable a system-assigned managed identity on an Azure App Service using CLI. Which command is correct?",
+      "options": [
+        "az webapp identity create --name myApp --resource-group myRG",
+        "az webapp identity assign --name myApp --resource-group myRG",
+        "az webapp managed-identity enable --name myApp --resource-group myRG",
+        "az identity create --name myApp --resource-group myRG"
+      ],
+      "answer": "B",
+      "explanation": "The correct command is: az webapp identity assign. It enables system-assigned identity and returns the principalId. az identity create creates a USER-assigned identity (standalone resource).",
+      "keyPoints": [
+        "az webapp identity assign = system-assigned",
+        "az identity create = user-assigned (standalone)",
+        "Returns principalId for RBAC",
+        "az webapp identity show — check the identity"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-managed-identity",
+      "tags": ["az204::secure-solutions::enable-managed-identity-cli"]
+    },
+    {
+      "id": "RSS-030",
+      "type": "single-choice",
+      "question": "How is a certificate stored internally in Key Vault?",
+      "options": [
+        "As a single encrypted blob in the secrets store",
+        "As a key (public/private) + secret (PFX/PEM) pair, plus certificate metadata",
+        "As three separate secrets: public key, private key, and chain",
+        "As a managed HSM partition with dedicated encryption"
+      ],
+      "answer": "B",
+      "explanation": "Inside Key Vault, a certificate is 1 key (public/private key pair) + 1 secret (PFX/PEM content) + 1 certificate metadata (renewal policy, expiration). Three components, one certificate.",
+      "keyPoints": [
+        "Certificate = key + secret + metadata",
+        "Key = cryptographic operations",
+        "Secret = certificate content (PFX/PEM)",
+        "Metadata = policy, expiration, auto-renew"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/certificates/about-certificates",
+      "tags": ["az204::secure-solutions::certificate-lifecycle"]
+    },
+    {
+      "id": "RSS-031",
+      "type": "ordering",
+      "question": "Arrange the steps to configure an App Service to read settings from Azure App Configuration.",
+      "orderItems": [
+        "Create an App Configuration store in Azure",
+        "Add key-value pairs and feature flags to the store",
+        "Install the App Configuration SDK NuGet package in your app",
+        "Configure the connection in Program.cs using AddAzureAppConfiguration",
+        "Use IConfiguration or IFeatureManager to read values in code"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First create the store, add settings, install the SDK, configure the connection in Program.cs, and use it through the standard IConfiguration or IFeatureManager.",
+      "keyPoints": [
+        "App Config store → settings → SDK → configuration → use",
+        "AddAzureAppConfiguration goes in builder.Configuration",
+        "IFeatureManager for feature flags",
+        "Supports dynamic refresh through sentinel key"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/quickstart-aspnet-core-app",
+      "tags": ["az204::secure-solutions::app-config-setup"]
+    },
+    {
+      "id": "RSS-032",
+      "type": "single-choice",
+      "question": "Which RBAC scope provides the finest granularity for Key Vault access?",
+      "options": [
+        "Subscription level",
+        "Resource group level",
+        "Vault level",
+        "Individual object (specific key, secret, or certificate)"
+      ],
+      "answer": "D",
+      "explanation": "Azure RBAC for Key Vault lets you assign roles at the individual object level (a specific secret, key, or certificate). That's the most granular scope. Access policies only go down to vault level.",
+      "keyPoints": [
+        "RBAC scopes: management group → subscription → RG → vault → object",
+        "Individual object = most granular scope",
+        "Access policies = vault level only",
+        "Best practice: vault scope, one vault per app per environment"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide",
+      "tags": ["az204::secure-solutions::rbac-scope"]
+    },
+    {
+      "id": "RSS-033",
+      "type": "multi-select",
+      "question": "Which two features are benefits of Azure App Configuration over traditional app settings files? (Select 2)",
+      "options": [
+        "Encryption of all stored values with customer-managed keys",
+        "Dynamic configuration refresh without app restart",
+        "Built-in feature flag management with filters",
+        "Automatic secret rotation every 30 days"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "App Configuration gives you dynamic refresh (update settings without restart) and built-in feature flag management with filters (percentage, targeting, time window). Automatic secret rotation is a Key Vault feature, not App Config.",
+      "keyPoints": [
+        "Dynamic refresh = change settings without restart",
+        "Feature flags + filters = built-in functionality",
+        "Point-in-time replay of settings",
+        "Labels for multi-environment support"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-app-configuration/overview",
+      "tags": ["az204::secure-solutions::app-config-benefits"]
+    },
+    {
+      "id": "RSS-034",
+      "type": "code-hotarea",
+      "question": "This C# code configures DefaultAzureCredential with excluded credentials. Click on the line(s) with errors.",
+      "codeLines": [
+        "var options = new DefaultAzureCredentialOptions",
+        "{",
+        "    ExcludeEnvironmentCredential = true,",
+        "    ExcludeManagedIdentityCredential = true,",
+        "    ExcludeAzureCliCredential = false,",
+        "    TenantId = \"my-tenant-id\"",
+        "};",
+        "var credential = new DefaultAzureCredential(options);",
+        "var client = new SecretClient(\"https://vault.vault.azure.net\", credential);"
+      ],
+      "language": "csharp",
+      "answer": [8],
+      "explanation": "Line 9: SecretClient requires a Uri, not a string. Correct: new SecretClient(new Uri(\"https://vault.vault.azure.net\"), credential). The rest of the code is fine — ExcludeEnvironmentCredential and ExcludeManagedIdentityCredential are valid properties.",
+      "keyPoints": [
+        "SecretClient ALWAYS takes Uri, not string",
+        "Exclude* properties are valid for DefaultAzureCredentialOptions",
+        "TenantId is an optional field for specifying a specific tenant",
+        "If you exclude many credentials → use ChainedTokenCredential instead"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/azure/sdk/authentication/credential-chains",
+      "tags": ["az204::secure-solutions::exclude-credentials"]
+    },
+    {
+      "id": "RSS-035",
+      "type": "single-choice",
+      "question": "Your app needs to access both Key Vault secrets and Azure Storage. You want zero credentials in code. What should you use?",
+      "options": [
+        "Store SAS tokens in environment variables",
+        "Use managed identity with RBAC roles on both Key Vault and Storage",
+        "Create a shared access policy linking Key Vault to Storage",
+        "Use certificate-based authentication with PFX files"
+      ],
+      "answer": "B",
+      "explanation": "Managed identity + RBAC is the only way with ZERO secrets in code. Assign an identity to your app, give it RBAC roles on Key Vault (Secrets User) and Storage (Blob Data Reader). DefaultAzureCredential picks it all up automatically.",
+      "keyPoints": [
+        "Managed identity = zero secrets in code",
+        "RBAC roles are assigned per resource separately",
+        "One managed identity can have roles on many resources",
+        "DefaultAzureCredential automatically uses managed identity"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview",
+      "tags": ["az204::secure-solutions::managed-identity-multi-resource"]
+    },
+    {
+      "id": "RSS-036",
+      "type": "ordering",
+      "question": "Arrange the steps to delete and purge a Key Vault secret using the .NET SDK.",
+      "orderItems": [
+        "Call StartDeleteSecretAsync to begin soft-delete",
+        "Call WaitForCompletionAsync to wait for delete operation",
+        "Call PurgeDeletedSecretAsync to permanently remove the secret",
+        "Verify the secret is no longer in the deleted items list"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "Deletion is a two-step process: 1) StartDeleteSecretAsync (soft delete), 2) WaitForCompletionAsync (wait for it to finish), 3) PurgeDeletedSecretAsync (permanent removal), 4) verify.",
+      "keyPoints": [
+        "Delete = soft delete, recoverable",
+        "Purge = permanent, not recoverable",
+        "You must wait between delete and purge",
+        "Purge doesn't work when purge protection is enabled"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-net",
+      "tags": ["az204::secure-solutions::delete-secret-steps"]
+    }
+  ]
+}
