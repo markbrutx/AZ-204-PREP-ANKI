@@ -1,0 +1,755 @@
+{
+  "domain": "09-event-solutions",
+  "deckName": "AZ-204-PREP-ANKI::09-Event Solutions",
+  "cards": [
+    {
+      "id": "RES-001",
+      "type": "single-choice",
+      "question": "Your application needs to react immediately when a new blob is uploaded to Azure Storage. Which Azure service should you use?",
+      "options": [
+        "Azure Event Hubs",
+        "Azure Event Grid",
+        "Azure Service Bus",
+        "Azure Queue Storage"
+      ],
+      "answer": "B",
+      "explanation": "Event Grid is a reactive event-routing service. Azure Storage fires built-in system events (like BlobCreated), and Event Grid delivers them to subscribers instantly. Event Hubs is for streaming big data, and Service Bus is for reliable messaging.",
+      "keyPoints": [
+        "Event Grid = reactive event routing",
+        "Storage has built-in system topics in Event Grid",
+        "Event Hubs = streaming millions of events/sec",
+        "Service Bus = enterprise messaging"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/overview",
+      "tags": [
+        "az204::event-solutions::event-grid-overview"
+      ]
+    },
+    {
+      "id": "RES-002",
+      "type": "single-choice",
+      "question": "What is the maximum event size supported by Azure Event Grid?",
+      "options": [
+        "256 KB",
+        "1 MB",
+        "5 MB",
+        "64 KB"
+      ],
+      "answer": "B",
+      "explanation": "The max event size in Event Grid is 1 MB. Events larger than 64 KB are billed in 64 KB chunks. If your data exceeds 1 MB, store it somewhere else (like Blob Storage) and pass a link in the event instead.",
+      "keyPoints": [
+        "Max event size = 1 MB",
+        "Billing: 64 KB chunks for events > 64 KB",
+        "For large data — pass a link, not the data itself"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/quotas-limits",
+      "tags": [
+        "az204::event-solutions::event-grid-limits"
+      ]
+    },
+    {
+      "id": "RES-003",
+      "type": "single-choice",
+      "question": "Which three types of topics exist in Azure Event Grid?",
+      "options": [
+        "System topics, Custom topics, Partner topics",
+        "Standard topics, Premium topics, Dedicated topics",
+        "Internal topics, External topics, Shared topics",
+        "Public topics, Private topics, Hybrid topics"
+      ],
+      "answer": "A",
+      "explanation": "Event Grid has three topic types: System topics — built-in from Azure services (Storage, Resource Manager). Custom topics — you create them yourself for your own events. Partner topics — from third-party SaaS providers (Auth0, SAP).",
+      "keyPoints": [
+        "System topics = automatic from Azure services",
+        "Custom topics = you create them yourself",
+        "Partner topics = from third-party SaaS providers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/concepts",
+      "tags": [
+        "az204::event-solutions::event-grid-topics"
+      ]
+    },
+    {
+      "id": "RES-004",
+      "type": "single-choice",
+      "question": "What are the default retry settings for Azure Event Grid event delivery?",
+      "options": [
+        "10 attempts, 12 hours TTL",
+        "30 attempts, 24 hours TTL",
+        "5 attempts, 1 hour TTL",
+        "50 attempts, 48 hours TTL"
+      ],
+      "answer": "B",
+      "explanation": "By default, Event Grid retries up to 30 times within 24 hours (1440 minutes). Retries use exponential backoff: 10s → 30s → 1m → 5m → ... → every 12h. Whichever limit hits first (max attempts or TTL) stops the retry cycle.",
+      "keyPoints": [
+        "Max attempts = 30 (configurable 1-30)",
+        "TTL = 1440 minutes / 24 hours (configurable 1-1440)",
+        "Exponential backoff between retries"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry",
+      "tags": [
+        "az204::event-solutions::event-grid-retry"
+      ]
+    },
+    {
+      "id": "RES-005",
+      "type": "single-choice",
+      "question": "Which HTTP status codes cause Event Grid to immediately dead-letter an event without retrying?",
+      "options": [
+        "404 and 503",
+        "400 and 413",
+        "500 and 502",
+        "408 and 429"
+      ],
+      "answer": "B",
+      "explanation": "Event Grid does NOT retry on 400 (Bad Request) and 413 (Payload Too Large) — they go straight to dead-letter. Same for 403 (Forbidden). For webhooks, 401 (Unauthorized) also skips retry. All other errors (404, 408, 500, 503) get retried with backoff.",
+      "keyPoints": [
+        "400, 413, 403 = instant dead-letter",
+        "401 = also dead-letter for webhooks",
+        "404, 500, 503 = retry with backoff"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry",
+      "tags": [
+        "az204::event-solutions::event-grid-no-retry"
+      ]
+    },
+    {
+      "id": "RES-006",
+      "type": "single-choice",
+      "question": "How do you enable dead-lettering for an Event Grid subscription?",
+      "options": [
+        "Set a retry policy with maxDeliveryAttempts = 0",
+        "Enable the dead-letter toggle in the Event Grid topic settings",
+        "Specify a Blob Storage container when creating the event subscription",
+        "Create a dedicated dead-letter queue in Azure Service Bus"
+      ],
+      "answer": "C",
+      "explanation": "Dead-lettering is OFF by default. To turn it on, specify a Blob Storage container when you create the event subscription. Undeliverable events get saved there. Service Bus dead-letter is a completely different mechanism.",
+      "keyPoints": [
+        "Dead-lettering is OFF by default",
+        "Requires a Blob Storage container",
+        "Specified when creating the subscription",
+        "5-minute delay before dead-lettering"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry",
+      "tags": [
+        "az204::event-solutions::event-grid-dead-letter"
+      ]
+    },
+    {
+      "id": "RES-007",
+      "type": "single-choice",
+      "question": "What is an Event Grid domain used for?",
+      "options": [
+        "Routing events between different Azure regions",
+        "Managing up to 100,000 topics for multi-tenant applications",
+        "Encrypting event data with customer-managed keys",
+        "Providing private endpoints for event delivery"
+      ],
+      "answer": "B",
+      "explanation": "An Event Grid domain is a container for managing a large number of related topics (up to 100,000). Perfect for multi-tenant SaaS apps where each customer gets their own topic inside one domain.",
+      "keyPoints": [
+        "Up to 100,000 topics in one domain",
+        "Built for multi-tenant applications",
+        "Single endpoint for publishing events",
+        "Topic is specified in the event body"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/event-domains",
+      "tags": [
+        "az204::event-solutions::event-grid-domains"
+      ]
+    },
+    {
+      "id": "RES-008",
+      "type": "single-choice",
+      "question": "Which event schema format is the CNCF open standard supported by Azure Event Grid?",
+      "options": [
+        "Event Grid schema",
+        "CloudEvents 1.0 schema",
+        "AMQP schema",
+        "OpenTelemetry schema"
+      ],
+      "answer": "B",
+      "explanation": "CloudEvents 1.0 is an open standard from CNCF for describing events. Event Grid supports both its own proprietary format (Event Grid schema) and CloudEvents. CloudEvents is better for interoperability across different systems.",
+      "keyPoints": [
+        "CloudEvents 1.0 = open CNCF standard",
+        "Event Grid schema = Microsoft's proprietary format",
+        "CloudEvents is better for cross-system compatibility",
+        "Core fields: id, source, type, time, data"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/cloud-event-schema",
+      "tags": [
+        "az204::event-solutions::event-grid-schemas"
+      ]
+    },
+    {
+      "id": "RES-009",
+      "type": "single-choice",
+      "question": "What is the maximum number of advanced filters per Event Grid subscription?",
+      "options": [
+        "5",
+        "10",
+        "25",
+        "50"
+      ],
+      "answer": "C",
+      "explanation": "You can have up to 25 advanced filters per Event Grid subscription. Advanced filters let you filter on event data fields using operators like StringContains, NumberGreaterThan, BoolEquals. Multiple filters = AND logic, multiple values in one filter = OR logic.",
+      "keyPoints": [
+        "Max 25 advanced filters per subscription",
+        "Operators: StringContains, NumberGreaterThan, BoolEquals, etc.",
+        "Multiple filters = AND",
+        "Multiple values = OR"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/event-filtering",
+      "tags": [
+        "az204::event-solutions::event-grid-filtering"
+      ]
+    },
+    {
+      "id": "RES-010",
+      "type": "single-choice",
+      "question": "You need to process millions of IoT device telemetry events per second and store them for later batch analysis. Which Azure service should you use?",
+      "options": [
+        "Azure Event Grid",
+        "Azure Service Bus",
+        "Azure Event Hubs",
+        "Azure Queue Storage"
+      ],
+      "answer": "C",
+      "explanation": "Event Hubs is a big data streaming platform that handles millions of events per second. Capture automatically saves data to Blob/Data Lake for batch analytics. Event Grid is for discrete events, not data streams.",
+      "keyPoints": [
+        "Event Hubs = millions of events/sec",
+        "Capture = automatic save to Storage",
+        "Default format = Avro",
+        "Event Grid is not built for streaming"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about",
+      "tags": [
+        "az204::event-solutions::event-hubs-overview"
+      ]
+    },
+    {
+      "id": "RES-011",
+      "type": "single-choice",
+      "question": "What is the throughput capacity of a single throughput unit (TU) in Azure Event Hubs Standard tier?",
+      "options": [
+        "1 MB/s ingress, 1 MB/s egress",
+        "1 MB/s ingress, 2 MB/s egress",
+        "2 MB/s ingress, 4 MB/s egress",
+        "5 MB/s ingress, 10 MB/s egress"
+      ],
+      "answer": "B",
+      "explanation": "One throughput unit (TU) in Standard tier gives you: 1 MB/s ingress (incoming), 2 MB/s egress (outgoing), up to 1,000 events/sec ingress. Need more? Add more TUs or turn on auto-inflate.",
+      "keyPoints": [
+        "1 TU = 1 MB/s in, 2 MB/s out",
+        "1,000 events/sec per TU",
+        "Auto-inflate scales TUs up automatically",
+        "Premium tier uses Processing Units instead of TUs"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-quotas",
+      "tags": [
+        "az204::event-solutions::event-hubs-throughput"
+      ]
+    },
+    {
+      "id": "RES-012",
+      "type": "single-choice",
+      "question": "What happens to events in Azure Event Hubs when no partition key is specified by the producer?",
+      "options": [
+        "Events are rejected with an error",
+        "Events go to partition 0 by default",
+        "Events are distributed round-robin across all partitions",
+        "Events are stored in a separate overflow queue"
+      ],
+      "answer": "C",
+      "explanation": "Without a partition key, events are spread round-robin across all partitions. This gives even load distribution but no ordering guarantee. With a partition key, all events sharing the same key go to the same partition, preserving order.",
+      "keyPoints": [
+        "No key = round-robin, no ordering guarantee",
+        "With key = hash determines partition, order preserved",
+        "Avoid sending directly to a specific partition — reduces availability"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-features",
+      "tags": [
+        "az204::event-solutions::event-hubs-partitions"
+      ]
+    },
+    {
+      "id": "RES-013",
+      "type": "single-choice",
+      "question": "What is the default consumer group that exists in every Azure Event Hub?",
+      "options": [
+        "$System",
+        "$Default",
+        "$Root",
+        "$Primary"
+      ],
+      "answer": "B",
+      "explanation": "$Default is the consumer group created automatically in every Event Hub. Each consumer group has its own read position (offset). Best practice: create a separate consumer group for each application.",
+      "keyPoints": [
+        "$Default is created automatically",
+        "Consumer group = independent view of the stream",
+        "Each group tracks its own offset",
+        "One active reader per partition per group (with epoch)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-features",
+      "tags": [
+        "az204::event-solutions::event-hubs-consumer-groups"
+      ]
+    },
+    {
+      "id": "RES-014",
+      "type": "single-choice",
+      "question": "What storage service does the EventProcessorClient use for checkpointing in Azure Event Hubs?",
+      "options": [
+        "Azure Table Storage",
+        "Azure Cosmos DB",
+        "Azure Blob Storage",
+        "Azure Redis Cache"
+      ],
+      "answer": "C",
+      "explanation": "EventProcessorClient uses Azure Blob Storage to store checkpoints (read positions). Each checkpoint = the offset of the last processed event in a partition. Best practice: use a separate container for each consumer group.",
+      "keyPoints": [
+        "Checkpoint store = Blob Storage",
+        "Separate container per consumer group",
+        "EventProcessorClient = recommended SDK class",
+        "Automatically distributes partitions across instances"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-processor-balance-partition-load",
+      "tags": [
+        "az204::event-solutions::event-hubs-checkpointing"
+      ]
+    },
+    {
+      "id": "RES-015",
+      "type": "single-choice",
+      "question": "What is the default output format when Event Hubs Capture saves streaming data to storage?",
+      "options": [
+        "JSON",
+        "CSV",
+        "Avro",
+        "Parquet"
+      ],
+      "answer": "C",
+      "explanation": "Event Hubs Capture saves data in Avro format by default. Avro is a compact binary format with a built-in schema. Parquet is available through the Stream Analytics no-code editor. Capture runs in parallel with real-time processing.",
+      "keyPoints": [
+        "Default format = Avro",
+        "Parquet = via Stream Analytics",
+        "Saves to Blob Storage or Data Lake",
+        "Does not affect real-time consumers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-capture-overview",
+      "tags": [
+        "az204::event-solutions::event-hubs-capture"
+      ]
+    },
+    {
+      "id": "RES-016",
+      "type": "single-choice",
+      "question": "What is the maximum data retention period for Azure Event Hubs Standard tier?",
+      "options": [
+        "1 day",
+        "7 days",
+        "30 days",
+        "90 days"
+      ],
+      "answer": "B",
+      "explanation": "Standard tier keeps data for up to 7 days. Premium and Dedicated go up to 90 days. Need longer storage? Use Capture to automatically archive data to Blob Storage or Data Lake.",
+      "keyPoints": [
+        "Standard = up to 7 days",
+        "Premium/Dedicated = up to 90 days",
+        "Capture = unlimited storage in Storage"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-faq",
+      "tags": [
+        "az204::event-solutions::event-hubs-tiers"
+      ]
+    },
+    {
+      "id": "RES-017",
+      "type": "single-choice",
+      "question": "Your existing Apache Kafka application needs to migrate to Azure. Which Azure service provides native Kafka protocol support with zero code changes?",
+      "options": [
+        "Azure Service Bus",
+        "Azure Event Grid",
+        "Azure Event Hubs",
+        "Azure Stream Analytics"
+      ],
+      "answer": "C",
+      "explanation": "Event Hubs natively supports the Apache Kafka protocol. Existing Kafka apps can connect to Event Hubs just by changing the bootstrap server — zero code changes needed. Kafka topic = Event Hub, Kafka partition = partition.",
+      "keyPoints": [
+        "Native Kafka protocol support",
+        "Zero code changes — just update configuration",
+        "Kafka topic → Event Hub",
+        "No need to manage a Kafka cluster"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/azure-event-hubs-kafka-overview",
+      "tags": [
+        "az204::event-solutions::event-hubs-kafka"
+      ]
+    },
+    {
+      "id": "RES-018",
+      "type": "single-choice",
+      "question": "What does auto-inflate do in Azure Event Hubs Standard tier?",
+      "options": [
+        "Automatically adds more partitions when needed",
+        "Automatically scales up throughput units when traffic exceeds capacity",
+        "Automatically compresses events to reduce storage",
+        "Automatically creates new consumer groups for load balancing"
+      ],
+      "answer": "B",
+      "explanation": "Auto-inflate automatically increases the number of throughput units (TUs) when traffic grows. You set a maximum TU limit. Important: auto-inflate only scales UP, never down. For flexible scaling in both directions, use Premium tier.",
+      "keyPoints": [
+        "Scales TUs up automatically",
+        "Does NOT scale down",
+        "You set the maximum TU limit",
+        "Standard tier only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-auto-inflate",
+      "tags": [
+        "az204::event-solutions::event-hubs-auto-inflate"
+      ]
+    },
+    {
+      "id": "RES-019",
+      "type": "multi-select",
+      "question": "Which two Azure services use a push-based delivery model? (Select 2)",
+      "options": [
+        "Azure Event Grid",
+        "Azure Event Hubs",
+        "Azure Service Bus",
+        "Azure Queue Storage"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Event Grid is push-based: it delivers events to subscribers automatically. Service Bus also supports push via auto-forwarding and triggers. Event Hubs is pull-based: consumers read data from partitions themselves. Queue Storage is pull-based: the client polls for messages.",
+      "keyPoints": [
+        "Event Grid = push-based pub/sub",
+        "Service Bus = supports push via subscriptions",
+        "Event Hubs = pull-based streaming",
+        "Queue Storage = pull-based queue"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/compare-messaging-services",
+      "tags": [
+        "az204::event-solutions::comparison"
+      ]
+    },
+    {
+      "id": "RES-020",
+      "type": "multi-select",
+      "question": "Which two Event Grid features help filter events in a subscription? (Select 2)",
+      "options": [
+        "Subject filtering with beginsWith/endsWith",
+        "Partition key filtering",
+        "Advanced filtering on data fields",
+        "Consumer group filtering"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Event Grid supports subject filtering (subjectBeginsWith/subjectEndsWith) and advanced filtering on data fields (StringContains, NumberGreaterThan, etc.). Partition key and consumer group are Event Hubs concepts, not Event Grid.",
+      "keyPoints": [
+        "Subject filtering = by beginning/end of the subject string",
+        "Advanced filtering = on data fields (up to 25 filters)",
+        "Third type = event type filtering",
+        "Partition key and consumer group = Event Hubs"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/event-filtering",
+      "tags": [
+        "az204::event-solutions::event-grid-filtering"
+      ]
+    },
+    {
+      "id": "RES-021",
+      "type": "multi-select",
+      "question": "Which two statements about Azure Event Hubs partitions are correct? (Select 2)",
+      "options": [
+        "Partition count can be increased after creation",
+        "Partition count can be decreased after creation",
+        "Events with the same partition key go to the same partition",
+        "Each partition supports 2 MB/s ingress and 4 MB/s egress"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Events with the same partition key always land in the same partition (via hashing). You can increase the partition count (Premium/Dedicated), but you can never decrease it. One partition handles roughly 1 MB/s ingress and 2 MB/s egress.",
+      "keyPoints": [
+        "Partition key → hash → specific partition",
+        "Can increase, cannot decrease partition count",
+        "1 partition ≈ 1 MB/s in, 2 MB/s out",
+        "More partitions = more parallel consumers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-features",
+      "tags": [
+        "az204::event-solutions::event-hubs-partitions"
+      ]
+    },
+    {
+      "id": "RES-022",
+      "type": "multi-select",
+      "question": "Which two protocols does Azure Event Hubs support for BOTH sending AND receiving events? (Select 2)",
+      "options": [
+        "HTTPS",
+        "AMQP 1.0",
+        "Apache Kafka",
+        "WebSocket"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "AMQP 1.0 and Apache Kafka both support sending and receiving events. HTTPS supports sending only — you cannot receive events via HTTPS. WebSocket is used as a transport layer for AMQP, not as a standalone protocol.",
+      "keyPoints": [
+        "AMQP 1.0 = send + receive, high performance",
+        "Apache Kafka = send + receive, native compatibility",
+        "HTTPS = send only, no receive",
+        "AMQP over WebSocket available for firewalls"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-features",
+      "tags": [
+        "az204::event-solutions::event-hubs-protocols"
+      ]
+    },
+    {
+      "id": "RES-023",
+      "type": "multi-select",
+      "question": "Which two are valid event handlers (destinations) for Azure Event Grid subscriptions? (Select 2)",
+      "options": [
+        "Azure Functions",
+        "Azure Cosmos DB",
+        "Azure Event Hubs",
+        "Azure Redis Cache"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Event Grid can deliver events to Azure Functions, Event Hubs, Service Bus, Storage Queues, Webhooks, and Relay Hybrid Connections. Cosmos DB and Redis Cache are NOT supported Event Grid handlers.",
+      "keyPoints": [
+        "Handlers: Functions, Event Hubs, Service Bus, Webhooks",
+        "Also: Storage Queues, Relay Hybrid Connections",
+        "Cosmos DB and Redis = NOT Event Grid handlers",
+        "Webhook = any HTTP endpoint"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/event-handlers",
+      "tags": [
+        "az204::event-solutions::event-grid-handlers"
+      ]
+    },
+    {
+      "id": "RES-024",
+      "type": "multi-select",
+      "question": "Which two Event Hubs tiers support data retention up to 90 days? (Select 2)",
+      "options": [
+        "Basic",
+        "Standard",
+        "Premium",
+        "Dedicated"
+      ],
+      "answer": [
+        "C",
+        "D"
+      ],
+      "explanation": "Premium and Dedicated tiers support data retention up to 90 days. Standard goes up to 7 days. Basic goes up to 1 day. For long-term storage, use Capture to archive into Blob Storage or Data Lake.",
+      "keyPoints": [
+        "Basic = up to 1 day",
+        "Standard = up to 7 days",
+        "Premium = up to 90 days",
+        "Dedicated = up to 90 days"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-quotas",
+      "tags": [
+        "az204::event-solutions::event-hubs-tiers"
+      ]
+    },
+    {
+      "id": "RES-025",
+      "type": "ordering",
+      "question": "Arrange the steps to create a custom Event Grid topic and subscribe to events in the correct order.",
+      "orderItems": [
+        "Create a resource group",
+        "Create a custom Event Grid topic",
+        "Create an event handler endpoint (e.g., Azure Function)",
+        "Create an event subscription linking topic to handler",
+        "Publish events to the custom topic endpoint"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "First, create a resource group. Then create a Custom Topic in Event Grid. Next, set up a handler (Function/Webhook). Then create a subscription (links the topic to the handler). Finally, publish events to the topic endpoint.",
+      "keyPoints": [
+        "Custom topic must exist before the subscription",
+        "Handler must exist before creating the subscription",
+        "Subscription = link between topic and handler",
+        "Events are published via POST request to the topic endpoint"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/custom-event-quickstart",
+      "tags": [
+        "az204::event-solutions::event-grid-custom-topics"
+      ]
+    },
+    {
+      "id": "RES-026",
+      "type": "ordering",
+      "question": "Arrange the steps for Event Grid event delivery and retry flow in the correct order.",
+      "orderItems": [
+        "Event is published to Event Grid topic",
+        "Event Grid matches event to subscription filters",
+        "Event Grid attempts delivery to subscriber endpoint",
+        "If delivery fails, retry with exponential backoff",
+        "After max retries or TTL expiry, dead-letter to Blob Storage"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "Event is published → Event Grid checks subscription filters → delivers to matching subscribers → on failure, retries with exponential backoff → after all attempts or TTL exhausted, dead-letters to Blob Storage (if configured).",
+      "keyPoints": [
+        "Filtering happens BEFORE delivery",
+        "Retry = exponential backoff",
+        "Dead-lettering must be enabled separately",
+        "Without dead-letter — events are simply lost"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/delivery-and-retry",
+      "tags": [
+        "az204::event-solutions::event-grid-delivery-flow"
+      ]
+    },
+    {
+      "id": "RES-027",
+      "type": "ordering",
+      "question": "Arrange the steps to set up Event Hubs Capture for archiving streaming data.",
+      "orderItems": [
+        "Create an Event Hubs namespace",
+        "Create an event hub within the namespace",
+        "Create a Blob Storage account or Data Lake Storage",
+        "Enable Capture on the event hub and specify the storage destination",
+        "Configure time window and size window for Capture batches"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "First create the namespace, then the event hub inside it, then storage for the archive, enable Capture and point it to the storage, configure the time and size windows. Capture runs automatically once enabled.",
+      "keyPoints": [
+        "Namespace → Event Hub → Storage → Enable Capture",
+        "Time window = how often to create a file",
+        "Size window = max file size",
+        "Default format = Avro"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-capture-overview",
+      "tags": [
+        "az204::event-solutions::event-hubs-capture-setup"
+      ]
+    },
+    {
+      "id": "RES-028",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates an Event Grid custom topic and publishes an event. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az eventgrid topic create --name myTopic --resource-group myRG --location eastus",
+        "topicEndpoint=$(az eventgrid topic show --name myTopic --resource-group myRG --query endpoint --output tsv)",
+        "topicKey=$(az eventgrid topic key list --name myTopic --resource-group myRG --query key1 --output tsv)",
+        "az eventgrid event publish \\",
+        "  --topic-endpoint $topicEndpoint \\",
+        "  --topic-key $topicKey \\",
+        "  --subject \"myapp/vehicles/cars\" \\",
+        "  --event-type \"recordInserted\" \\",
+        "  --data '{\"make\":\"Toyota\",\"model\":\"Camry\"}'"
+      ],
+      "language": "bash",
+      "answer": [
+        4
+      ],
+      "explanation": "Line 5: the command az eventgrid event publish does NOT exist. To publish events to a custom topic, you need to send an HTTP POST request to the topic endpoint (using curl or an SDK). Azure CLI has no command for publishing events directly.",
+      "keyPoints": [
+        "az eventgrid does NOT have a publish command",
+        "Publishing = HTTP POST to the topic endpoint",
+        "Access key goes in the aeg-sas-key header",
+        "Request body = array of events in Event Grid schema"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/post-to-custom-topic",
+      "tags": [
+        "az204::event-solutions::event-grid-cli"
+      ]
+    },
+    {
+      "id": "RES-029",
+      "type": "code-hotarea",
+      "question": "This C# code sends events to Azure Event Hubs. Click on the line(s) with errors.",
+      "codeLines": [
+        "using Azure.Messaging.EventHubs;",
+        "using Azure.Messaging.EventHubs.Producer;",
+        "",
+        "await using var producer = new EventHubProducerClient(connStr, \"myeventhub\");",
+        "using EventDataBatch batch = await producer.CreateBatchAsync();",
+        "",
+        "batch.TryAdd(new EventData(\"Hello Event 1\"));",
+        "batch.TryAdd(new EventData(\"Hello Event 2\"));",
+        "",
+        "await producer.PublishAsync(batch);"
+      ],
+      "language": "csharp",
+      "answer": [
+        9
+      ],
+      "explanation": "Line 10: the method PublishAsync does NOT exist on EventHubProducerClient. The correct method is SendAsync(batch). This is the most common mistake when working with the Event Hubs SDK.",
+      "keyPoints": [
+        "Correct method = SendAsync, not PublishAsync",
+        "await using = automatic DisposeAsync",
+        "TryAdd returns bool — if false, the batch is full",
+        "CreateBatchAsync can take BatchOptions with PartitionKey"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-dotnet-standard-getstarted-send",
+      "tags": [
+        "az204::event-solutions::event-hubs-sdk"
+      ]
+    },
+    {
+      "id": "RES-030",
+      "type": "code-hotarea",
+      "question": "This C# code processes events from Azure Event Hubs using EventProcessorClient. Click on the line(s) with errors.",
+      "codeLines": [
+        "using Azure.Messaging.EventHubs;",
+        "using Azure.Messaging.EventHubs.Processor;",
+        "var blobClient = new BlobContainerClient(storageConnStr, \"checkpoints\");",
+        "var processor = new EventProcessorClient(blobClient, \"$Default\", ehConnStr, \"myeventhub\");",
+        "processor.ProcessEventAsync += async (args) => {",
+        "    Console.WriteLine(args.Data.EventBody.ToString());",
+        "    await args.UpdateCheckpointAsync(args.CancellationToken);",
+        "};",
+        "await processor.StartProcessingAsync();"
+      ],
+      "language": "csharp",
+      "answer": [
+        8
+      ],
+      "explanation": "Line 9: StartProcessingAsync starts processing, but there is no ProcessErrorAsync handler. EventProcessorClient REQUIRES both handlers: ProcessEventAsync AND ProcessErrorAsync. Without ProcessErrorAsync, you get an exception on startup.",
+      "keyPoints": [
+        "Required: ProcessEventAsync + ProcessErrorAsync",
+        "Without ProcessErrorAsync — exception on StartProcessingAsync",
+        "Checkpoints stored in Blob Storage",
+        "StopProcessingAsync needed for graceful shutdown"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-dotnet-standard-getstarted-send",
+      "tags": [
+        "az204::event-solutions::event-hubs-processor"
+      ]
+    }
+  ]
+}
