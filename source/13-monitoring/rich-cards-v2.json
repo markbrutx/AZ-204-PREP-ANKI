@@ -1,0 +1,756 @@
+{
+  "domain": "13-monitoring",
+  "deckName": "AZ-204-PREP-ANKI::13-Monitoring",
+  "cards": [
+    {
+      "id": "RMON-001",
+      "type": "single-choice",
+      "question": "What is Application Insights in Azure?",
+      "options": [
+        "A standalone monitoring product separate from Azure Monitor",
+        "A feature of Azure Monitor that provides Application Performance Monitoring (APM)",
+        "A logging service that replaces Log Analytics",
+        "A metrics-only dashboard for Azure resources"
+      ],
+      "answer": "B",
+      "explanation": "Application Insights is a feature inside Azure Monitor that gives you APM (Application Performance Monitoring). It's NOT a separate product — it's part of Azure Monitor.",
+      "keyPoints": [
+        "Application Insights = part of Azure Monitor",
+        "APM = Application Performance Monitoring",
+        "Collects telemetry: requests, dependencies, exceptions, traces"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview",
+      "tags": ["az204::monitoring::app-insights-overview"]
+    },
+    {
+      "id": "RMON-002",
+      "type": "single-choice",
+      "question": "You are setting up Application Insights for a new .NET web application. Which value should you use to connect your app to the Application Insights resource?",
+      "options": [
+        "Instrumentation key only",
+        "Connection string (contains instrumentation key + ingestion endpoint)",
+        "Azure subscription ID",
+        "Log Analytics workspace ID"
+      ],
+      "answer": "B",
+      "explanation": "Connection string is the modern way to connect. It contains the instrumentation key + endpoint URL. The old way (instrumentation key alone) is legacy.",
+      "keyPoints": [
+        "Connection string = the modern approach",
+        "Contains InstrumentationKey + IngestionEndpoint",
+        "Supports private endpoints and sovereign clouds",
+        "Instrumentation key alone = legacy"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string",
+      "tags": ["az204::monitoring::connection-string"]
+    },
+    {
+      "id": "RMON-003",
+      "type": "multi-select",
+      "question": "Which two methods can you use to enable Application Insights for your application? (Select 2)",
+      "options": [
+        "Auto-instrumentation (codeless) via Azure portal",
+        "Manual instrumentation using SDK or OpenTelemetry Distro",
+        "Installing Azure CLI extension on the server",
+        "Enabling diagnostic settings on the subscription"
+      ],
+      "answer": ["A", "B"],
+      "explanation": "Two ways to enable App Insights: 1) Auto-instrumentation (no code changes) — you turn it on in the portal. 2) Manual — you add the SDK or OpenTelemetry Distro to your code. CLI extensions and diagnostic settings have nothing to do with App Insights instrumentation.",
+      "keyPoints": [
+        "Auto-instrumentation = no code changes needed",
+        "Manual = SDK/OpenTelemetry Distro in your code",
+        "Auto works for App Service, Functions, VMs",
+        "Manual gives you full control over telemetry"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/codeless-overview",
+      "tags": ["az204::monitoring::instrumentation"]
+    },
+    {
+      "id": "RMON-004",
+      "type": "multi-select",
+      "question": "Which three are telemetry types collected by Application Insights? (Select 3)",
+      "options": [
+        "Requests (incoming HTTP calls)",
+        "Dependencies (outgoing calls to SQL, HTTP, Redis)",
+        "Subscriptions (Azure subscription events)",
+        "Exceptions (unhandled and tracked errors)"
+      ],
+      "answer": ["A", "B", "D"],
+      "explanation": "App Insights collects 6 telemetry types: Requests, Dependencies, Exceptions, Traces, Custom Events, Metrics. Subscriptions is NOT an App Insights telemetry type.",
+      "keyPoints": [
+        "Requests = incoming HTTP calls",
+        "Dependencies = outgoing calls (SQL, HTTP, Redis)",
+        "Exceptions = errors with stack traces",
+        "Also: Traces, Custom Events, Metrics"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/data-model-complete",
+      "tags": ["az204::monitoring::telemetry-types"]
+    },
+    {
+      "id": "RMON-005",
+      "type": "single-choice",
+      "question": "A developer wants to track a custom business event called 'UserPurchase' with properties and metrics. Which TelemetryClient method should they use?",
+      "options": [
+        "TrackTrace(\"UserPurchase\")",
+        "TrackEvent(\"UserPurchase\", properties, metrics)",
+        "TrackMetric(\"UserPurchase\", value)",
+        "TrackDependency(\"UserPurchase\", ...)"
+      ],
+      "answer": "B",
+      "explanation": "TrackEvent is the method for tracking custom business events. It takes an event name + a properties dictionary (strings) + a metrics dictionary (numbers). TrackTrace is for logs, TrackMetric is for numeric metrics, TrackDependency is for external calls.",
+      "keyPoints": [
+        "TrackEvent = business events (UserPurchase, OrderPlaced)",
+        "Properties = Dictionary<string, string> for filtering",
+        "Metrics = Dictionary<string, double> for aggregation",
+        "TrackTrace = diagnostic logs"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics",
+      "tags": ["az204::monitoring::track-event"]
+    },
+    {
+      "id": "RMON-006",
+      "type": "code-hotarea",
+      "question": "This C# code tracks a custom event with TelemetryClient. Find the line with an error.",
+      "codeLines": [
+        "var client = new TelemetryClient(config);",
+        "var properties = new Dictionary<string, string>",
+        "{ { \"ItemId\", \"12345\" } };",
+        "var metrics = new Dictionary<string, string>",
+        "{ { \"Price\", \"19.99\" } };",
+        "client.TrackEvent(\"UserPurchase\", properties, metrics);"
+      ],
+      "language": "csharp",
+      "answer": [3, 4],
+      "explanation": "Lines 4-5: metrics must be Dictionary<string, double>, not Dictionary<string, string>. The value should be the number 19.99, not the string \"19.99\". TrackEvent expects metrics as Dictionary<string, double>.",
+      "keyPoints": [
+        "Properties = Dictionary<string, string>",
+        "Metrics = Dictionary<string, double>",
+        "Metric values are numbers, not strings",
+        "TrackEvent(name, properties, metrics)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics",
+      "tags": ["az204::monitoring::track-event-code"]
+    },
+    {
+      "id": "RMON-007",
+      "type": "single-choice",
+      "question": "Why must you call Flush() on TelemetryClient in console apps and Azure Functions?",
+      "options": [
+        "To compress telemetry data before sending",
+        "To encrypt telemetry before transmission",
+        "To send buffered telemetry before the process exits",
+        "To clear the local telemetry cache for privacy"
+      ],
+      "answer": "C",
+      "explanation": "TelemetryClient buffers data and sends it in batches. In console apps and Functions, the process can exit before the buffer is sent. Flush() forces everything in the buffer to be sent right away. After Flush(), wait ~5 seconds for transmission to complete.",
+      "keyPoints": [
+        "TelemetryClient buffers data in batches",
+        "In web apps, the host flushes automatically on shutdown",
+        "In console apps/Functions — you need manual Flush()",
+        "After Flush() — Task.Delay(5000).Wait()"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics",
+      "tags": ["az204::monitoring::flush"]
+    },
+    {
+      "id": "RMON-008",
+      "type": "single-choice",
+      "question": "What does the Application Map in Application Insights display?",
+      "options": [
+        "A geographic map of user locations accessing the app",
+        "A visual diagram of application components and calls between them",
+        "A network topology of Azure virtual networks",
+        "A deployment history timeline of the application"
+      ],
+      "answer": "B",
+      "explanation": "Application Map is a visual diagram of all components in a distributed application and the calls between them. Each node is a component (identified by cloud_RoleName). Red lines mean failures.",
+      "keyPoints": [
+        "Shows components and connections between them",
+        "Uses cloud_RoleName for identification",
+        "Red lines = failures",
+        "Helps find bottlenecks and hotspots"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-map",
+      "tags": ["az204::monitoring::application-map"]
+    },
+    {
+      "id": "RMON-009",
+      "type": "single-choice",
+      "question": "What is the key characteristic of Live Metrics in Application Insights?",
+      "options": [
+        "It stores metrics for 90 days with 1-minute granularity",
+        "It shows real-time performance data with ~1 second latency",
+        "It replaces Azure Monitor Metrics for all resources",
+        "It requires a Premium Application Insights plan"
+      ],
+      "answer": "B",
+      "explanation": "Live Metrics (Live Metrics Stream) is a real-time dashboard with ~1 second latency. It shows request rate, failures, dependencies, CPU/memory. It does NOT affect app performance — it uses a separate lightweight channel.",
+      "keyPoints": [
+        "Latency is ~1 second",
+        "Does not affect app performance",
+        "Shows requests, failures, CPU, memory",
+        "Great for monitoring deployments and incidents"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/live-stream",
+      "tags": ["az204::monitoring::live-metrics"]
+    },
+    {
+      "id": "RMON-010",
+      "type": "single-choice",
+      "question": "You need to check if your web application is accessible from multiple geographic locations. Which Application Insights feature should you use?",
+      "options": [
+        "Smart Detection",
+        "Availability tests",
+        "Application Map",
+        "Live Metrics Stream"
+      ],
+      "answer": "B",
+      "explanation": "Availability tests send HTTP requests to your app from multiple locations around the world at regular intervals. If X out of Y locations report a failure, an alert fires. Best practice: at least 5 locations, test every 5 minutes.",
+      "keyPoints": [
+        "Check availability from different locations worldwide",
+        "Standard test = HTTP request with SSL and content match checks",
+        "Custom TrackAvailability = code for tests behind firewalls",
+        "At least 5 locations, every 5 minutes"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/availability-overview",
+      "tags": ["az204::monitoring::availability-tests"]
+    },
+    {
+      "id": "RMON-011",
+      "type": "single-choice",
+      "question": "What does Smart Detection in Application Insights use to detect anomalies?",
+      "options": [
+        "Static threshold rules configured by the administrator",
+        "Machine learning that learns normal app behavior patterns",
+        "Comparison with industry benchmark metrics",
+        "Manual anomaly reports from users"
+      ],
+      "answer": "B",
+      "explanation": "Smart Detection uses machine learning. It learns your app's normal behavior and automatically warns you about anomalies: rising failure rate, slow responses, memory leaks. No setup needed — works out of the box.",
+      "keyPoints": [
+        "ML analyzes your app's behavior patterns",
+        "No configuration needed — works automatically",
+        "Detects: rising failures, slow responses, memory leaks",
+        "Alerts can be migrated to standard Azure Monitor alerts"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-types#smart-detection-alerts",
+      "tags": ["az204::monitoring::smart-detection"]
+    },
+    {
+      "id": "RMON-012",
+      "type": "single-choice",
+      "question": "Which standard does Application Insights use for distributed tracing to correlate telemetry across services?",
+      "options": [
+        "OpenID Connect protocol",
+        "W3C Trace Context standard",
+        "OAuth 2.0 authorization framework",
+        "SAML 2.0 assertion format"
+      ],
+      "answer": "B",
+      "explanation": "Application Insights uses the W3C Trace Context standard with two key IDs: Operation ID (unique for the entire transaction) and Parent ID (links each step to its parent). The SDK automatically passes them via the traceparent HTTP header.",
+      "keyPoints": [
+        "W3C Trace Context — the standard for distributed tracing",
+        "Operation ID = one per entire transaction",
+        "Parent ID = links each step to its parent",
+        "Passed via the traceparent HTTP header"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/distributed-tracing-telemetry-correlation",
+      "tags": ["az204::monitoring::distributed-tracing"]
+    },
+    {
+      "id": "RMON-013",
+      "type": "multi-select",
+      "question": "Which two sampling types are recommended in Application Insights? (Select 2)",
+      "options": [
+        "Fixed-rate sampling (set percentage of traces)",
+        "Ingestion sampling (drops data at Azure ingestion point)",
+        "Rate-limited sampling (set max traces per second)",
+        "Adaptive sampling (adjusts automatically based on load)"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Fixed-rate (you set a percentage, like 10%) and Rate-limited (you set max traces/sec, like 5) are the recommended types. Ingestion sampling is NOT recommended — it breaks traces because it might keep the parent request but lose child dependencies.",
+      "keyPoints": [
+        "Fixed-rate = you set a percentage (0.1 = 10%)",
+        "Rate-limited = you set max traces/sec",
+        "Ingestion sampling = NOT recommended (broken traces)",
+        "Sampling is NOT enabled by default in OpenTelemetry distros"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-sampling",
+      "tags": ["az204::monitoring::sampling-types"]
+    },
+    {
+      "id": "RMON-014",
+      "type": "single-choice",
+      "question": "Why is ingestion sampling NOT recommended in Application Insights?",
+      "options": [
+        "It increases data ingestion costs",
+        "It can create broken traces by dropping child spans while keeping parent requests",
+        "It requires redeployment of the application",
+        "It is not compatible with Log Analytics workspaces"
+      ],
+      "answer": "B",
+      "explanation": "Ingestion sampling drops data on the Azure side — with no control over what gets kept. It might keep the parent request but lose all child dependency calls = broken traces. The data was already sent over the network (you pay for traffic), but then it gets thrown away.",
+      "keyPoints": [
+        "No control over which traces are kept",
+        "Broken traces: parent exists, but child dependencies are lost",
+        "Data was already transmitted — you pay for traffic anyway",
+        "Use fixed-rate or rate-limited instead"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/opentelemetry-sampling",
+      "tags": ["az204::monitoring::ingestion-sampling"]
+    },
+    {
+      "id": "RMON-015",
+      "type": "multi-select",
+      "question": "What are the two main data stores in Azure Monitor? (Select 2)",
+      "options": [
+        "Azure Monitor Metrics (time-series database)",
+        "Azure Blob Storage (unstructured data)",
+        "Azure Monitor Logs (Log Analytics workspaces, KQL)",
+        "Azure SQL Database (relational queries)"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Azure Monitor has two data stores: 1) Metrics — a time-series database for numeric data, fast queries, near-real-time. 2) Logs — data in Log Analytics workspaces, queried with KQL. Metrics = fast and lightweight. Logs = powerful but heavier.",
+      "keyPoints": [
+        "Metrics = time-series, fast queries, dashboards",
+        "Logs = Log Analytics, KQL, deep analysis",
+        "Metrics = near-real-time alerts",
+        "Logs = complex queries and log-based alerts"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/overview",
+      "tags": ["az204::monitoring::metrics-vs-logs"]
+    },
+    {
+      "id": "RMON-016",
+      "type": "code-hotarea",
+      "question": "This KQL query attempts to find the top 10 slowest requests in the last 24 hours. Find the line with an error.",
+      "codeLines": [
+        "requests",
+        "| where timestamp > ago(24h)",
+        "| where success == true",
+        "| order by duration desc",
+        "| project name, duration, resultCode",
+        "| limit 10"
+      ],
+      "language": "kql",
+      "answer": [5],
+      "explanation": "Line 6: KQL uses take or top, not limit. KQL does not have a limit operator. Correct: | take 10 or | top 10 by duration desc (and then you don't need order by).",
+      "keyPoints": [
+        "KQL uses take (not limit) to restrict rows",
+        "top N by column = sort + limit in one step",
+        "where, summarize, project — core KQL operators",
+        "KQL is case-sensitive for table and column names"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/get-started-queries",
+      "tags": ["az204::monitoring::kql-query"]
+    },
+    {
+      "id": "RMON-017",
+      "type": "single-choice",
+      "question": "Which KQL operator is used to group and aggregate data, similar to SQL's GROUP BY?",
+      "options": [
+        "project",
+        "extend",
+        "summarize",
+        "render"
+      ],
+      "answer": "C",
+      "explanation": "summarize is the operator for grouping and aggregation in KQL. Example: | summarize count() by name. project = column selection (like SELECT). extend = add a calculated column. render = visualization.",
+      "keyPoints": [
+        "summarize = GROUP BY + aggregation",
+        "project = SELECT (pick columns)",
+        "extend = add a calculated column",
+        "render = visualization (timechart, barchart)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/get-started-queries",
+      "tags": ["az204::monitoring::kql-operators"]
+    },
+    {
+      "id": "RMON-018",
+      "type": "code-hotarea",
+      "question": "This KQL query attempts to find all exceptions grouped by type in the last 24 hours. Find the line with an error.",
+      "codeLines": [
+        "exceptions",
+        "| where timestamp > ago(24h)",
+        "| summarize total = count() by type",
+        "| sort by total desc",
+        "| project type, total"
+      ],
+      "language": "kql",
+      "answer": [3],
+      "explanation": "Line 4: KQL uses order by, not sort by. KQL does not have a sort by operator — use order by to sort results.",
+      "keyPoints": [
+        "KQL uses order by (not sort by)",
+        "summarize count() by column = grouping",
+        "exceptions — the table for errors in App Insights",
+        "project = pick columns for output"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/get-started-queries",
+      "tags": ["az204::monitoring::kql-exceptions"]
+    },
+    {
+      "id": "RMON-019",
+      "type": "single-choice",
+      "question": "Which KQL function is used to create time-based groupings, for example grouping data into 1-hour buckets?",
+      "options": [
+        "ago(1h)",
+        "bin(timestamp, 1h)",
+        "extend(timestamp, 1h)",
+        "round(timestamp, 1h)"
+      ],
+      "answer": "B",
+      "explanation": "bin() groups values into buckets. Example: | summarize count() by bin(timestamp, 1h) — groups data by hour. ago() calculates a time in the past. extend adds a column. round rounds numbers.",
+      "keyPoints": [
+        "bin(timestamp, 1h) = group by hour",
+        "Used with summarize for time-series",
+        "ago(1h) = 1 hour ago (for where filters)",
+        "bin works with numbers too: bin(duration, 100)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/get-started-queries",
+      "tags": ["az204::monitoring::kql-bin"]
+    },
+    {
+      "id": "RMON-020",
+      "type": "multi-select",
+      "question": "Which two are types of Azure Monitor alert rules? (Select 2)",
+      "options": [
+        "Metric alerts (evaluate resource metrics at regular intervals)",
+        "Log search alerts (run KQL query at set frequency)",
+        "Deployment alerts (fire when ARM template deploys)",
+        "Network alerts (fire when NSG rule changes)"
+      ],
+      "answer": ["A", "B"],
+      "explanation": "Azure Monitor has 4 alert types: Metric alerts, Log search alerts, Activity log alerts, Smart detection alerts. Deployment alerts and Network alerts don't exist as separate types.",
+      "keyPoints": [
+        "Metric alerts = near-real-time, stateful (auto-resolve)",
+        "Log search alerts = KQL query on a schedule",
+        "Activity log alerts = Azure events (create/delete resources)",
+        "Smart detection = ML anomalies in App Insights"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview",
+      "tags": ["az204::monitoring::alert-types"]
+    },
+    {
+      "id": "RMON-021",
+      "type": "single-choice",
+      "question": "You need to get alerted when your web app's average response time exceeds 5 seconds. Which alert type should you use?",
+      "options": [
+        "Activity log alert",
+        "Log search alert with KQL query",
+        "Metric alert with threshold condition",
+        "Smart detection alert"
+      ],
+      "answer": "C",
+      "explanation": "Metric alert is the best choice for monitoring metrics like response time. You configure: signal = Server response time, condition = Average > 5000 ms. Metric alerts evaluate every 1-5 minutes and are stateful — they auto-resolve when the condition clears.",
+      "keyPoints": [
+        "Metric alerts = near-real-time (1-5 min)",
+        "Stateful = auto-resolve when condition clears",
+        "Support dynamic thresholds (ML-based)",
+        "Activity log = only for control plane events"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-types#metric-alerts",
+      "tags": ["az204::monitoring::metric-alert"]
+    },
+    {
+      "id": "RMON-022",
+      "type": "single-choice",
+      "question": "What is an action group in Azure Monitor?",
+      "options": [
+        "A collection of Azure resources grouped for monitoring",
+        "A reusable set of notifications and actions triggered when an alert fires",
+        "A group of users with permission to manage alerts",
+        "A set of metrics aggregated for dashboard display"
+      ],
+      "answer": "B",
+      "explanation": "An action group is a set of actions that run when an alert fires. It includes notifications (email, SMS, push, voice) and actions (Azure Function, Logic App, Webhook, Runbook). One action group can be reused across multiple alert rules.",
+      "keyPoints": [
+        "Notifications: email, SMS, push, voice call",
+        "Actions: Function, Logic App, Webhook, Runbook, Event Hub",
+        "One action group = many alert rules",
+        "Multiple action groups can be attached to one alert"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/action-groups",
+      "tags": ["az204::monitoring::action-groups"]
+    },
+    {
+      "id": "RMON-023",
+      "type": "ordering",
+      "question": "Arrange the steps to configure a metric alert with an action group in Azure Monitor.",
+      "orderItems": [
+        "Select the target resource to monitor",
+        "Choose the signal (metric) and define the condition/threshold",
+        "Create or select an action group (email, webhook, etc.)",
+        "Set alert rule name, severity, and description",
+        "Review and create the alert rule"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First you pick the resource, then the signal and condition (e.g., CPU > 80%), then the action group (what to do when it fires), then name/severity, and finally create the rule.",
+      "keyPoints": [
+        "Resource → Signal → Action group → Name/Severity → Create",
+        "Severity: Sev 0 (Critical) → Sev 4 (Verbose)",
+        "Action group defines WHAT to do when the alert fires",
+        "Alert rule defines WHEN to fire"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview",
+      "tags": ["az204::monitoring::alert-setup"]
+    },
+    {
+      "id": "RMON-024",
+      "type": "multi-select",
+      "question": "Where can diagnostic settings route platform logs and metrics? (Select 3)",
+      "options": [
+        "Log Analytics workspace",
+        "Azure Storage account",
+        "Event Hub",
+        "Azure SQL Database"
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "Diagnostic settings route logs to 4 destinations: Log Analytics workspace (KQL queries), Storage account (archival), Event Hub (streaming to SIEM), Partner solutions (Datadog, Elastic). Azure SQL Database is not a supported destination.",
+      "keyPoints": [
+        "Log Analytics workspace = for KQL and alerts",
+        "Storage account = for archival and compliance",
+        "Event Hub = for streaming to external SIEMs",
+        "Without diagnostic settings — platform logs are NOT collected"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings",
+      "tags": ["az204::monitoring::diagnostic-settings"]
+    },
+    {
+      "id": "RMON-025",
+      "type": "single-choice",
+      "question": "What is a Log Analytics workspace?",
+      "options": [
+        "A visual dashboard for Azure Monitor metrics",
+        "The storage and query environment for Azure Monitor Logs queried with KQL",
+        "A real-time streaming service for telemetry data",
+        "A code editor for writing monitoring scripts"
+      ],
+      "answer": "B",
+      "explanation": "A Log Analytics workspace is the storage and query environment for Azure Monitor Logs. Think of it as a database where all your logs land. You query it with KQL. Multiple resources can send logs to one workspace. Retention: 30 days free, up to 730 days max.",
+      "keyPoints": [
+        "Storage for all Azure Monitor logs",
+        "Queried with KQL",
+        "Retention: 30 days free, max 730 days",
+        "App Insights uses a workspace (workspace-based)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview",
+      "tags": ["az204::monitoring::log-analytics-workspace"]
+    },
+    {
+      "id": "RMON-026",
+      "type": "single-choice",
+      "question": "How does StartOperation<RequestTelemetry> help with distributed tracing in C#?",
+      "options": [
+        "It encrypts telemetry before transmission",
+        "It creates an operation context that links all telemetry with the same operation ID",
+        "It starts a new Log Analytics workspace query",
+        "It initiates a deployment operation for the application"
+      ],
+      "answer": "B",
+      "explanation": "StartOperation creates an operation context. All telemetry inside the using block (events, dependencies, traces) gets automatically linked by one operation ID. This ID is passed to downstream services via HTTP headers.",
+      "keyPoints": [
+        "Creates a shared operation ID for all telemetry in the block",
+        "ID is automatically passed downstream via HTTP headers",
+        "All TrackEvent/TrackDependency inside are linked",
+        "Visible in End-to-end transaction details"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics",
+      "tags": ["az204::monitoring::operation-correlation"]
+    },
+    {
+      "id": "RMON-027",
+      "type": "single-choice",
+      "question": "What is the recommended approach to control Application Insights data volume and costs?",
+      "options": [
+        "Set a daily cap as the primary cost control method",
+        "Use sampling to reduce volume proactively, and set daily cap as backup",
+        "Disable telemetry collection during off-peak hours",
+        "Only collect exception telemetry and disable all other types"
+      ],
+      "answer": "B",
+      "explanation": "Best approach: sampling (fixed-rate or rate-limited) as the main volume control + daily cap as a safety net. Using daily cap as the primary method is bad because once the limit is hit, telemetry stops completely until the next day = a gap in monitoring.",
+      "keyPoints": [
+        "Sampling = primary volume control",
+        "Daily cap = only a backup safety net",
+        "When daily cap triggers = no monitoring until reset",
+        "Sampling preserves trace integrity"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/logs/daily-cap",
+      "tags": ["az204::monitoring::daily-cap"]
+    },
+    {
+      "id": "RMON-028",
+      "type": "ordering",
+      "question": "Arrange the severity levels for Azure Monitor alerts from most critical to least critical.",
+      "orderItems": [
+        "Sev 0 — Critical",
+        "Sev 1 — Error",
+        "Sev 2 — Warning",
+        "Sev 3 — Informational",
+        "Sev 4 — Verbose"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Severity levels from most critical to least: Sev 0 (Critical) → Sev 1 (Error) → Sev 2 (Warning) → Sev 3 (Informational) → Sev 4 (Verbose). Severity is just metadata for prioritization — it doesn't change how the alert behaves.",
+      "keyPoints": [
+        "Sev 0 = Critical (production down)",
+        "Sev 1 = Error (significant problem)",
+        "Sev 2 = Warning (potential problem)",
+        "Severity is only metadata for prioritization"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview",
+      "tags": ["az204::monitoring::alert-severity"]
+    },
+    {
+      "id": "RMON-029",
+      "type": "ordering",
+      "question": "Arrange the steps to set up Application Insights monitoring for a .NET web application.",
+      "orderItems": [
+        "Create an Application Insights resource in Azure portal",
+        "Copy the connection string from the Application Insights resource",
+        "Add the Application Insights SDK NuGet package to the project",
+        "Configure the connection string in appsettings.json or environment variable",
+        "Deploy the application and verify telemetry in Azure portal"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First create the App Insights resource, copy the connection string, add the SDK to your project, configure the connection string, then deploy and verify. Without the connection string, the SDK doesn't know where to send data.",
+      "keyPoints": [
+        "Create resource → Copy connection string",
+        "Add NuGet package → Configure connection string",
+        "Connection string goes in appsettings.json or env var",
+        "APPLICATIONINSIGHTS_CONNECTION_STRING — the standard env var"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview",
+      "tags": ["az204::monitoring::setup"]
+    },
+    {
+      "id": "RMON-030",
+      "type": "single-choice",
+      "question": "Which property does Application Map use to identify different components in a distributed application?",
+      "options": [
+        "operation_Id",
+        "cloud_RoleName",
+        "session_Id",
+        "user_Id"
+      ],
+      "answer": "B",
+      "explanation": "cloud_RoleName is the property Application Map uses to identify components. Each node on the map = a unique cloud_RoleName. operation_Id links transactions, session_Id tracks user sessions, user_Id identifies users.",
+      "keyPoints": [
+        "cloud_RoleName = component identifier on the map",
+        "Each microservice needs a unique RoleName",
+        "operation_Id = for distributed tracing",
+        "Set via TelemetryInitializer or env var"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-map",
+      "tags": ["az204::monitoring::application-map"]
+    },
+    {
+      "id": "RMON-031",
+      "type": "code-hotarea",
+      "question": "This C# code attempts to track an exception with TelemetryClient. Find the line with an error.",
+      "codeLines": [
+        "try",
+        "{",
+        "    var result = await riskyOperation();",
+        "}",
+        "catch (Exception ex)",
+        "{",
+        "    client.TrackException(ex.Message);",
+        "}"
+      ],
+      "language": "csharp",
+      "answer": [6],
+      "explanation": "Line 7: TrackException takes an Exception object, not a string like ex.Message. Correct: client.TrackException(ex) or client.TrackException(ex, properties). Passing ex.Message loses the stack trace and exception type.",
+      "keyPoints": [
+        "TrackException(Exception ex) — takes an Exception object",
+        "NOT TrackException(string message)",
+        "You can add properties: TrackException(ex, props)",
+        "Unhandled exceptions are caught automatically"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics",
+      "tags": ["az204::monitoring::track-exception-code"]
+    },
+    {
+      "id": "RMON-032",
+      "type": "single-choice",
+      "question": "You need to run a complex KQL query every 15 minutes and get an alert when the result exceeds a threshold. Which alert type should you use?",
+      "options": [
+        "Metric alert",
+        "Log search alert",
+        "Activity log alert",
+        "Smart detection alert"
+      ],
+      "answer": "B",
+      "explanation": "Log search alert is for alerts based on KQL queries. You configure: the KQL query + frequency (every 15 min) + condition (e.g., count > 100). Metric alert works with metrics, Activity log with Azure events, Smart detection with ML.",
+      "keyPoints": [
+        "Log search alert = KQL query on a schedule",
+        "You configure: query + frequency + condition",
+        "Metric alert = for numeric metrics",
+        "Activity log alert = for control plane events"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview",
+      "tags": ["az204::monitoring::log-search-alert"]
+    },
+    {
+      "id": "RMON-033",
+      "type": "single-choice",
+      "question": "What is the difference between stateful and stateless alert rules in Azure Monitor?",
+      "options": [
+        "Stateful alerts require manual resolution, stateless alerts auto-resolve",
+        "Stateful alerts auto-resolve when condition clears, stateless alerts fire every time the condition is met",
+        "Stateful alerts use KQL, stateless alerts use metrics",
+        "Stateful alerts cost more, stateless alerts are free"
+      ],
+      "answer": "B",
+      "explanation": "Stateful alerts (metric alerts) automatically close when the condition stops being true. Stateless alerts (activity log alerts) fire every single time an event happens. This affects how many notifications you get.",
+      "keyPoints": [
+        "Metric alerts = stateful (auto-resolve)",
+        "Activity log alerts = stateless (fire every time)",
+        "Stateful = less noise (one fired, one resolved)",
+        "Stateless = every event = a new alert"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/alerts/alerts-overview",
+      "tags": ["az204::monitoring::alert-state"]
+    },
+    {
+      "id": "RMON-034",
+      "type": "single-choice",
+      "question": "What is the TrackTrace severity level order from lowest to highest in Application Insights?",
+      "options": [
+        "Information → Warning → Error → Critical → Verbose",
+        "Verbose → Information → Warning → Error → Critical",
+        "Critical → Error → Warning → Information → Verbose",
+        "Verbose → Warning → Information → Error → Critical"
+      ],
+      "answer": "B",
+      "explanation": "Order from lowest to highest: Verbose → Information → Warning → Error → Critical. TrackTrace uses the SeverityLevel enum. Traces show up in the traces table in Log Analytics and you can filter by severity.",
+      "keyPoints": [
+        "Verbose < Information < Warning < Error < Critical",
+        "TrackTrace(message, SeverityLevel.Warning, props)",
+        "Traces go to the traces table in Log Analytics",
+        "You can filter by severity in KQL"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/api-custom-events-metrics",
+      "tags": ["az204::monitoring::track-trace"]
+    },
+    {
+      "id": "RMON-035",
+      "type": "single-choice",
+      "question": "A company needs to archive platform logs from their Azure resources for compliance. They must retain logs for 3 years with minimal cost. Where should they route diagnostic settings?",
+      "options": [
+        "Log Analytics workspace with 730-day retention",
+        "Azure Storage account",
+        "Event Hub",
+        "Application Insights resource"
+      ],
+      "answer": "B",
+      "explanation": "Azure Storage account is the best choice for long-term archival at minimal cost. Log Analytics workspace maxes out at 730 days (2 years) and costs more. Event Hub is for streaming, not storage. A Storage account can store data indefinitely at the lowest price.",
+      "keyPoints": [
+        "Storage account = long-term archival, cheapest option",
+        "Log Analytics = max 730 days, more expensive",
+        "Event Hub = for streaming to SIEMs, not for storage",
+        "For compliance you usually need a Storage account"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/diagnostic-settings",
+      "tags": ["az204::monitoring::diagnostic-settings"]
+    }
+  ]
+}
