@@ -1,0 +1,623 @@
+{
+  "domain": "04-cosmos-db",
+  "deckName": "AZ-204-PREP-ANKI::04-Cosmos DB",
+  "cards": [
+    {
+      "id": "RCDB-001",
+      "type": "single-choice",
+      "question": "Your application stores user profiles with millions of users worldwide. Each user reads and updates only their own profile. Which partition key should you use for the Cosmos DB container?",
+      "options": [
+        "/country",
+        "/userId",
+        "/createdDate",
+        "/isActive"
+      ],
+      "answer": "B",
+      "explanation": "/userId is the best pick. It has high cardinality (millions of unique values), spreads data evenly, and every query includes userId. /country has too few values (hot partitions). /createdDate distributes unevenly. /isActive only has 2 values — the worst possible choice.",
+      "keyPoints": [
+        "Good partition key = high cardinality + even distribution",
+        "/userId is perfect for user-centric apps",
+        "Boolean fields (/isActive) are the worst choice for partition key"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/partitioning-overview#choose-a-partition-key",
+      "tags": ["az204::cosmos-db::partition-key"]
+    },
+    {
+      "id": "RCDB-002",
+      "type": "single-choice",
+      "question": "A banking application requires that every read returns the most recent committed write across all regions. Which Cosmos DB consistency level should you configure?",
+      "options": [
+        "Session",
+        "Bounded Staleness",
+        "Strong",
+        "Eventual"
+      ],
+      "answer": "C",
+      "explanation": "Strong consistency is the only level that guarantees linearizability — you always read the latest write. For banking apps, this is critical. The downside: it only works with single-region writes and costs more (2x RU per read).",
+      "keyPoints": [
+        "Strong = linearizable reads (always the freshest data)",
+        "Strong does NOT work with multi-region writes",
+        "Strong reads cost 2x RU (reads from 2 replicas)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels#strong-consistency",
+      "tags": ["az204::cosmos-db::consistency"]
+    },
+    {
+      "id": "RCDB-003",
+      "type": "single-choice",
+      "question": "Your e-commerce application uses Cosmos DB. Users report that after updating their cart, they sometimes see the old cart contents. The app uses the default consistency level. What is the most likely cause?",
+      "options": [
+        "The session token is not being passed between requests",
+        "The container needs a composite index",
+        "The throughput is too low",
+        "The partition key is incorrect"
+      ],
+      "answer": "A",
+      "explanation": "The default consistency in Cosmos DB is Session. Session consistency guarantees read-your-own-writes ONLY if the session token is passed between requests. If the app loses the session token (say, between different instances), the user might read stale data.",
+      "keyPoints": [
+        "Session is the default consistency level in Cosmos DB",
+        "Session token must be passed between requests",
+        "Without the session token, there's no read-your-own-writes guarantee"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels#session-consistency",
+      "tags": ["az204::cosmos-db::consistency"]
+    },
+    {
+      "id": "RCDB-004",
+      "type": "single-choice",
+      "question": "You need to run ACID transactions across multiple items in Cosmos DB. All items share the same partition key. Which approach should you use?",
+      "options": [
+        "Use a cross-partition query with a transaction wrapper",
+        "Use a stored procedure written in JavaScript",
+        "Use Azure SQL Database instead",
+        "Use the change feed processor"
+      ],
+      "answer": "B",
+      "explanation": "Stored procedures in Cosmos DB are written in JavaScript and run server-side. They give you ACID transactions within ONE logical partition. If anything fails, the entire batch rolls back. The SDK alternative is TransactionalBatch.",
+      "keyPoints": [
+        "Stored procedures = ACID transactions within a single partition",
+        "Stored procedures are written in JavaScript",
+        "Cross-partition transactions are NOT supported"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-write-stored-procedures-triggers-udfs",
+      "tags": ["az204::cosmos-db::stored-procedures"]
+    },
+    {
+      "id": "RCDB-005",
+      "type": "single-choice",
+      "question": "What is the maximum size of a single logical partition in Azure Cosmos DB?",
+      "options": [
+        "10 GB",
+        "20 GB",
+        "50 GB",
+        "Unlimited"
+      ],
+      "answer": "B",
+      "explanation": "A logical partition is capped at 20 GB. All items with the same partition key value live in one logical partition. A physical partition holds up to 50 GB and can contain multiple logical partitions.",
+      "keyPoints": [
+        "Logical partition = max 20 GB",
+        "Physical partition = max 50 GB",
+        "If data grows beyond 20 GB — use hierarchical partition keys"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/partitioning-overview",
+      "tags": ["az204::cosmos-db::partitioning"]
+    },
+    {
+      "id": "RCDB-006",
+      "type": "single-choice",
+      "question": "You have a Cosmos DB container with unpredictable traffic that spikes from 1,000 RU/s to 20,000 RU/s. Which throughput mode minimizes cost while handling spikes?",
+      "options": [
+        "Provisioned throughput at 20,000 RU/s",
+        "Serverless mode",
+        "Autoscale with max 20,000 RU/s",
+        "Provisioned throughput at 1,000 RU/s with manual scaling"
+      ],
+      "answer": "C",
+      "explanation": "Autoscale automatically scales from 10% to max RU/s. With a max of 20,000, the minimum is 2,000 RU/s. You only pay for the RUs you actually use. Provisioned at 20K means overpaying during quiet times. Serverless isn't great for sustained high traffic.",
+      "keyPoints": [
+        "Autoscale = from 10% max up to max RU/s",
+        "Serverless = best for dev/test and bursty workloads",
+        "Provisioned = fixed cost, increment of 100 RU/s"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/provision-throughput-autoscale",
+      "tags": ["az204::cosmos-db::request-units"]
+    },
+    {
+      "id": "RCDB-007",
+      "type": "single-choice",
+      "question": "A point read of a 1 KB item by ID and partition key in Cosmos DB with Session consistency costs approximately how many RUs?",
+      "options": [
+        "0.5 RU",
+        "1 RU",
+        "5 RU",
+        "10 RU"
+      ],
+      "answer": "B",
+      "explanation": "A point read of a 1 KB item by ID + partition key costs 1 RU. This is the cheapest operation in Cosmos DB. With Strong or Bounded Staleness, the cost doubles (~2 RU) because it reads from 2 replicas.",
+      "keyPoints": [
+        "Point read 1 KB = 1 RU (Session/Eventual/Consistent Prefix)",
+        "Strong/Bounded Staleness = 2x RU for reads",
+        "Bigger item size or more properties = more RU"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/request-units",
+      "tags": ["az204::cosmos-db::request-units"]
+    },
+    {
+      "id": "RCDB-008",
+      "type": "single-choice",
+      "question": "Which Cosmos DB API should you choose for a new greenfield application that needs SQL-like queries and gets the latest features first?",
+      "options": [
+        "MongoDB API",
+        "Cassandra API",
+        "NoSQL API",
+        "Gremlin API"
+      ],
+      "answer": "C",
+      "explanation": "NoSQL API (formerly SQL API) is the native Cosmos DB API. It supports SQL-like queries, gets new features first, and is recommended for new apps. MongoDB/Cassandra APIs are for migrating existing applications.",
+      "keyPoints": [
+        "NoSQL API = native, recommended for new applications",
+        "NoSQL API gets new features first",
+        "MongoDB/Cassandra API = compatibility with existing apps"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/choose-api",
+      "tags": ["az204::cosmos-db::apis"]
+    },
+    {
+      "id": "RCDB-009",
+      "type": "single-choice",
+      "question": "Your Cosmos DB container has a query: SELECT * FROM c ORDER BY c.lastName ASC, c.firstName DESC. The query fails with an error. What is missing?",
+      "options": [
+        "A range index on lastName",
+        "A composite index on (lastName ASC, firstName DESC)",
+        "A spatial index on both fields",
+        "A unique key constraint on lastName"
+      ],
+      "answer": "B",
+      "explanation": "ORDER BY on 2+ fields REQUIRES a composite index. Cosmos DB does not create composite indexes automatically — you must add them manually in the indexing policy. The order and direction (ASC/DESC) in the index must match the query.",
+      "keyPoints": [
+        "ORDER BY on 2+ fields = composite index required",
+        "Composite indexes are NOT created automatically",
+        "Direction (ASC/DESC) in the index must match the query"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/index-policy#composite-indexes",
+      "tags": ["az204::cosmos-db::indexing"]
+    },
+    {
+      "id": "RCDB-010",
+      "type": "single-choice",
+      "question": "You want to replicate your Cosmos DB data across 3 Azure regions for high availability. How does this affect the throughput cost?",
+      "options": [
+        "No additional cost for replication",
+        "Cost doubles regardless of region count",
+        "Cost multiplied by the number of regions (3x in this case)",
+        "Only read replicas are free, writes cost extra"
+      ],
+      "answer": "C",
+      "explanation": "In Cosmos DB, provisioned RU/s are available in EVERY region. If you have 10,000 RU/s and 3 regions, you pay for 30,000 RU/s. Each region gets the full throughput capacity.",
+      "keyPoints": [
+        "Cost = RU/s x number of regions",
+        "Each region gets full RU/s",
+        "Multi-region = 99.999% SLA availability"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/distribute-data-globally",
+      "tags": ["az204::cosmos-db::global-distribution"]
+    },
+    {
+      "id": "RCDB-011",
+      "type": "single-choice",
+      "question": "Which change feed mode in Cosmos DB captures deletes and TTL expirations?",
+      "options": [
+        "Latest version mode",
+        "All versions and deletes mode",
+        "Full history mode",
+        "Snapshot mode"
+      ],
+      "answer": "B",
+      "explanation": "All versions and deletes mode (preview) captures inserts, updates, deletes, and TTL expirations. It shows intermediate changes too. Requires continuous backup. Latest version mode does NOT capture deletes.",
+      "keyPoints": [
+        "Latest version mode = only inserts and updates (no deletes)",
+        "All versions and deletes = inserts + updates + deletes + TTL",
+        "All versions and deletes requires continuous backup"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed-modes",
+      "tags": ["az204::cosmos-db::change-feed"]
+    },
+    {
+      "id": "RCDB-012",
+      "type": "single-choice",
+      "question": "You need the cheapest way to process Cosmos DB change feed events without managing infrastructure. Which approach should you use?",
+      "options": [
+        "Change feed processor with a dedicated VM",
+        "Azure Functions with Cosmos DB trigger",
+        "Pull model with manual FeedRange management",
+        "Azure Logic Apps with a polling connector"
+      ],
+      "answer": "B",
+      "explanation": "Azure Functions with Cosmos DB trigger is the simplest, serverless way to process change feed. No infrastructure to manage, and the lease container is created automatically. Under the hood, it uses the change feed processor.",
+      "keyPoints": [
+        "Azure Functions trigger = simplest way to process change feed",
+        "Change feed processor = more control, needs a lease container",
+        "Pull model = maximum control, no lease container needed"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed",
+      "tags": ["az204::cosmos-db::change-feed"]
+    },
+    {
+      "id": "RCDB-013",
+      "type": "single-choice",
+      "question": "What is the Cosmos DB resource hierarchy from top to bottom?",
+      "options": [
+        "Subscription > Database > Container > Item",
+        "Account > Container > Database > Item",
+        "Account > Database > Container > Item",
+        "Resource Group > Account > Item > Container"
+      ],
+      "answer": "C",
+      "explanation": "The Cosmos DB resource hierarchy is: Account -> Database -> Container -> Item. Account is the top level (you pick the API when creating it). Database is a namespace. Container is where data lives. Item is a single document.",
+      "keyPoints": [
+        "Account -> Database -> Container -> Item",
+        "API is chosen when creating the Account",
+        "Container = collection (NoSQL) / table / graph"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/resource-model",
+      "tags": ["az204::cosmos-db::resource-model"]
+    },
+    {
+      "id": "RCDB-014",
+      "type": "single-choice",
+      "question": "Your multi-tenant SaaS application stores data for 10,000 tenants. Each tenant has up to 50 GB of data. A single partition key /tenantId would exceed the 20 GB limit. What should you use?",
+      "options": [
+        "Create a separate container per tenant",
+        "Use hierarchical partition keys (/tenantId, /userId)",
+        "Use a synthetic partition key combining tenantId and a random suffix",
+        "Increase the logical partition limit via support ticket"
+      ],
+      "answer": "B",
+      "explanation": "Hierarchical partition keys let you use up to 3 levels of keys. Data for one tenantId gets spread across sub-partitions (/userId). This solves the 20 GB limit problem without losing query efficiency.",
+      "keyPoints": [
+        "Hierarchical partition keys = up to 3 levels",
+        "Solves the 20 GB logical partition limit problem",
+        "The logical partition limit CANNOT be increased"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/hierarchical-partition-keys",
+      "tags": ["az204::cosmos-db::partition-key"]
+    },
+    {
+      "id": "RCDB-015",
+      "type": "single-choice",
+      "question": "Which consistency level is the default for new Azure Cosmos DB accounts?",
+      "options": [
+        "Strong",
+        "Bounded Staleness",
+        "Session",
+        "Eventual"
+      ],
+      "answer": "C",
+      "explanation": "Session is the default consistency level for new Cosmos DB accounts. It guarantees read-your-own-writes within a single session. Best balance between consistency and performance for most apps.",
+      "keyPoints": [
+        "Session = default consistency level",
+        "Guarantees read-your-own-writes within a session",
+        "Works well for most applications"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels#session-consistency",
+      "tags": ["az204::cosmos-db::consistency"]
+    },
+    {
+      "id": "RCDB-016",
+      "type": "single-choice",
+      "question": "You are designing a Cosmos DB solution for a social media feed. Users post content, and other users eventually see it. Exact ordering between users is not required. Which consistency level provides the lowest latency and cost?",
+      "options": [
+        "Strong",
+        "Session",
+        "Consistent Prefix",
+        "Eventual"
+      ],
+      "answer": "D",
+      "explanation": "Eventual consistency is the fastest and cheapest level. For a social media feed, you don't need strict ordering between users. Likes, view counts, feeds — classic use cases for Eventual.",
+      "keyPoints": [
+        "Eventual = cheapest and fastest level",
+        "No ordering guarantees",
+        "Great for likes, counters, social feeds"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels#eventual-consistency",
+      "tags": ["az204::cosmos-db::consistency"]
+    },
+    {
+      "id": "RCDB-017",
+      "type": "single-choice",
+      "question": "What happens when a stored procedure in Cosmos DB throws an unhandled exception?",
+      "options": [
+        "Only the last operation is rolled back",
+        "The entire transaction is rolled back",
+        "The exception is logged but changes are committed",
+        "The stored procedure retries automatically 3 times"
+      ],
+      "answer": "B",
+      "explanation": "Stored procedures in Cosmos DB provide ACID transactions. If an unhandled exception is thrown, the ENTIRE transaction rolls back. All changes made before the exception are undone.",
+      "keyPoints": [
+        "Unhandled exception = full rollback",
+        "Stored procedures = ACID within a single partition",
+        "You must explicitly call getContext().getResponse().setBody() for success"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-write-stored-procedures-triggers-udfs",
+      "tags": ["az204::cosmos-db::stored-procedures"]
+    },
+    {
+      "id": "RCDB-018",
+      "type": "single-choice",
+      "question": "Your Cosmos DB container uses the default indexing policy. Which paths are indexed?",
+      "options": [
+        "Only the partition key and id fields",
+        "All properties except _etag",
+        "Only properties explicitly listed in included paths",
+        "Only the top-level properties, not nested objects"
+      ],
+      "answer": "B",
+      "explanation": "By default, Cosmos DB indexes ALL properties of every item. Included paths = /* (everything). Excluded paths = /_etag/? (only _etag is excluded). Indexing is synchronous (Consistent mode).",
+      "keyPoints": [
+        "Default: ALL properties are indexed (/*)",
+        "Only /_etag is excluded by default",
+        "You can customize indexing to save write RU"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/index-policy",
+      "tags": ["az204::cosmos-db::indexing"]
+    },
+    {
+      "id": "RCDB-019",
+      "type": "multi-select",
+      "question": "Which TWO properties make a good partition key for a Cosmos DB container? (Select 2)",
+      "options": [
+        "High cardinality (many distinct values)",
+        "Low cardinality (few distinct values)",
+        "Frequently used in WHERE clause of queries",
+        "Mutable values that change often"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "A good partition key must have high cardinality (many unique values for even distribution) and be frequently used in WHERE clauses (to avoid cross-partition queries). The partition key CANNOT be changed after an item is created.",
+      "keyPoints": [
+        "High cardinality = even data distribution",
+        "Used in WHERE clause = single-partition queries (cheaper)",
+        "Partition key is IMMUTABLE — cannot be changed"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/partitioning-overview#choose-a-partition-key",
+      "tags": ["az204::cosmos-db::partition-key"]
+    },
+    {
+      "id": "RCDB-020",
+      "type": "multi-select",
+      "question": "Which TWO consistency levels in Cosmos DB read from two replicas, resulting in approximately 2x RU cost for reads? (Select 2)",
+      "options": [
+        "Strong",
+        "Session",
+        "Bounded Staleness",
+        "Eventual"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Strong and Bounded Staleness read from 2 replicas (minority quorum), so read cost is roughly 2x. Session, Consistent Prefix, and Eventual read from a single replica — cheaper.",
+      "keyPoints": [
+        "Strong + Bounded Staleness = 2 replicas = 2x RU for reads",
+        "Session/Consistent Prefix/Eventual = 1 replica",
+        "Write cost is the same for all consistency levels"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels#consistency-levels-and-throughput",
+      "tags": ["az204::cosmos-db::consistency"]
+    },
+    {
+      "id": "RCDB-021",
+      "type": "multi-select",
+      "question": "Which THREE ways can you consume the Cosmos DB change feed? (Select 3)",
+      "options": [
+        "Azure Functions with Cosmos DB trigger",
+        "Change feed processor (SDK)",
+        "Pull model with FeedRanges (SDK)",
+        "Azure Event Grid subscription"
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "Three ways to consume the change feed: 1) Azure Functions trigger (simplest, serverless), 2) Change feed processor via SDK (needs a lease container), 3) Pull model via SDK (manual FeedRange management). Event Grid is a separate service, not a change feed consumption method.",
+      "keyPoints": [
+        "Azure Functions trigger = serverless, simplest option",
+        "Change feed processor = lease container, at-least-once delivery",
+        "Pull model = manual control, no lease container needed"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed",
+      "tags": ["az204::cosmos-db::change-feed"]
+    },
+    {
+      "id": "RCDB-022",
+      "type": "multi-select",
+      "question": "Which TWO statements about Cosmos DB triggers are correct? (Select 2)",
+      "options": [
+        "Triggers execute automatically on every operation",
+        "Triggers must be explicitly specified in the request options",
+        "Pre-triggers can modify the item before it is written",
+        "Triggers can span multiple partitions"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Triggers in Cosmos DB do NOT fire automatically — you must explicitly specify them in the request options. Pre-triggers can modify the item before it's written (like adding a timestamp). Triggers only work within a single partition.",
+      "keyPoints": [
+        "Triggers are NOT automatic — specified in request options",
+        "Pre-triggers = modify item BEFORE writing",
+        "Post-triggers = part of the transaction, rollback on failure"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-write-stored-procedures-triggers-udfs#how-to-write-triggers",
+      "tags": ["az204::cosmos-db::triggers"]
+    },
+    {
+      "id": "RCDB-023",
+      "type": "multi-select",
+      "question": "Which TWO throughput modes in Cosmos DB require you to provision capacity upfront? (Select 2)",
+      "options": [
+        "Provisioned throughput",
+        "Serverless",
+        "Autoscale",
+        "On-demand"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Provisioned throughput requires you to set a specific RU/s value. Autoscale requires you to set a maximum RU/s (scales from 10% to max). Serverless requires no provisioning — you pay per consumed RU.",
+      "keyPoints": [
+        "Provisioned = fixed RU/s (increments of 100)",
+        "Autoscale = set max RU/s, system scales from 10%",
+        "Serverless = no provisioning, pay-per-RU"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/request-units",
+      "tags": ["az204::cosmos-db::request-units"]
+    },
+    {
+      "id": "RCDB-024",
+      "type": "multi-select",
+      "question": "Which TWO limitations apply to Cosmos DB Strong consistency? (Select 2)",
+      "options": [
+        "Cannot be used with multi-region writes",
+        "Only available with NoSQL API",
+        "Higher write latency due to global majority acknowledgment",
+        "Cannot be used with serverless mode"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Strong consistency does NOT work with multi-region writes (single-region write only). Writes must be acknowledged by a global majority of replicas, which increases latency. Strong is available for all APIs and for serverless.",
+      "keyPoints": [
+        "Strong + multi-region writes = INCOMPATIBLE",
+        "Write latency = 2x round-trip to the farthest region",
+        "Strong is available for all APIs (not just NoSQL)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels#strong-consistency",
+      "tags": ["az204::cosmos-db::consistency"]
+    },
+    {
+      "id": "RCDB-025",
+      "type": "ordering",
+      "question": "Arrange the Cosmos DB consistency levels from STRONGEST to WEAKEST.",
+      "orderItems": [
+        "Strong",
+        "Bounded Staleness",
+        "Session",
+        "Consistent Prefix",
+        "Eventual"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Consistency levels from strongest to weakest: Strong -> Bounded Staleness -> Session -> Consistent Prefix -> Eventual. Stronger consistency = more expensive and slower. Weaker consistency = cheaper and faster.",
+      "keyPoints": [
+        "Strong = strongest, most expensive",
+        "Session = default, sweet spot for most apps",
+        "Eventual = weakest, cheapest"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/consistency-levels",
+      "tags": ["az204::cosmos-db::consistency"]
+    },
+    {
+      "id": "RCDB-026",
+      "type": "ordering",
+      "question": "Arrange the steps to set up Cosmos DB change feed processing with Azure Functions.",
+      "orderItems": [
+        "Create a Cosmos DB account and container with data",
+        "Create a lease container in the same database",
+        "Create an Azure Function App with Cosmos DB trigger",
+        "Configure the trigger with database name, container name, and lease container",
+        "Deploy and monitor the function processing changes"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First you need Cosmos DB with data, then a lease container (tracks processing progress), then create a Function App with the Cosmos DB trigger, configure the connection, and deploy. The lease container stores checkpoints — which changes have already been processed.",
+      "keyPoints": [
+        "Lease container stores processing checkpoints",
+        "The trigger can auto-create the lease container (if configured)",
+        "One lease container per consumer"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/change-feed-functions",
+      "tags": ["az204::cosmos-db::change-feed"]
+    },
+    {
+      "id": "RCDB-027",
+      "type": "ordering",
+      "question": "Arrange the steps to perform a transactional batch operation in Cosmos DB using the .NET SDK.",
+      "orderItems": [
+        "Create a CosmosClient and get a Container reference",
+        "Create a PartitionKey for the batch (all items must share it)",
+        "Build a TransactionalBatch with CreateItem, ReplaceItem, or DeleteItem operations",
+        "Execute the batch with ExecuteAsync",
+        "Check the response status code (all succeed or all fail)"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "TransactionalBatch groups operations under one partition key. All operations run atomically — either all succeed or all roll back. Create the client, define the partition key, build the batch, execute it, and check the result.",
+      "keyPoints": [
+        "All items in a batch must share the same partition key",
+        "Batch is atomic (all or nothing)",
+        "Max 100 operations or 2 MB per batch"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/transactional-batch",
+      "tags": ["az204::cosmos-db::sdk"]
+    },
+    {
+      "id": "RCDB-028",
+      "type": "code-hotarea",
+      "question": "This C# code attempts to read an item from Cosmos DB. Click on the line(s) with errors.",
+      "codeLines": [
+        "CosmosClient client = new CosmosClient(endpoint, key);",
+        "Database db = client.GetDatabase(\"mydb\");",
+        "Container container = db.GetContainer(\"products\");",
+        "ItemResponse<Product> response = await container.ReadItemAsync<Product>(",
+        "    id: \"product-123\"",
+        ");",
+        "Console.WriteLine(response.Resource.Name);"
+      ],
+      "language": "csharp",
+      "answer": [4],
+      "explanation": "Line 5 is wrong — ReadItemAsync REQUIRES two parameters: id AND partitionKey. Without partitionKey, the code won't compile. Correct version: id: \"product-123\", partitionKey: new PartitionKey(\"electronics\")",
+      "keyPoints": [
+        "ReadItemAsync requires id + partitionKey",
+        "A point read without partition key is impossible",
+        "Point read = cheapest operation (~1 RU)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/quickstart-dotnet",
+      "tags": ["az204::cosmos-db::sdk"]
+    },
+    {
+      "id": "RCDB-029",
+      "type": "code-hotarea",
+      "question": "This C# code creates a Cosmos DB container with a partition key. Click on the line(s) with errors.",
+      "codeLines": [
+        "CosmosClient client = new CosmosClient(endpoint, key);",
+        "Database db = await client.CreateDatabaseIfNotExistsAsync(\"mydb\");",
+        "ContainerProperties props = new ContainerProperties(",
+        "    id: \"orders\",",
+        "    partitionKeyPath: \"orderId\"",
+        ");",
+        "Container container = await db.CreateContainerIfNotExistsAsync(props, throughput: 400);"
+      ],
+      "language": "csharp",
+      "answer": [4],
+      "explanation": "Line 5 is wrong — partitionKeyPath must start with '/'. Correct: partitionKeyPath: \"/orderId\". Without the leading slash, Cosmos DB throws an error. All partition key paths in Cosmos DB start with '/'.",
+      "keyPoints": [
+        "Partition key path ALWAYS starts with '/'",
+        "Examples: \"/userId\", \"/category\", \"/tenantId\"",
+        "Minimum throughput = 400 RU/s (provisioned)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/quickstart-dotnet",
+      "tags": ["az204::cosmos-db::sdk"]
+    },
+    {
+      "id": "RCDB-030",
+      "type": "code-hotarea",
+      "question": "This JavaScript stored procedure attempts to create multiple items in a Cosmos DB container. Click on the line(s) with errors.",
+      "codeLines": [
+        "function bulkCreate(items) {",
+        "    var context = getContext();",
+        "    var container = context.getCollection();",
+        "    var response = context.getResponse();",
+        "    for (var i = 0; i < items.length; i++) {",
+        "        container.createDocument(container.getSelfLink(), items[i]);",
+        "    }",
+        "    response.setBody({ created: items.length });",
+        "}"
+      ],
+      "language": "csharp",
+      "answer": [5],
+      "explanation": "Line 6 is wrong — createDocument returns a boolean (accepted or not). If false, the operation was rejected (not enough RU budget). You must check the return value: if (!accepted) throw new Error('Request not accepted'). Without this check, items can be silently lost.",
+      "keyPoints": [
+        "createDocument returns a boolean (accepted/rejected)",
+        "You MUST check the return value",
+        "If false — throw an exception to trigger rollback"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-write-stored-procedures-triggers-udfs",
+      "tags": ["az204::cosmos-db::stored-procedures"]
+    }
+  ]
+}
