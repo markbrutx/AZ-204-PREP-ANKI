@@ -1,0 +1,681 @@
+{
+  "domain": "11-caching",
+  "deckName": "AZ-204-PREP-ANKI::11-Caching",
+  "cards": [
+    {
+      "id": "RC-001",
+      "type": "single-choice",
+      "question": "Your company deploys a web application that experiences high database load during peak hours. You need to reduce database read latency to sub-millisecond. Which Azure service should you use?",
+      "options": [
+        "Azure SQL Database with read replicas",
+        "Azure Cache for Redis",
+        "Azure Cosmos DB with strong consistency",
+        "Azure Blob Storage with hot tier"
+      ],
+      "answer": "B",
+      "explanation": "Azure Cache for Redis is a fully managed in-memory cache built on Redis. It stores data in RAM, giving you sub-millisecond latency. Perfect for taking load off your database.",
+      "keyPoints": [
+        "Redis stores data in RAM = sub-millisecond latency",
+        "Reduces database load by caching frequent queries",
+        "Read replicas don't give you sub-millisecond latency"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview",
+      "tags": [
+        "az204::caching::overview"
+      ]
+    },
+    {
+      "id": "RC-002",
+      "type": "single-choice",
+      "question": "Which Azure Cache for Redis tier is the MINIMUM required for a production workload with an SLA?",
+      "options": [
+        "Basic",
+        "Standard",
+        "Premium",
+        "Enterprise"
+      ],
+      "answer": "B",
+      "explanation": "Standard is the minimum tier with an SLA. Basic runs on a single VM with no replication and NO SLA. For production you need at least Standard, which gives you two nodes with replication.",
+      "keyPoints": [
+        "Basic = 1 VM, no SLA, no replication",
+        "Standard = 2 VMs with replication + SLA",
+        "Premium = clustering, persistence, VNet"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview#service-tiers",
+      "tags": [
+        "az204::caching::tiers"
+      ]
+    },
+    {
+      "id": "RC-003",
+      "type": "single-choice",
+      "question": "You need to use RediSearch and RedisJSON modules in Azure Cache for Redis. Which tier must you select?",
+      "options": [
+        "Standard",
+        "Premium",
+        "Enterprise",
+        "Basic"
+      ],
+      "answer": "C",
+      "explanation": "Redis modules (RediSearch, RedisJSON, RedisBloom, RedisTimeSeries) are ONLY available on Enterprise and Enterprise Flash tiers. Premium and below don't support modules.",
+      "keyPoints": [
+        "Redis modules = Enterprise / Enterprise Flash only",
+        "Premium supports clustering but NOT modules",
+        "Enterprise Flash uses NVMe for large caches"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview#service-tiers",
+      "tags": [
+        "az204::caching::redis-modules"
+      ]
+    },
+    {
+      "id": "RC-004",
+      "type": "single-choice",
+      "question": "What is the default eviction policy for Azure Cache for Redis?",
+      "options": [
+        "allkeys-lru",
+        "noeviction",
+        "volatile-lru",
+        "allkeys-lfu"
+      ],
+      "answer": "C",
+      "explanation": "The default is volatile-lru — it evicts the least recently used keys that HAVE a TTL set. Keys without a TTL are left alone.",
+      "keyPoints": [
+        "volatile-lru = default, evicts LRU keys that have a TTL",
+        "allkeys-lru evicts any key, not just ones with TTL",
+        "noeviction returns an error when memory is full"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure#memory-policies",
+      "tags": [
+        "az204::caching::eviction-policies"
+      ]
+    },
+    {
+      "id": "RC-005",
+      "type": "single-choice",
+      "question": "Your Redis cache stores both temporary cached data with TTL and permanent reference data without TTL. The cache is running low on memory. Which eviction policy ensures permanent data is never evicted?",
+      "options": [
+        "allkeys-lru",
+        "volatile-lru",
+        "allkeys-random",
+        "noeviction"
+      ],
+      "answer": "B",
+      "explanation": "volatile-lru only evicts keys that have a TTL set. Keys without TTL (your permanent data) will NEVER be evicted. This is ideal when you have a mix of temporary and permanent data.",
+      "keyPoints": [
+        "volatile-* = only keys with TTL",
+        "allkeys-* = all keys, including permanent ones",
+        "If no keys have TTL, volatile behaves like noeviction"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure#memory-policies",
+      "tags": [
+        "az204::caching::eviction-volatile-vs-allkeys"
+      ]
+    },
+    {
+      "id": "RC-006",
+      "type": "single-choice",
+      "question": "In the cache-aside pattern, what happens when a cache miss occurs during a read operation?",
+      "options": [
+        "The cache automatically fetches the data from the database",
+        "The application reads from the database, stores the result in cache, and returns it",
+        "The request is retried until the cache has the data",
+        "The cache returns a default value configured in the eviction policy"
+      ],
+      "answer": "B",
+      "explanation": "In cache-aside, the application manages the cache itself. On a cache miss: 1) read from the database, 2) write to cache, 3) return the data. The cache has no idea the database exists — your app code handles everything.",
+      "keyPoints": [
+        "Cache-aside: the application manages sync between cache and DB",
+        "On miss: DB → cache → return",
+        "The cache doesn't know about the database"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+      "tags": [
+        "az204::caching::cache-aside-pattern"
+      ]
+    },
+    {
+      "id": "RC-007",
+      "type": "single-choice",
+      "question": "What is the recommended approach for creating ConnectionMultiplexer instances when using StackExchange.Redis?",
+      "options": [
+        "Create a new instance per HTTP request for isolation",
+        "Create a new instance per database operation",
+        "Create a single instance and reuse it as a singleton",
+        "Create one instance per thread for concurrency"
+      ],
+      "answer": "C",
+      "explanation": "ConnectionMultiplexer is expensive to create. It's thread-safe, so you should create ONE instance and reuse it as a singleton for the entire application.",
+      "keyPoints": [
+        "ConnectionMultiplexer = singleton, created once",
+        "Thread-safe — safe for concurrent access",
+        "Creating a new one per request = resource leak"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-dotnet-how-to-use-azure-redis-cache",
+      "tags": [
+        "az204::caching::stackexchange-redis"
+      ]
+    },
+    {
+      "id": "RC-008",
+      "type": "single-choice",
+      "question": "What does the abortConnect=False setting do in the Azure Cache for Redis connection string?",
+      "options": [
+        "Disables SSL/TLS encryption for the connection",
+        "Prevents the client from reconnecting after a disconnection",
+        "Allows the client to retry connection in the background if initial connection fails",
+        "Aborts the connection after a specified timeout"
+      ],
+      "answer": "C",
+      "explanation": "abortConnect=False tells the client: 'if you can't connect right away, keep retrying in the background — don't throw an exception.' For production, ALWAYS set it to False so your app survives temporary Redis outages.",
+      "keyPoints": [
+        "abortConnect=False = retries connection in background",
+        "abortConnect=True = fail fast (good for development)",
+        "In production ALWAYS use False"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-best-practices-development",
+      "tags": [
+        "az204::caching::connection-config"
+      ]
+    },
+    {
+      "id": "RC-009",
+      "type": "single-choice",
+      "question": "Which port should you use when connecting to Azure Cache for Redis with TLS/SSL encryption?",
+      "options": [
+        "6379",
+        "443",
+        "6380",
+        "8080"
+      ],
+      "answer": "C",
+      "explanation": "Port 6380 is the TLS/SSL port for Azure Cache for Redis (recommended). Port 6379 is the non-TLS port (disabled by default). Always use 6380 with ssl=True.",
+      "keyPoints": [
+        "6380 = TLS/SSL (recommended, default)",
+        "6379 = non-TLS (disabled by default)",
+        "Never use an IP address instead of hostname"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure#properties",
+      "tags": [
+        "az204::caching::connection-string"
+      ]
+    },
+    {
+      "id": "RC-010",
+      "type": "single-choice",
+      "question": "Your application stores user sessions in-memory on web servers. After scaling to multiple instances, users lose their session data. What should you use to solve this?",
+      "options": [
+        "Sticky sessions with Azure Load Balancer",
+        "Azure Cache for Redis as a session state provider",
+        "Azure Blob Storage for session files",
+        "SQL Database session table"
+      ],
+      "answer": "B",
+      "explanation": "Azure Cache for Redis as a session store solves this: sessions are stored centrally in Redis, not in a specific server's memory. Any server can read any user's session. Faster than SQL, more reliable than sticky sessions.",
+      "keyPoints": [
+        "Redis session store = centralized sessions",
+        "Works with any number of servers",
+        "Sticky sessions = single point of failure"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-aspnet-session-state-provider",
+      "tags": [
+        "az204::caching::session-state"
+      ]
+    },
+    {
+      "id": "RC-011",
+      "type": "single-choice",
+      "question": "Which Redis data type is BEST suited for implementing a leaderboard with scores?",
+      "options": [
+        "Hashes",
+        "Lists",
+        "Sorted Sets",
+        "Strings"
+      ],
+      "answer": "C",
+      "explanation": "Sorted Sets (ZSET) are the perfect data structure for leaderboards. Each element has a score (number), and Redis automatically sorts elements by score. Commands like ZADD, ZRANK, ZRANGE make rankings trivial.",
+      "keyPoints": [
+        "Sorted Set = element + score, auto-sorted",
+        "ZADD adds items, ZRANK shows position",
+        "Lists are ordered by insertion, not by score"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview",
+      "tags": [
+        "az204::caching::data-types"
+      ]
+    },
+    {
+      "id": "RC-012",
+      "type": "single-choice",
+      "question": "You configure noeviction policy on your Azure Cache for Redis instance. What happens when the cache is full and a new write arrives?",
+      "options": [
+        "The oldest key is automatically removed",
+        "The write succeeds and the cache expands automatically",
+        "Redis returns an OOM error and the write fails",
+        "The key with the shortest TTL is evicted"
+      ],
+      "answer": "C",
+      "explanation": "With noeviction, Redis does NOT remove any keys. When memory is full, write operations (SET, LPUSH, etc.) return an OOM (Out of Memory) error. Read operations keep working.",
+      "keyPoints": [
+        "noeviction = error on writes when cache is full",
+        "Reads keep working",
+        "NOT the default policy (default = volatile-lru)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure#memory-policies",
+      "tags": [
+        "az204::caching::noeviction"
+      ]
+    },
+    {
+      "id": "RC-013",
+      "type": "single-choice",
+      "question": "Which Azure Cache for Redis tier supports data persistence using RDB snapshots?",
+      "options": [
+        "Basic",
+        "Standard",
+        "Premium",
+        "All tiers support persistence"
+      ],
+      "answer": "C",
+      "explanation": "Data persistence (RDB and AOF) is only available on Premium and Enterprise tiers. Basic and Standard do NOT support saving data to disk. Persistence lets you quickly restore the cache after a restart.",
+      "keyPoints": [
+        "RDB = point-in-time snapshots",
+        "AOF = log of every write operation",
+        "Persistence is NOT a replacement for database backups"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-how-to-premium-persistence",
+      "tags": [
+        "az204::caching::persistence"
+      ]
+    },
+    {
+      "id": "RC-014",
+      "type": "single-choice",
+      "question": "Which Redis command is BLOCKED in Azure Cache for Redis because the infrastructure is managed by Azure?",
+      "options": [
+        "GET",
+        "SET",
+        "CONFIG",
+        "HGETALL"
+      ],
+      "answer": "C",
+      "explanation": "CONFIG is blocked because Azure manages the Redis configuration. Settings are changed through Azure Portal or CLI. Also blocked: BGSAVE, SHUTDOWN, SLAVEOF, DEBUG, ACL.",
+      "keyPoints": [
+        "CONFIG, BGSAVE, SHUTDOWN = blocked",
+        "Use Azure Portal/CLI for settings",
+        "GET, SET, HGETALL — work normally"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure#redis-commands-not-supported-in-azure-cache-for-redis",
+      "tags": [
+        "az204::caching::blocked-commands"
+      ]
+    },
+    {
+      "id": "RC-015",
+      "type": "single-choice",
+      "question": "What is the recommended maximum value size for optimal performance in Azure Cache for Redis?",
+      "options": [
+        "1 KB",
+        "100 KB",
+        "10 MB",
+        "512 MB"
+      ],
+      "answer": "B",
+      "explanation": "Recommended value size is under 100 KB. Redis is single-threaded: large values block command processing, eat network bandwidth, and cause timeouts. Many small keys are better than one big blob.",
+      "keyPoints": [
+        "Optimal < 100 KB per value",
+        "Max 512 MB per string (but never do this)",
+        "Split large objects into Hash fields"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-best-practices-development",
+      "tags": [
+        "az204::caching::value-sizing"
+      ]
+    },
+    {
+      "id": "RC-016",
+      "type": "single-choice",
+      "question": "You are using Redis Output Cache Provider in ASP.NET. What does it cache?",
+      "options": [
+        "Individual database query results",
+        "User session state objects",
+        "The full rendered HTML output of pages",
+        "Static CSS and JavaScript files"
+      ],
+      "answer": "C",
+      "explanation": "Redis Output Cache Provider caches the FULL HTML output of a page in Redis. On the next request, the cached HTML is served directly, skipping all page rendering logic.",
+      "keyPoints": [
+        "Caches the complete HTML output of a page",
+        "Next request skips rendering entirely",
+        "Best for static or semi-static content"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-aspnet-output-cache-provider",
+      "tags": [
+        "az204::caching::output-cache"
+      ]
+    },
+    {
+      "id": "RC-017",
+      "type": "single-choice",
+      "question": "What is the maxmemory-reserved setting used for in Azure Cache for Redis?",
+      "options": [
+        "Maximum amount of data the cache can store",
+        "Memory reserved for non-cache operations like replication and failover",
+        "Maximum number of concurrent client connections",
+        "Memory limit per individual key-value pair"
+      ],
+      "answer": "B",
+      "explanation": "maxmemory-reserved sets aside memory for non-cache operations: replication during failover, memory fragmentation, background tasks. Default is 10% of total cache memory.",
+      "keyPoints": [
+        "Default: 10% of total memory",
+        "Range: 10-60% of maxmemory",
+        "Increase it for heavy write workloads"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure#memory-policies",
+      "tags": [
+        "az204::caching::maxmemory-reserved"
+      ]
+    },
+    {
+      "id": "RC-018",
+      "type": "multi-select",
+      "question": "Which TWO features are available ONLY in the Premium tier and above for Azure Cache for Redis? (Select 2)",
+      "options": [
+        "Data replication across two nodes",
+        "Redis clustering with data sharding",
+        "Virtual Network (VNet) isolation",
+        "SLA availability guarantee"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "Clustering (sharding) and VNet isolation are only available starting from Premium. Replication (2 nodes) is already in Standard. SLA is also available in Standard.",
+      "keyPoints": [
+        "Premium+ = clustering, VNet, persistence, geo-replication",
+        "Standard = replication + SLA",
+        "Enterprise = Redis modules + active geo-replication"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview#service-tiers",
+      "tags": [
+        "az204::caching::premium-features"
+      ]
+    },
+    {
+      "id": "RC-019",
+      "type": "multi-select",
+      "question": "Which TWO cache invalidation strategies can you use with Azure Cache for Redis? (Select 2)",
+      "options": [
+        "Automatic database-cache sync built into Redis",
+        "TTL-based expiration on cache keys",
+        "Explicit key deletion when source data changes",
+        "Redis internal garbage collector"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "Two main strategies: 1) TTL — the key auto-expires after a set time. 2) Explicit deletion — your app deletes the key (KeyDelete) when the DB data changes. Redis does NOT sync with the database automatically.",
+      "keyPoints": [
+        "TTL = simplest approach, allows brief staleness",
+        "Explicit delete = KeyDelete() when DB changes",
+        "Often both approaches are combined"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure",
+      "tags": [
+        "az204::caching::invalidation"
+      ]
+    },
+    {
+      "id": "RC-020",
+      "type": "multi-select",
+      "question": "Which THREE are valid Redis data types supported by Azure Cache for Redis? (Select 3)",
+      "options": [
+        "Sorted Sets",
+        "Tables",
+        "Hashes",
+        "Streams"
+      ],
+      "answer": [
+        "A",
+        "C",
+        "D"
+      ],
+      "explanation": "Redis supports: Strings, Hashes, Lists, Sets, Sorted Sets, Streams. Tables is NOT a Redis data type (that's Azure Table Storage). Each type has its own commands and use cases.",
+      "keyPoints": [
+        "Strings, Hashes, Lists, Sets, Sorted Sets, Streams = valid types",
+        "Tables = Azure Table Storage, not Redis",
+        "Hashes = dictionary inside a key (user:123 → {name, email})"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview",
+      "tags": [
+        "az204::caching::data-types"
+      ]
+    },
+    {
+      "id": "RC-021",
+      "type": "multi-select",
+      "question": "Which TWO Redis commands are BLOCKED in Azure Cache for Redis? (Select 2)",
+      "options": [
+        "HSET",
+        "CONFIG",
+        "SHUTDOWN",
+        "ZADD"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "CONFIG and SHUTDOWN are blocked because Azure manages the infrastructure. CONFIG is replaced by settings in Azure Portal. SHUTDOWN makes no sense for a managed service. HSET and ZADD are regular commands that work fine.",
+      "keyPoints": [
+        "Blocked: CONFIG, BGSAVE, SHUTDOWN, SLAVEOF, DEBUG",
+        "HSET, ZADD, GET, SET — work normally",
+        "Configuration through Azure Portal/CLI"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-configure#redis-commands-not-supported-in-azure-cache-for-redis",
+      "tags": [
+        "az204::caching::blocked-commands"
+      ]
+    },
+    {
+      "id": "RC-022",
+      "type": "multi-select",
+      "question": "Which TWO are common use cases for Azure Cache for Redis? (Select 2)",
+      "options": [
+        "Long-term archival data storage",
+        "Session state management for web apps",
+        "Data cache to reduce database load",
+        "Primary database for transactional data"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "Redis is used for: caching database data (cache-aside) and storing sessions. Redis is NOT suited for long-term archival or as a primary transactional database — data lives in RAM and can be lost.",
+      "keyPoints": [
+        "Session store = centralized sessions without sticky sessions",
+        "Data cache = reduces database load",
+        "Redis = cache, NOT a primary database"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview#key-scenarios",
+      "tags": [
+        "az204::caching::use-cases"
+      ]
+    },
+    {
+      "id": "RC-023",
+      "type": "ordering",
+      "question": "Arrange the steps of the cache-aside pattern for a READ operation in the correct order.",
+      "orderItems": [
+        "Application checks the cache for the requested data",
+        "Cache miss occurs — data not found in cache",
+        "Application reads data from the database",
+        "Application stores the data in cache with a TTL",
+        "Application returns the data to the caller"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "Cache-aside READ: first check the cache → if miss → read from DB → store in cache with TTL → return data. The application manages the entire chain.",
+      "keyPoints": [
+        "ALWAYS check the cache first",
+        "On miss — go to DB and update the cache",
+        "TTL prevents stale data from living forever"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+      "tags": [
+        "az204::caching::cache-aside-pattern"
+      ]
+    },
+    {
+      "id": "RC-024",
+      "type": "ordering",
+      "question": "Arrange the steps to create and connect to Azure Cache for Redis using Azure CLI in the correct order.",
+      "orderItems": [
+        "Create a resource group with az group create",
+        "Create the Redis cache with az redis create specifying SKU and size",
+        "Retrieve access keys with az redis list-keys",
+        "Use the hostname and key to build the connection string",
+        "Connect using ConnectionMultiplexer.Connect() in your application"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "The order: create a resource group → create the cache (specifying SKU and size) → get access keys → build the connection string → connect via ConnectionMultiplexer.",
+      "keyPoints": [
+        "az redis create --sku Standard --vm-size C1",
+        "az redis list-keys to get access keys",
+        "ConnectionMultiplexer is created ONCE as a singleton"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/redis",
+      "tags": [
+        "az204::caching::cli-create"
+      ]
+    },
+    {
+      "id": "RC-025",
+      "type": "ordering",
+      "question": "Arrange the steps to configure Azure Cache for Redis as an ASP.NET session state provider.",
+      "orderItems": [
+        "Install the Microsoft.Web.RedisSessionStateProvider NuGet package",
+        "Add sessionState configuration to web.config with mode=Custom",
+        "Configure the Redis provider with host, port, accessKey, and ssl settings",
+        "Deploy the application and verify sessions work across multiple instances"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "explanation": "Steps: install the NuGet package → configure sessionState in web.config as Custom → specify Redis host, port, key, ssl → deploy and verify sessions work across multiple instances.",
+      "keyPoints": [
+        "NuGet: Microsoft.Web.RedisSessionStateProvider",
+        "web.config: sessionState mode=Custom",
+        "ssl=true and port=6380 for TLS"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-aspnet-session-state-provider",
+      "tags": [
+        "az204::caching::session-state"
+      ]
+    },
+    {
+      "id": "RC-026",
+      "type": "code-hotarea",
+      "question": "This C# code attempts to connect to Azure Cache for Redis using StackExchange.Redis. Click on the line(s) with errors.",
+      "codeLines": [
+        "using StackExchange.Redis;",
+        "public class RedisService {",
+        "    private ConnectionMultiplexer _connection;",
+        "    public void ProcessRequest() {",
+        "        _connection = ConnectionMultiplexer.Connect(\"myredis.redis.cache.windows.net:6380,password=KEY,ssl=True,abortConnect=False\");",
+        "        IDatabase db = _connection.GetDatabase();",
+        "        db.StringSet(\"user:123\", \"John\");",
+        "    }",
+        "}"
+      ],
+      "language": "csharp",
+      "answer": [
+        4
+      ],
+      "explanation": "Line 5 creates ConnectionMultiplexer inside the ProcessRequest method. This is WRONG — ConnectionMultiplexer is expensive to create. You should create it ONCE (singleton) and reuse it. Creating one per request = resource leaks and bad performance.",
+      "keyPoints": [
+        "ConnectionMultiplexer = singleton, NOT per-request",
+        "Expensive to create, but thread-safe",
+        "Use DI or static readonly to store it"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-dotnet-how-to-use-azure-redis-cache",
+      "tags": [
+        "az204::caching::stackexchange-redis"
+      ]
+    },
+    {
+      "id": "RC-027",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates an Azure Cache for Redis instance. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az redis create \\",
+        "  --name myRedisCache \\",
+        "  --resource-group myRG \\",
+        "  --location eastus \\",
+        "  --sku Basic \\",
+        "  --vm-size C1",
+        "az redis list-keys --name myRedisCache"
+      ],
+      "language": "bash",
+      "answer": [
+        7
+      ],
+      "explanation": "Line 8 — az redis list-keys is missing the required --resource-group parameter. Without it, the command will fail. Correct: az redis list-keys --name myRedisCache --resource-group myRG.",
+      "keyPoints": [
+        "az redis list-keys REQUIRES --resource-group",
+        "Without --resource-group Azure doesn't know where to find the cache",
+        "Always specify --resource-group for resource operations"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/redis",
+      "tags": [
+        "az204::caching::cli-create"
+      ]
+    },
+    {
+      "id": "RC-028",
+      "type": "code-hotarea",
+      "question": "This C# code implements the cache-aside pattern. Click on the line(s) with errors.",
+      "codeLines": [
+        "public async Task<Product> GetProductAsync(string productId) {",
+        "    IDatabase cache = _connection.GetDatabase();",
+        "    string key = $\"product:{productId}\";",
+        "    string cached = await cache.StringGetAsync(key);",
+        "    if (cached != null) {",
+        "        return JsonSerializer.Deserialize<Product>(cached);",
+        "    }",
+        "    Product product = await _dbContext.Products.FindAsync(productId);",
+        "    await cache.StringSetAsync(key, JsonSerializer.Serialize(product));",
+        "    return product;"
+      ],
+      "language": "csharp",
+      "answer": [
+        8
+      ],
+      "explanation": "Line 9 — StringSetAsync is called WITHOUT a TTL (expiration). In the cache-aside pattern, you MUST set a TTL. Otherwise data stays in cache forever and can become stale. Correct: cache.StringSetAsync(key, value, TimeSpan.FromMinutes(30)).",
+      "keyPoints": [
+        "ALWAYS set a TTL in cache-aside",
+        "No TTL = data lives forever = stale data",
+        "TimeSpan.FromMinutes(30) — typical value"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+      "tags": [
+        "az204::caching::cache-aside-pattern"
+      ]
+    }
+  ]
+}
