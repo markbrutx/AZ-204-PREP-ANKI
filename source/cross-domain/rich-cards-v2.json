@@ -1,0 +1,592 @@
+{
+  "domain": "cross-domain",
+  "deckName": "AZ-204-PREP-ANKI",
+  "cards": [
+    {
+      "id": "RXD-001",
+      "type": "single-choice",
+      "question": "Your company processes IoT sensor data from thousands of devices. Events arrive at high throughput and must be stored in Blob Storage for batch analytics. Which Azure service should you use for ingestion?",
+      "options": [
+        "Event Grid",
+        "Event Hubs",
+        "Service Bus",
+        "Queue Storage"
+      ],
+      "answer": "B",
+      "explanation": "Event Hubs is built for high-throughput streaming data — it can handle millions of events per second. Think of it as a giant funnel for IoT data. Event Grid is for reactive events (resource created/deleted), Service Bus is for reliable business messages with delivery guarantees, and Queue Storage is for simple queues.",
+      "keyPoints": [
+        "Event Hubs = high throughput, streaming data, IoT",
+        "Event Grid = reactive events (pub/sub)",
+        "Service Bus = business messages with transactions",
+        "Queue Storage = simple queues without ordering guarantees"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-hubs/event-hubs-about",
+      "tags": ["az204::cross-domain::messaging-comparison"]
+    },
+    {
+      "id": "RXD-002",
+      "type": "single-choice",
+      "question": "Your App Service web app needs to read secrets from Azure Key Vault without storing credentials in code. What is the recommended approach?",
+      "options": [
+        "Store Key Vault connection string in app settings",
+        "Use system-assigned Managed Identity with Key Vault access policy",
+        "Create a service principal and store its secret in environment variables",
+        "Use Azure AD app registration with client certificate stored in blob storage"
+      ],
+      "answer": "B",
+      "explanation": "System-assigned Managed Identity is the best way. Azure automatically creates an identity for your App Service, and you grant it access to Key Vault through an access policy. Zero secrets in your code or settings!",
+      "keyPoints": [
+        "Managed Identity = no secrets in code",
+        "System-assigned is tied to the resource, deleted with it",
+        "DefaultAzureCredential automatically finds Managed Identity",
+        "Access policy in Key Vault grants permissions to the identity"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references",
+      "tags": ["az204::cross-domain::identity-keyvault"]
+    },
+    {
+      "id": "RXD-003",
+      "type": "single-choice",
+      "question": "You need to process messages from a Service Bus queue using serverless compute. Each message triggers independent processing. Which Azure Functions trigger should you use?",
+      "options": [
+        "HTTP trigger with Service Bus SDK",
+        "Timer trigger polling the queue every 30 seconds",
+        "Service Bus trigger with queue binding",
+        "Event Grid trigger with Service Bus subscription"
+      ],
+      "answer": "C",
+      "explanation": "Service Bus trigger plugs directly into Functions. Your function fires automatically when a message lands in the queue. HTTP trigger would need a webhook, Timer trigger is polling with delays, and Event Grid trigger adds an unnecessary middle layer.",
+      "keyPoints": [
+        "Service Bus trigger = auto-fires on new message",
+        "Binding = declarative connection without boilerplate code",
+        "Consumption plan = pay only for actual executions",
+        "Functions auto-scale based on queue length"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-service-bus-trigger",
+      "tags": ["az204::cross-domain::functions-servicebus"]
+    },
+    {
+      "id": "RXD-004",
+      "type": "single-choice",
+      "question": "Your application stores user session data that must be shared across multiple App Service instances. The data expires after 20 minutes of inactivity. Which solution is most appropriate?",
+      "options": [
+        "Azure Blob Storage with lifecycle management",
+        "Azure Cache for Redis with session state provider",
+        "Cosmos DB with TTL set to 1200 seconds",
+        "Azure SQL Database with scheduled cleanup job"
+      ],
+      "answer": "B",
+      "explanation": "Azure Cache for Redis is perfect for sessions. It's fast (in-memory), supports TTL for automatic data expiration, and has a built-in ASP.NET session state provider. Cosmos DB and SQL are overkill for sessions, and Blob Storage is too slow.",
+      "keyPoints": [
+        "Redis = in-memory, low latency for sessions",
+        "TTL in Redis = automatic data expiration",
+        "Session state provider = plug-and-play for ASP.NET",
+        "Shared cache across all App Service instances"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-aspnet-session-state-provider",
+      "tags": ["az204::cross-domain::caching-appservice"]
+    },
+    {
+      "id": "RXD-005",
+      "type": "single-choice",
+      "question": "You deploy a containerized API to Azure Container Apps. The API reads configuration from Azure App Configuration and secrets from Key Vault. How should the Container App authenticate to these services?",
+      "options": [
+        "Mount Key Vault certificates as container volumes",
+        "Store connection strings in container environment variables",
+        "Enable user-assigned Managed Identity on the Container App",
+        "Use Azure AD application with client secret in container registry"
+      ],
+      "answer": "C",
+      "explanation": "User-assigned Managed Identity is the best pick for Container Apps. It lets you authenticate to App Configuration and Key Vault with zero secrets. User-assigned (not system-assigned) is better here because it survives when you create new revisions.",
+      "keyPoints": [
+        "User-assigned MI = survives container app updates",
+        "DefaultAzureCredential works with Managed Identity automatically",
+        "One identity can access multiple services",
+        "No secrets in env vars = more secure"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/managed-identity",
+      "tags": ["az204::cross-domain::containers-identity"]
+    },
+    {
+      "id": "RXD-006",
+      "type": "single-choice",
+      "question": "Your web application serves static assets (images, CSS, JavaScript) to users globally. You want to reduce latency and offload traffic from your App Service. Which combination should you use?",
+      "options": [
+        "Azure Front Door with App Service as origin",
+        "Azure CDN with Blob Storage as origin",
+        "Azure Traffic Manager with multiple App Service regions",
+        "Azure Load Balancer with App Service deployment slots"
+      ],
+      "answer": "B",
+      "explanation": "Azure CDN + Blob Storage is the classic combo for static content. Files sit cheaply in Blob Storage, and CDN caches them on edge servers worldwide. Front Door is for dynamic content and routing, Traffic Manager is for DNS-based routing, and Load Balancer is for L4 balancing.",
+      "keyPoints": [
+        "CDN = caches static files on edge servers (closer to users)",
+        "Blob Storage = cheap storage for static files",
+        "Front Door = L7 routing + WAF (for APIs/dynamic content)",
+        "CDN reduces load on App Service"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+      "tags": ["az204::cross-domain::cdn-storage"]
+    },
+    {
+      "id": "RXD-007",
+      "type": "single-choice",
+      "question": "A Cosmos DB change feed triggers an Azure Function that sends notifications via Event Grid. What consistency level ensures the Function processes ALL changes in order?",
+      "options": [
+        "Strong consistency",
+        "Session consistency",
+        "Consistent prefix",
+        "Eventual consistency"
+      ],
+      "answer": "C",
+      "explanation": "Cosmos DB change feed guarantees order within a logical partition REGARDLESS of the consistency level. But Consistent Prefix guarantees that reads never see out-of-order writes. The change feed is always in order within a partition key.",
+      "keyPoints": [
+        "Change feed = order guaranteed within partition key",
+        "Consistent prefix = reads always in write order",
+        "Strong = most expensive, not needed for change feed",
+        "Change feed works at any consistency level"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/change-feed",
+      "tags": ["az204::cross-domain::cosmosdb-functions"]
+    },
+    {
+      "id": "RXD-008",
+      "type": "single-choice",
+      "question": "You need to implement authentication for a single-page application (SPA) that calls your API Management-protected backend API. Which OAuth 2.0 flow should the SPA use?",
+      "options": [
+        "Client credentials flow",
+        "Authorization code flow with PKCE",
+        "Resource owner password credentials flow",
+        "Implicit grant flow"
+      ],
+      "answer": "B",
+      "explanation": "Authorization code flow with PKCE is the recommended flow for SPAs. PKCE protects against authorization code interception. Implicit flow is deprecated. Client credentials is for machine-to-machine. Resource owner password is insecure.",
+      "keyPoints": [
+        "PKCE = Proof Key for Code Exchange (protects against interception)",
+        "Implicit flow = deprecated, don't use for SPAs",
+        "Client credentials = server-to-server (no user involved)",
+        "APIM validate-jwt checks the token from the SPA"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow",
+      "tags": ["az204::cross-domain::auth-apim"]
+    },
+    {
+      "id": "RXD-009",
+      "type": "single-choice",
+      "question": "Your Azure Function is triggered by Blob Storage events. You need exactly-once processing with dead-letter support. Which trigger mechanism should you use?",
+      "options": [
+        "Blob trigger (polling-based)",
+        "Event Grid trigger with Blob Storage events",
+        "Timer trigger with Blob SDK to list new blobs",
+        "HTTP trigger called by Logic App monitoring the container"
+      ],
+      "answer": "B",
+      "explanation": "Event Grid trigger is the best choice. Event Grid delivers blob events in near-real-time with dead-lettering and retry policies. Blob trigger uses polling (delays up to several minutes) and does NOT support dead-letter. Timer trigger is polling with delays.",
+      "keyPoints": [
+        "Event Grid = push-based, near-real-time, dead-letter support",
+        "Blob trigger = polling-based, delays up to minutes, no dead-letter",
+        "Event Grid retry policy = up to 24 hours",
+        "Event Grid + Functions = recommended for blob events"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger",
+      "tags": ["az204::cross-domain::functions-eventgrid-blob"]
+    },
+    {
+      "id": "RXD-010",
+      "type": "single-choice",
+      "question": "You want to monitor the performance of your distributed microservices architecture spanning App Service, Azure Functions, and Container Apps. Which tool provides end-to-end transaction visibility across all services?",
+      "options": [
+        "Azure Monitor Metrics with custom dashboards",
+        "Application Insights with distributed tracing",
+        "Azure Log Analytics with custom KQL queries",
+        "Azure Service Health with alert rules"
+      ],
+      "answer": "B",
+      "explanation": "Application Insights with distributed tracing is the only tool for end-to-end transaction visibility. It automatically correlates requests across services using operation_Id. Metrics gives you only numbers, Log Analytics gives logs without auto-correlation, and Service Health shows Azure platform status.",
+      "keyPoints": [
+        "Distributed tracing = correlates requests via operation_Id",
+        "Application Map = visualizes dependencies between services",
+        "W3C Trace Context = standard for trace propagation",
+        "One App Insights resource can monitor all services"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/app/distributed-trace-data",
+      "tags": ["az204::cross-domain::monitoring-distributed"]
+    },
+    {
+      "id": "RXD-011",
+      "type": "single-choice",
+      "question": "Your application pushes container images to Azure Container Registry (ACR) and deploys them to Container Apps. You need ACR to automatically trigger a new Container Apps revision when a new image is pushed. What should you configure?",
+      "options": [
+        "ACR webhook pointing to Container Apps deployment endpoint",
+        "Azure Event Grid subscription on ACR image push events",
+        "ACR task with a deployment step to Container Apps",
+        "Continuous deployment in Container Apps with ACR as image source"
+      ],
+      "answer": "D",
+      "explanation": "Container Apps has built-in continuous deployment from ACR. When enabled, a new revision is created automatically whenever you push a new image. No webhooks, Event Grid, or ACR tasks needed — it's all built in.",
+      "keyPoints": [
+        "Continuous deployment = built-in Container Apps feature",
+        "ACR + Container Apps = automatic revisions",
+        "Managed Identity for Container Apps to authenticate with ACR",
+        "New revision = new image deployed automatically"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/revisions",
+      "tags": ["az204::cross-domain::containers-acr"]
+    },
+    {
+      "id": "RXD-012",
+      "type": "single-choice",
+      "question": "You store frequently accessed product catalog data in Cosmos DB and want to reduce read costs and latency. Which caching strategy should you implement?",
+      "options": [
+        "Cosmos DB integrated cache with dedicated gateway",
+        "Azure CDN with Cosmos DB REST API as origin",
+        "Azure Cache for Redis with cache-aside pattern",
+        "Cosmos DB request-level caching with Session consistency"
+      ],
+      "answer": "C",
+      "explanation": "Cache-aside pattern with Redis is the classic strategy. Your app checks Redis first, on a miss it reads from Cosmos DB and puts the result in the cache. This cuts RU/s consumption and latency. Cosmos DB integrated cache is also an option, but Redis gives you more control.",
+      "keyPoints": [
+        "Cache-aside: check cache → miss → read DB → store in cache",
+        "Redis reduces RU/s spend on Cosmos DB",
+        "TTL in Redis = automatic cache invalidation",
+        "Change feed + Redis = proactive cache updates"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/architecture/patterns/cache-aside",
+      "tags": ["az204::cross-domain::caching-cosmosdb"]
+    },
+    {
+      "id": "RXD-013",
+      "type": "single-choice",
+      "question": "Your API Management instance needs to validate JWT tokens issued by Azure AD and then forward requests to a backend App Service. Which APIM policy section should contain the validate-jwt policy?",
+      "options": [
+        "backend",
+        "outbound",
+        "on-error",
+        "inbound"
+      ],
+      "answer": "D",
+      "explanation": "validate-jwt ALWAYS goes in the inbound section. You must check the token BEFORE sending the request to the backend. If the token is invalid, the request gets rejected immediately. Backend section is for modifying the request to the backend, outbound is for modifying the response.",
+      "keyPoints": [
+        "inbound = processing BEFORE backend (auth, rate-limit, CORS)",
+        "backend = modifying the request to backend (forward-request)",
+        "outbound = modifying the response to the client",
+        "on-error = error handling"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy",
+      "tags": ["az204::cross-domain::apim-auth"]
+    },
+    {
+      "id": "RXD-014",
+      "type": "single-choice",
+      "question": "You need to implement a saga pattern for an e-commerce checkout involving Azure Functions for payment, inventory, and shipping. Which Durable Functions pattern is most appropriate?",
+      "options": [
+        "Function chaining with error compensation",
+        "Fan-out/fan-in with parallel processing",
+        "Monitor pattern with polling",
+        "Human interaction pattern with approval"
+      ],
+      "answer": "A",
+      "explanation": "Function chaining with error compensation IS the saga pattern. Steps run one after another (payment → inventory → shipping), and if something fails, compensation actions run (refund payment, restore inventory). Fan-out/fan-in is for parallel tasks, Monitor is for polling.",
+      "keyPoints": [
+        "Function chaining = sequential steps with dependencies",
+        "Compensation = rollback on failure (saga pattern)",
+        "Fan-out/fan-in = parallel processing of independent tasks",
+        "Orchestrator function coordinates the whole process"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::cross-domain::functions-patterns"]
+    },
+    {
+      "id": "RXD-015",
+      "type": "single-choice",
+      "question": "Your team deploys an App Service web app with deployment slots. After swapping staging to production, users report errors. What is the fastest way to recover?",
+      "options": [
+        "Redeploy the previous version from source control",
+        "Swap the slots back (production to staging)",
+        "Scale out to more instances to handle the load",
+        "Restart the production slot"
+      ],
+      "answer": "B",
+      "explanation": "Swap back is instant recovery! Swapping in App Service just switches routing — the previous version is still sitting in the staging slot. Redeploying takes minutes, restarting won't fix code errors, and scaling out is irrelevant here.",
+      "keyPoints": [
+        "Swap = instant route switch",
+        "Previous version stays in the staging slot",
+        "Swap back = rollback in seconds",
+        "Auto swap is available for CI/CD"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::cross-domain::appservice-deployment"]
+    },
+    {
+      "id": "RXD-016",
+      "type": "single-choice",
+      "question": "You need to react to Azure resource lifecycle events (VM created, Blob deleted, Resource Group modified) across your subscription. Which service should you use?",
+      "options": [
+        "Azure Event Hubs with capture",
+        "Azure Service Bus with topic subscriptions",
+        "Azure Event Grid with system topics",
+        "Azure Monitor with action groups"
+      ],
+      "answer": "C",
+      "explanation": "Event Grid with system topics is purpose-built for reactive Azure resource events. System topics automatically publish lifecycle events (created, deleted, updated). Event Hubs is for streaming data, Service Bus is for business messages.",
+      "keyPoints": [
+        "Event Grid system topics = Azure resource events",
+        "Reactive push-based (not polling)",
+        "Subscriptions with filtering by event type",
+        "Integrates with Functions, Logic Apps, webhooks"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/system-topics",
+      "tags": ["az204::cross-domain::eventgrid-resources"]
+    },
+    {
+      "id": "RXD-017",
+      "type": "multi-select",
+      "question": "Which TWO Azure services support system-assigned Managed Identity for accessing Key Vault secrets without storing credentials? (Select 2)",
+      "options": [
+        "Azure App Service",
+        "Azure CDN",
+        "Azure Container Apps",
+        "Azure API Management (Consumption tier)"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "App Service and Container Apps both support system-assigned Managed Identity. CDN does NOT have Managed Identity. APIM Consumption tier does NOT support Managed Identity (only Developer, Basic, Standard, and Premium tiers do).",
+      "keyPoints": [
+        "App Service = full support for system/user-assigned MI",
+        "Container Apps = supports system/user-assigned MI",
+        "CDN = no Managed Identity",
+        "APIM Consumption = no Managed Identity"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/services-support-managed-identities",
+      "tags": ["az204::cross-domain::managed-identity"]
+    },
+    {
+      "id": "RXD-018",
+      "type": "multi-select",
+      "question": "You need to choose between Event Grid and Service Bus. Which TWO scenarios are best suited for Service Bus? (Select 2)",
+      "options": [
+        "Reacting to blob storage upload events",
+        "Processing financial transactions with guaranteed ordering",
+        "Implementing competing consumers pattern with message sessions",
+        "Triggering Azure Functions when a VM is created"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Service Bus is for business messages with guarantees. Financial transactions need ordering and transactions (Service Bus sessions). Competing consumers with sessions is a classic Service Bus pattern. Blob events and VM events are reactive events — that's Event Grid territory.",
+      "keyPoints": [
+        "Service Bus = ordering, transactions, sessions, dead-letter",
+        "Event Grid = reactive Azure resource events",
+        "Service Bus sessions = FIFO guarantee for a message group",
+        "Event Grid = push-based, near-real-time"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/compare-messaging-services",
+      "tags": ["az204::cross-domain::eventgrid-vs-servicebus"]
+    },
+    {
+      "id": "RXD-019",
+      "type": "multi-select",
+      "question": "Your Durable Function orchestrator needs to store state and checkpoints. Which TWO storage backends are supported? (Select 2)",
+      "options": [
+        "Azure Cosmos DB",
+        "Azure Cache for Redis",
+        "Azure Storage (Tables + Queues + Blobs)",
+        "Microsoft Netherite (Event Hubs + Azure Storage)"
+      ],
+      "answer": ["C", "D"],
+      "explanation": "Durable Functions supports 3 storage providers: Azure Storage (the default), Netherite (Event Hubs + Storage for high performance), and MSSQL. Cosmos DB and Redis are NOT supported as storage backends for Durable Functions.",
+      "keyPoints": [
+        "Azure Storage = default provider (Tables + Queues + Blobs)",
+        "Netherite = Event Hubs based, high performance",
+        "MSSQL = the third supported provider",
+        "Cosmos DB and Redis are NOT supported"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-storage-providers",
+      "tags": ["az204::cross-domain::durable-functions-storage"]
+    },
+    {
+      "id": "RXD-020",
+      "type": "multi-select",
+      "question": "Which TWO services can serve as an origin for Azure CDN? (Select 2)",
+      "options": [
+        "Azure Blob Storage",
+        "Azure Cosmos DB",
+        "Azure App Service",
+        "Azure Key Vault"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Blob Storage and App Service are standard CDN origins. Blob Storage for static files, App Service for dynamic content. Cosmos DB and Key Vault cannot be CDN origins — they don't serve HTTP content directly.",
+      "keyPoints": [
+        "Blob Storage = static files (images, CSS, JS)",
+        "App Service = dynamic content with caching",
+        "Custom origin = any HTTP endpoint is also supported",
+        "Cosmos DB and Key Vault = not HTTP servers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-create-endpoint-how-to",
+      "tags": ["az204::cross-domain::cdn-origins"]
+    },
+    {
+      "id": "RXD-021",
+      "type": "multi-select",
+      "question": "Which TWO Azure compute services support scale-to-zero (no instances running when idle)? (Select 2)",
+      "options": [
+        "Azure App Service (Standard tier)",
+        "Azure Functions (Consumption plan)",
+        "Azure Container Apps (with min replicas = 0)",
+        "Azure App Service (Premium V3 tier)"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Functions Consumption plan and Container Apps with min-replicas=0 both support scale-to-zero. App Service ALWAYS has at least 1 instance running (you pay for the plan even with zero traffic). Premium V3 also requires at least 1 instance.",
+      "keyPoints": [
+        "Functions Consumption = scale to zero, pay per execution",
+        "Container Apps min=0 = scale to zero, event-driven",
+        "App Service = minimum 1 instance always",
+        "Scale-to-zero = cost savings when idle"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/consumption-plan",
+      "tags": ["az204::cross-domain::scale-to-zero"]
+    },
+    {
+      "id": "RXD-022",
+      "type": "ordering",
+      "question": "Arrange the steps to implement a secure end-to-end flow: App Service reads secrets from Key Vault using Managed Identity.",
+      "orderItems": [
+        "Enable system-assigned Managed Identity on App Service",
+        "Create an access policy in Key Vault granting Get permission to the identity",
+        "Add Key Vault reference in App Service configuration (@Microsoft.KeyVault(...))",
+        "App Service automatically resolves the secret value at runtime"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "First enable Managed Identity (step 1), then grant it access to Key Vault via access policy (step 2), then add the secret reference in app settings (step 3), and App Service automatically resolves the value (step 4).",
+      "keyPoints": [
+        "MI first = identity must exist before creating access policy",
+        "Access policy = permission for operations (Get, List, Set)",
+        "@Microsoft.KeyVault(...) = syntax for secret reference",
+        "Runtime resolution = App Service fetches the secret itself"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/app-service-key-vault-references",
+      "tags": ["az204::cross-domain::keyvault-appservice-flow"]
+    },
+    {
+      "id": "RXD-023",
+      "type": "ordering",
+      "question": "Arrange the steps for implementing an event-driven architecture: Blob Storage upload triggers processing and stores results in Cosmos DB.",
+      "orderItems": [
+        "Upload a blob to Azure Storage container",
+        "Event Grid detects the BlobCreated event and publishes it",
+        "Azure Function triggered by Event Grid processes the blob data",
+        "Function writes processed results to Cosmos DB using output binding",
+        "Application Insights logs the end-to-end transaction"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Classic event-driven pipeline: file upload → Event Grid catches the event → Function processes it → result goes to Cosmos DB → monitoring via App Insights. Each step depends on the previous one.",
+      "keyPoints": [
+        "Event Grid = near-real-time blob event detection",
+        "Function trigger = auto-fires on event",
+        "Cosmos DB output binding = declarative write without SDK code",
+        "App Insights = distributed tracing of the whole pipeline"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/event-grid/event-schema-blob-storage",
+      "tags": ["az204::cross-domain::event-driven-pipeline"]
+    },
+    {
+      "id": "RXD-024",
+      "type": "ordering",
+      "question": "Arrange the steps for deploying a containerized application from development to production using Azure services.",
+      "orderItems": [
+        "Build Docker image locally and test",
+        "Push image to Azure Container Registry (ACR)",
+        "Create Container Apps environment with networking configuration",
+        "Deploy Container App with image from ACR using Managed Identity",
+        "Configure custom domain and TLS certificate"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Standard pipeline: local build → push to ACR → create environment → deploy Container App → set up domain. The environment must exist before the Container App, and Managed Identity handles ACR authentication.",
+      "keyPoints": [
+        "ACR = Azure's private container registry (like private Docker Hub)",
+        "Environment = shared networking for Container Apps",
+        "Managed Identity = authenticate to ACR without passwords",
+        "Custom domain + TLS = the final production setup step"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/get-started",
+      "tags": ["az204::cross-domain::container-deployment-flow"]
+    },
+    {
+      "id": "RXD-025",
+      "type": "code-hotarea",
+      "question": "This C# code connects an App Service to Key Vault using Managed Identity. Click on the line(s) with errors.",
+      "codeLines": [
+        "using Azure.Identity;",
+        "using Azure.Security.KeyVault.Secrets;",
+        "var credential = new DefaultAzureCredential();",
+        "var client = new SecretClient(",
+        "    new Uri(\"https://myvault.vault.azure.net\"),",
+        "    credential);",
+        "KeyVaultSecret secret = await client.GetSecretAsync(\"my-secret\");",
+        "string secretValue = secret.Value.Value;",
+        "Console.WriteLine(secretValue);"
+      ],
+      "language": "csharp",
+      "answer": [8],
+      "explanation": "Line 9 prints a secret to the console — a serious security violation! In production you must NEVER log secret values. The rest of the code is correct: DefaultAzureCredential automatically picks up Managed Identity, and SecretClient connects to Key Vault.",
+      "keyPoints": [
+        "NEVER log secrets (Console.WriteLine, logger, etc.)",
+        "DefaultAzureCredential = automatic credential selection",
+        "secret.Value.Value = double .Value (SecretProperties → string)",
+        "URI format: https://{vault-name}.vault.azure.net"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/key-vault/secrets/quick-create-net",
+      "tags": ["az204::cross-domain::keyvault-code"]
+    },
+    {
+      "id": "RXD-026",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates an event-driven pipeline: Blob Storage → Event Grid → Azure Function. Click on the line(s) with errors.",
+      "codeLines": [
+        "az storage account create --name mystorage --resource-group myRG --sku Standard_LRS",
+        "az functionapp create --name myfunc --resource-group myRG --consumption-plan-location eastus --storage-account mystorage",
+        "az eventgrid event-subscription create \\",
+        "  --source-resource-id /subscriptions/{sub}/resourceGroups/myRG/providers/Microsoft.Storage/storageAccounts/mystorage \\",
+        "  --name blobsub \\",
+        "  --endpoint-type azurefunction \\",
+        "  --endpoint /subscriptions/{sub}/resourceGroups/myRG/providers/Microsoft.Web/sites/myfunc/functions/BlobProcessor \\",
+        "  --included-event-types Microsoft.Storage.BlobCreated Microsoft.Storage.BlobDeleted"
+      ],
+      "language": "bash",
+      "answer": [1],
+      "explanation": "Line 2 uses --consumption-plan-location but is missing --runtime and --functions-version. Without --runtime, Azure doesn't know which runtime to use (dotnet, node, python). The command will create the function app, but it won't be able to run functions without a runtime.",
+      "keyPoints": [
+        "--runtime is required (dotnet, node, python, java)",
+        "--functions-version sets the Functions runtime version",
+        "Event Grid subscription requires a deployed function",
+        "--included-event-types filters event types"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/functionapp#az-functionapp-create",
+      "tags": ["az204::cross-domain::eventgrid-functions-cli"]
+    },
+    {
+      "id": "RXD-027",
+      "type": "code-hotarea",
+      "question": "This C# code implements cache-aside pattern with Redis and Cosmos DB. Click on the line(s) with errors.",
+      "codeLines": [
+        "IDatabase cache = redis.GetDatabase();",
+        "string key = $\"product:{productId}\";",
+        "string cached = await cache.StringGetAsync(key);",
+        "if (cached != null) {",
+        "    return JsonSerializer.Deserialize<Product>(cached);",
+        "}",
+        "var product = await cosmosContainer.ReadItemAsync<Product>(productId, PartitionKey.None);",
+        "await cache.StringSetAsync(key, JsonSerializer.Serialize(product.Resource));",
+        "return product.Resource;"
+      ],
+      "language": "csharp",
+      "answer": [6],
+      "explanation": "Line 7 uses PartitionKey.None — this only works for legacy containers without a partition key. In modern Cosmos DB you ALWAYS need a partition key. The correct code is: new PartitionKey(productId) or whatever your partition key is. Also, line 8 doesn't set a TTL for the cache, but that's a bad practice, not an error.",
+      "keyPoints": [
+        "PartitionKey.None = only for legacy containers without partition key",
+        "Always provide the actual partition key value",
+        "StringSetAsync without TTL = data stays in cache forever",
+        "ReadItemAsync requires both id and partition key"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-dotnet-read-item",
+      "tags": ["az204::cross-domain::redis-cosmosdb-code"]
+    }
+  ]
+}
