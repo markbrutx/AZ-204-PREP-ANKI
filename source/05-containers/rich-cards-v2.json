@@ -1,0 +1,1120 @@
+{
+  "domain": "05-containers",
+  "deckName": "AZ-204-PREP-ANKI::05-Containers",
+  "cards": [
+    {
+      "id": "RCTR-001",
+      "type": "single-choice",
+      "question": "You need a managed Docker registry that supports geo-replication and private endpoints. Which ACR SKU should you choose?",
+      "options": [
+        "Basic",
+        "Standard",
+        "Premium",
+        "Enterprise"
+      ],
+      "answer": "C",
+      "explanation": "Premium is the only SKU that supports geo-replication, private endpoints, content trust, and customer-managed keys. Basic and Standard don't have these features. Enterprise SKU doesn't exist.",
+      "keyPoints": [
+        "Premium = geo-replication + private endpoints + content trust",
+        "Basic = 10 GiB, for dev/test",
+        "Standard = 100 GiB, for production without premium features"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-skus",
+      "tags": [
+        "az204::containers::acr-skus"
+      ]
+    },
+    {
+      "id": "RCTR-002",
+      "type": "single-choice",
+      "question": "A developer wants to build a container image in Azure without installing Docker locally. Which command should they use?",
+      "options": [
+        "az container build --registry myacr --image myapp:v1 .",
+        "az acr build --registry myacr --image myapp:v1 .",
+        "docker build --remote myacr --image myapp:v1 .",
+        "az acr task run --registry myacr --image myapp:v1 ."
+      ],
+      "answer": "B",
+      "explanation": "az acr build is a quick task in ACR Tasks. It sends your source code to Azure, builds the image in the cloud, and pushes it to the registry. No local Docker daemon needed.",
+      "keyPoints": [
+        "az acr build = docker build + docker push in the cloud",
+        "No local Docker needed",
+        "Source code is sent as the build context"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview",
+      "tags": [
+        "az204::containers::acr-build"
+      ]
+    },
+    {
+      "id": "RCTR-003",
+      "type": "single-choice",
+      "question": "Which ACR Tasks trigger automatically rebuilds application images when the OS or framework base image is updated?",
+      "options": [
+        "Source code update trigger",
+        "Schedule trigger",
+        "Base image update trigger",
+        "Webhook trigger"
+      ],
+      "answer": "C",
+      "explanation": "Base image update trigger automatically rebuilds your app images when the base image (like dotnet/aspnet) gets updated. This gives you automatic OS patching without any manual work.",
+      "keyPoints": [
+        "3 trigger types: source code, base image, schedule",
+        "Base image trigger = automatic OS patching",
+        "Webhook trigger doesn't exist in ACR Tasks"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview",
+      "tags": [
+        "az204::containers::acr-task-triggers"
+      ]
+    },
+    {
+      "id": "RCTR-004",
+      "type": "single-choice",
+      "question": "You need to replicate your container registry across multiple Azure regions for lower latency pulls. Which command creates a replica?",
+      "options": [
+        "az acr create --location westeurope --replicate true",
+        "az acr replication create --registry myacr --location westeurope",
+        "az acr geo-replicate --registry myacr --region westeurope",
+        "az acr update --registry myacr --add-region westeurope"
+      ],
+      "answer": "B",
+      "explanation": "az acr replication create is the correct command to create an ACR replica in another region. Requires Premium SKU. The replica lets you pull images fast from the nearest region.",
+      "keyPoints": [
+        "Geo-replication = Premium SKU only",
+        "Single registry name across all regions",
+        "No extra egress fees when pulling from a local replica"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-geo-replication",
+      "tags": [
+        "az204::containers::acr-geo-replication"
+      ]
+    },
+    {
+      "id": "RCTR-005",
+      "type": "single-choice",
+      "question": "What is the fastest way to run a single container in Azure without managing VMs or orchestrators?",
+      "options": [
+        "Azure Kubernetes Service (AKS)",
+        "Azure Container Apps",
+        "Azure Container Instances (ACI)",
+        "Azure App Service"
+      ],
+      "answer": "C",
+      "explanation": "ACI is the fastest and simplest way to run a container in Azure. It starts in seconds, no VM or orchestrator to manage. You pay per-second for CPU and memory.",
+      "keyPoints": [
+        "ACI = simplest option, starts in seconds",
+        "No VM, no orchestrator",
+        "Great for batch jobs, CI/CD agents, quick tasks"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-overview",
+      "tags": [
+        "az204::containers::aci-overview"
+      ]
+    },
+    {
+      "id": "RCTR-006",
+      "type": "single-choice",
+      "question": "A container group in ACI is similar to which Kubernetes concept?",
+      "options": [
+        "Deployment",
+        "Service",
+        "Pod",
+        "Namespace"
+      ],
+      "answer": "C",
+      "explanation": "A container group in ACI is like a Pod in Kubernetes. Containers in a group run on the same machine, share the lifecycle, network (localhost), and storage volumes.",
+      "keyPoints": [
+        "Container group = Kubernetes Pod equivalent",
+        "Containers communicate via localhost",
+        "Multi-container groups are Linux only",
+        "One public IP and DNS per group"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-container-groups",
+      "tags": [
+        "az204::containers::aci-container-groups"
+      ]
+    },
+    {
+      "id": "RCTR-007",
+      "type": "single-choice",
+      "question": "You need to run a batch processing container that should retry on failure but not restart after successful completion. Which ACI restart policy should you use?",
+      "options": [
+        "Always",
+        "OnFailure",
+        "Never",
+        "OnSuccess"
+      ],
+      "answer": "B",
+      "explanation": "OnFailure restarts the container only on a non-zero exit code. If the task finishes successfully (exit 0), the container stops. Perfect for batch jobs with retry logic.",
+      "keyPoints": [
+        "Always = restart every time (default)",
+        "OnFailure = retry on error",
+        "Never = run once only",
+        "OnSuccess doesn't exist"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-restart-policy",
+      "tags": [
+        "az204::containers::aci-restart-policies"
+      ]
+    },
+    {
+      "id": "RCTR-008",
+      "type": "single-choice",
+      "question": "Which ACI volume type provides persistent storage backed by Azure Storage?",
+      "options": [
+        "emptyDir",
+        "gitRepo",
+        "Azure Files share",
+        "secret"
+      ],
+      "answer": "C",
+      "explanation": "Azure Files share is the only ACI volume type with persistent storage. Data lives in Azure Storage and survives container restarts.",
+      "keyPoints": [
+        "Azure Files = persistent storage",
+        "emptyDir = temporary, lost when container stops",
+        "gitRepo = clones a git repo at startup",
+        "secret = mounts secrets as files"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-volume-azure-files",
+      "tags": [
+        "az204::containers::aci-volumes"
+      ]
+    },
+    {
+      "id": "RCTR-009",
+      "type": "single-choice",
+      "question": "How do you pass sensitive values like passwords to an ACI container without exposing them in logs?",
+      "options": [
+        "Use --environment-variables with the secret value",
+        "Use --secure-environment-variables",
+        "Mount a Kubernetes Secret volume",
+        "Use az keyvault secret set"
+      ],
+      "answer": "B",
+      "explanation": "--secure-environment-variables passes values as secure env vars. They don't show up in container properties or logs — only accessible from inside the container.",
+      "keyPoints": [
+        "--environment-variables = visible in container properties",
+        "--secure-environment-variables = hidden, only inside the container",
+        "Kubernetes Secrets don't work in ACI"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-environment-variables",
+      "tags": [
+        "az204::containers::aci-env-vars"
+      ]
+    },
+    {
+      "id": "RCTR-010",
+      "type": "single-choice",
+      "question": "What is Azure Container Apps?",
+      "options": [
+        "A managed Kubernetes cluster service",
+        "A serverless container platform built on Kubernetes and KEDA",
+        "A VM-based container hosting service",
+        "A Docker registry service"
+      ],
+      "answer": "B",
+      "explanation": "Container Apps is a serverless platform for containerized microservices. It runs on Kubernetes + KEDA under the hood, but you never see the cluster. Auto-scaling, ingress, Dapr — all built in.",
+      "keyPoints": [
+        "Serverless = no infrastructure management",
+        "Under the hood: Kubernetes + KEDA",
+        "Scales from 0 to 1000 replicas",
+        "Built-in: ingress, Dapr, HTTPS"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/overview",
+      "tags": [
+        "az204::containers::container-apps-overview"
+      ]
+    },
+    {
+      "id": "RCTR-011",
+      "type": "single-choice",
+      "question": "What is a revision in Azure Container Apps?",
+      "options": [
+        "A mutable configuration that can be updated in place",
+        "An immutable snapshot of a container app version",
+        "A git commit reference for source code",
+        "A deployment slot similar to App Service"
+      ],
+      "answer": "B",
+      "explanation": "A revision is an immutable snapshot of a container app version. It gets created automatically on revision-scope changes. You can't modify it after creation. Multiple revisions can run at the same time.",
+      "keyPoints": [
+        "Revision = immutable snapshot",
+        "Up to 100 inactive revisions are stored",
+        "You can split traffic between revisions",
+        "Created on revision-scope changes"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/revisions",
+      "tags": [
+        "az204::containers::container-apps-revisions"
+      ]
+    },
+    {
+      "id": "RCTR-012",
+      "type": "single-choice",
+      "question": "In Container Apps, which change type creates a new revision?",
+      "options": [
+        "Changing secret values",
+        "Updating ingress configuration",
+        "Changing the container image",
+        "Modifying Dapr settings"
+      ],
+      "answer": "C",
+      "explanation": "Changing the container image is a revision-scope change — it creates a new revision. Secrets, ingress, Dapr, and revision mode are application-scope changes that apply to all revisions without creating a new one.",
+      "keyPoints": [
+        "Revision-scope: image, container config, scale rules",
+        "Application-scope: secrets, ingress, Dapr, registry creds",
+        "Application-scope does NOT create a new revision"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/revisions",
+      "tags": [
+        "az204::containers::container-apps-change-types"
+      ]
+    },
+    {
+      "id": "RCTR-013",
+      "type": "single-choice",
+      "question": "You want to run A/B testing by splitting traffic between two container app revisions. Which revision mode should you use?",
+      "options": [
+        "Single revision mode with deployment slots",
+        "Multiple revision mode with traffic splitting",
+        "Single revision mode with blue/green flag",
+        "Multiple revision mode with sticky sessions"
+      ],
+      "answer": "B",
+      "explanation": "Multiple revision mode lets you run several revisions at once and split traffic between them (like 80/20). Perfect for A/B testing, canary, and blue/green deployments.",
+      "keyPoints": [
+        "Single mode = one active revision",
+        "Multiple mode = several revisions + traffic splitting",
+        "az containerapp ingress traffic set to configure weights"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/revisions-manage",
+      "tags": [
+        "az204::containers::container-apps-revision-modes"
+      ]
+    },
+    {
+      "id": "RCTR-014",
+      "type": "single-choice",
+      "question": "Which autoscaling engine does Azure Container Apps use under the hood?",
+      "options": [
+        "Azure Autoscale",
+        "Horizontal Pod Autoscaler (HPA)",
+        "KEDA (Kubernetes Event-driven Autoscaling)",
+        "Azure Monitor Autoscale"
+      ],
+      "answer": "C",
+      "explanation": "Container Apps uses KEDA — Kubernetes Event-driven Autoscaling. KEDA supports tons of scalers: HTTP, TCP, Service Bus, Event Hubs, Kafka, Redis, CPU, memory, and more.",
+      "keyPoints": [
+        "KEDA = event-driven autoscaling",
+        "3 rule types: HTTP, TCP, Custom",
+        "Custom = any KEDA-compatible scaler",
+        "Default: 0-10 replicas, max 1000"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/scale-app",
+      "tags": [
+        "az204::containers::container-apps-scaling"
+      ]
+    },
+    {
+      "id": "RCTR-015",
+      "type": "single-choice",
+      "question": "What happens if a Container App has no ingress enabled and no custom scale rule configured?",
+      "options": [
+        "It runs with 1 replica by default",
+        "It scales based on CPU usage automatically",
+        "It scales to zero and cannot start back up",
+        "It throws a deployment error"
+      ],
+      "answer": "C",
+      "explanation": "No ingress means no HTTP requests to scale on. No custom scale rule means no event source. The app scales to 0 and can't come back. Fix: enable ingress, add a scale rule, or set minReplicas >= 1.",
+      "keyPoints": [
+        "No ingress + no scale rule = stuck at zero",
+        "Fix: enable ingress OR add a scale rule",
+        "Or set minReplicas >= 1"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/scale-app",
+      "tags": [
+        "az204::containers::container-apps-scale-gotcha"
+      ]
+    },
+    {
+      "id": "RCTR-016",
+      "type": "single-choice",
+      "question": "What is the purpose of a Container Apps environment?",
+      "options": [
+        "To define CPU and memory limits for each container",
+        "To provide a secure boundary where apps share a virtual network and Log Analytics workspace",
+        "To configure the Kubernetes version used by Container Apps",
+        "To manage Docker image tags and versioning"
+      ],
+      "answer": "B",
+      "explanation": "A Container Apps environment is a secure boundary around a group of apps. All apps in the same environment share a VNet, Log Analytics workspace, Dapr components, and can talk to each other.",
+      "keyPoints": [
+        "Environment = shared VNet + Log Analytics",
+        "Apps in the same env can communicate with each other",
+        "Shared Dapr components",
+        "Like a Kubernetes namespace, but simpler"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/environment",
+      "tags": [
+        "az204::containers::container-apps-environment"
+      ]
+    },
+    {
+      "id": "RCTR-017",
+      "type": "single-choice",
+      "question": "What is Dapr in the context of Azure Container Apps?",
+      "options": [
+        "A container image scanning tool",
+        "A distributed application runtime providing APIs for microservice communication",
+        "A deployment automation tool for containers",
+        "A DNS service for container discovery"
+      ],
+      "answer": "B",
+      "explanation": "Dapr (Distributed Application Runtime) is a set of APIs that make microservice development easier. It runs as a sidecar next to your container. It provides service invocation, pub/sub, state management, secrets, and other building blocks.",
+      "keyPoints": [
+        "Dapr = sidecar (HTTP 3500, gRPC 50001)",
+        "Enabled per container app",
+        "Building blocks: invocation, pub/sub, state, secrets",
+        "Automatic mTLS between services"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/dapr-overview",
+      "tags": [
+        "az204::containers::dapr-overview"
+      ]
+    },
+    {
+      "id": "RCTR-018",
+      "type": "single-choice",
+      "question": "Which Dockerfile instruction sets the command that runs when a container starts and is difficult to override at runtime?",
+      "options": [
+        "CMD",
+        "RUN",
+        "ENTRYPOINT",
+        "EXPOSE"
+      ],
+      "answer": "C",
+      "explanation": "ENTRYPOINT is the main executable of the container. It's hard to override at runtime. CMD sets default arguments that are easy to replace via docker run.",
+      "keyPoints": [
+        "ENTRYPOINT = main command, hard to override",
+        "CMD = default arguments, easy to replace",
+        "RUN = executes during image build",
+        "EXPOSE = documents a port, doesn't open it"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview",
+      "tags": [
+        "az204::containers::dockerfile-entrypoint"
+      ]
+    },
+    {
+      "id": "RCTR-019",
+      "type": "single-choice",
+      "question": "What is the main benefit of a multi-stage Docker build?",
+      "options": [
+        "It allows building images for multiple platforms simultaneously",
+        "It creates smaller final images by separating build and runtime stages",
+        "It enables parallel execution of build steps",
+        "It automatically updates base images when patches are available"
+      ],
+      "answer": "B",
+      "explanation": "Multi-stage build uses multiple FROM statements in one Dockerfile. You build the app in one stage (with SDK), then copy only the result into a small final image (runtime only). Result: a tiny image with no source code or build tools.",
+      "keyPoints": [
+        "Multiple FROM = multiple stages",
+        "COPY --from=build copies from a previous stage",
+        "Final image = only runtime + app",
+        "No SDK, no source code in the final image"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-tasks-overview",
+      "tags": [
+        "az204::containers::multistage-build"
+      ]
+    },
+    {
+      "id": "RCTR-020",
+      "type": "single-choice",
+      "question": "Your company deploys containers to multiple Azure regions. You want image pulls to use the nearest registry replica. Which ACR feature should you configure?",
+      "options": [
+        "ACR Tasks with schedule trigger",
+        "ACR geo-replication",
+        "ACR import from Docker Hub",
+        "ACR connected registries"
+      ],
+      "answer": "B",
+      "explanation": "Geo-replication copies your ACR registry to multiple Azure regions. Pulls come from the nearest replica — low latency. One registry name for all regions. Requires Premium SKU.",
+      "keyPoints": [
+        "Geo-replication = Premium SKU",
+        "Pulls from the nearest replica",
+        "No extra egress fees",
+        "One registry name for all regions"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-geo-replication",
+      "tags": [
+        "az204::containers::acr-geo-replication"
+      ]
+    },
+    {
+      "id": "RCTR-021",
+      "type": "single-choice",
+      "question": "Which Container Apps ingress type restricts access to only other apps within the same environment?",
+      "options": [
+        "External ingress",
+        "Internal ingress",
+        "Private ingress",
+        "VNet ingress"
+      ],
+      "answer": "B",
+      "explanation": "Internal ingress limits access to within the environment only. Use it for internal APIs and background services. External ingress allows access from the internet and the environment.",
+      "keyPoints": [
+        "External = internet + environment",
+        "Internal = environment only",
+        "HTTPS automatic, no certificate management",
+        "DNS-based service discovery inside the env"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/ingress-overview",
+      "tags": [
+        "az204::containers::container-apps-ingress"
+      ]
+    },
+    {
+      "id": "RCTR-022",
+      "type": "single-choice",
+      "question": "Which Azure RBAC role should you assign to a managed identity to allow it to pull images from ACR?",
+      "options": [
+        "Contributor",
+        "AcrPush",
+        "AcrPull",
+        "Reader"
+      ],
+      "answer": "C",
+      "explanation": "AcrPull is the minimum role needed to pull images from ACR. Least privilege principle: don't give more permissions than needed. AcrPush allows push, Contributor is way too broad.",
+      "keyPoints": [
+        "AcrPull = pull only",
+        "AcrPush = pull + push",
+        "Reader = metadata, but can't pull images",
+        "Managed identity + AcrPull = secure pull without passwords"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-roles",
+      "tags": [
+        "az204::containers::acr-authentication"
+      ]
+    },
+    {
+      "id": "RCTR-023",
+      "type": "single-choice",
+      "question": "What is the maximum container image size supported by Azure Container Instances?",
+      "options": [
+        "5 GB",
+        "10 GB",
+        "15 GB",
+        "50 GB"
+      ],
+      "answer": "C",
+      "explanation": "The max image size in ACI is 15 GB. Images larger than 15 GB can cause unexpected behavior during deployment. Use multi-stage builds to keep images small.",
+      "keyPoints": [
+        "Limit: 15 GB per image",
+        "Use multi-stage builds",
+        "Only runtime + app in the final image"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-faq",
+      "tags": [
+        "az204::containers::aci-limits"
+      ]
+    },
+    {
+      "id": "RCTR-024",
+      "type": "single-choice",
+      "question": "You need to deploy a multi-container application with a sidecar logging agent to ACI. Which deployment method supports multi-container groups?",
+      "options": [
+        "Azure CLI az container create with multiple --image flags",
+        "ARM template or YAML file",
+        "Azure Portal quick create",
+        "Docker Compose file"
+      ],
+      "answer": "B",
+      "explanation": "Multi-container groups in ACI are deployed via ARM template (when you need other Azure resources) or YAML file (simpler format). The CLI only supports a single container.",
+      "keyPoints": [
+        "ARM template = multi-container + other resources",
+        "YAML = multi-container, simpler format",
+        "CLI = single container only",
+        "Multi-container = Linux only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-container-groups",
+      "tags": [
+        "az204::containers::aci-container-groups"
+      ]
+    },
+    {
+      "id": "RCTR-025",
+      "type": "single-choice",
+      "question": "A developer needs to deploy an event-driven microservice that should scale to zero when idle and scale up based on Azure Service Bus queue length. Which service is best suited?",
+      "options": [
+        "Azure Container Instances",
+        "Azure Container Apps",
+        "Azure Kubernetes Service",
+        "Azure App Service"
+      ],
+      "answer": "B",
+      "explanation": "Container Apps is the perfect fit: serverless, scales to zero, KEDA supports a Service Bus scaler. ACI has no autoscaling. AKS requires managing a cluster.",
+      "keyPoints": [
+        "Container Apps + KEDA = event-driven scaling",
+        "Scale to zero = no cost when idle",
+        "Custom scale rules for Service Bus, Event Hubs, Kafka",
+        "ACI has no autoscaling"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/scale-app",
+      "tags": [
+        "az204::containers::container-apps-scaling"
+      ]
+    },
+    {
+      "id": "RCTR-026",
+      "type": "single-choice",
+      "question": "Which ACR authentication method is recommended for CI/CD pipelines?",
+      "options": [
+        "Admin account",
+        "Azure CLI login",
+        "Service principal",
+        "Anonymous pull"
+      ],
+      "answer": "C",
+      "explanation": "Service principal is the recommended method for CI/CD pipelines. It gives you fine-grained access control through RBAC roles (AcrPull, AcrPush). Admin account is simple but not recommended for production.",
+      "keyPoints": [
+        "Service principal = RBAC + fine-grained control",
+        "Admin account = username/password, not for production",
+        "Managed identity = for Azure services (ACI, AKS)",
+        "az acr login = for local development"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-authentication",
+      "tags": [
+        "az204::containers::acr-authentication"
+      ]
+    },
+    {
+      "id": "RCTR-027",
+      "type": "single-choice",
+      "question": "In ACI, how do containers within the same container group communicate with each other?",
+      "options": [
+        "Through a virtual network",
+        "Through an internal load balancer",
+        "Through localhost",
+        "Through Azure Service Bus"
+      ],
+      "answer": "C",
+      "explanation": "Containers in the same ACI group communicate through localhost. They share the network stack, like processes on the same machine. Each container listens on its own port.",
+      "keyPoints": [
+        "localhost = containers in the same group",
+        "Each container on its own port",
+        "One group = one public IP",
+        "Same as a Pod in Kubernetes"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-container-groups",
+      "tags": [
+        "az204::containers::aci-networking"
+      ]
+    },
+    {
+      "id": "RCTR-028",
+      "type": "multi-select",
+      "question": "Which TWO features are exclusive to ACR Premium SKU? (Select 2)",
+      "options": [
+        "Webhook notifications",
+        "Geo-replication",
+        "Docker image push/pull",
+        "Private endpoints"
+      ],
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "Geo-replication and private endpoints are Premium-only features. Webhooks are available in all SKUs (Basic: 2, Standard: 10, Premium: 500). Docker push/pull works in all SKUs.",
+      "keyPoints": [
+        "Premium-only: geo-replication, private endpoints, content trust, customer-managed keys",
+        "Webhooks = all SKUs (different limits)",
+        "Push/pull = all SKUs"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-skus",
+      "tags": [
+        "az204::containers::acr-premium"
+      ]
+    },
+    {
+      "id": "RCTR-029",
+      "type": "multi-select",
+      "question": "Which TWO volume types in ACI persist data after the container group stops? (Select 2)",
+      "options": [
+        "emptyDir",
+        "Azure Files share",
+        "gitRepo",
+        "secret"
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "Only Azure Files share provides persistent storage — data lives in Azure Storage. emptyDir is lost when the group stops. gitRepo and secret are read-only and not persistent. Trick question: only one answer is correct, even though it's multi-select format.",
+      "keyPoints": [
+        "Azure Files = the only persistent volume in ACI",
+        "emptyDir = lost when the group stops",
+        "gitRepo = cloned once at startup",
+        "secret = read-only files with secrets"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-volume-azure-files",
+      "tags": [
+        "az204::containers::aci-volumes"
+      ]
+    },
+    {
+      "id": "RCTR-030",
+      "type": "multi-select",
+      "question": "Which THREE are valid Dapr building block APIs available in Azure Container Apps? (Select 3)",
+      "options": [
+        "Service-to-service invocation",
+        "Container orchestration",
+        "Pub/Sub messaging",
+        "State management"
+      ],
+      "answer": [
+        "A",
+        "C",
+        "D"
+      ],
+      "explanation": "Service invocation, Pub/Sub, and State management are GA Dapr building blocks in Container Apps. Container orchestration is NOT a Dapr building block — that's a Kubernetes/Container Apps feature.",
+      "keyPoints": [
+        "Dapr building blocks: invocation, pub/sub, state, bindings, actors, secrets, configuration",
+        "Container orchestration is not Dapr",
+        "Dapr = sidecar pattern (HTTP:3500, gRPC:50001)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/dapr-overview",
+      "tags": [
+        "az204::containers::dapr-building-blocks"
+      ]
+    },
+    {
+      "id": "RCTR-031",
+      "type": "multi-select",
+      "question": "Which TWO changes in Container Apps are application-scope and do NOT create a new revision? (Select 2)",
+      "options": [
+        "Changing the container image tag",
+        "Updating secret values",
+        "Modifying scale rules",
+        "Changing ingress configuration"
+      ],
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "Secret values and ingress configuration are application-scope changes. They apply to all revisions without creating a new one. Container image and scale rules are revision-scope — they create a new revision.",
+      "keyPoints": [
+        "Application-scope: secrets, ingress, Dapr, revision mode, registry creds",
+        "Revision-scope: image, container config, scale rules, revision suffix",
+        "Application-scope does NOT create a new revision"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/revisions",
+      "tags": [
+        "az204::containers::container-apps-change-types"
+      ]
+    },
+    {
+      "id": "RCTR-032",
+      "type": "multi-select",
+      "question": "Which TWO scale rule types are natively supported in Azure Container Apps? (Select 2)",
+      "options": [
+        "HTTP concurrent requests",
+        "CPU percentage",
+        "TCP concurrent connections",
+        "Memory percentage"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "HTTP and TCP are native scale rule types in Container Apps. CPU and memory are available as custom KEDA scalers but are not built-in types in the UI/CLI.",
+      "keyPoints": [
+        "3 types: HTTP, TCP, Custom",
+        "HTTP = concurrent requests",
+        "TCP = concurrent connections",
+        "CPU/Memory = via custom KEDA scalers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/scale-app",
+      "tags": [
+        "az204::containers::container-apps-scaling"
+      ]
+    },
+    {
+      "id": "RCTR-033",
+      "type": "multi-select",
+      "question": "Which TWO services are the best match for running serverless containerized microservices with auto-scaling? (Select 2)",
+      "options": [
+        "Azure Container Instances",
+        "Azure Container Apps",
+        "Azure Functions (container deployment)",
+        "Azure Virtual Machines"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "Container Apps and Azure Functions (container deployment) are both serverless with autoscaling. ACI has no autoscaling. VMs are not serverless.",
+      "keyPoints": [
+        "Container Apps = serverless + KEDA + autoscale",
+        "Azure Functions = serverless + event-driven + autoscale",
+        "ACI = no autoscaling",
+        "VM = manual infrastructure management"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/overview",
+      "tags": [
+        "az204::containers::service-comparison"
+      ]
+    },
+    {
+      "id": "RCTR-034",
+      "type": "multi-select",
+      "question": "Which TWO Dockerfile instructions execute during the image build process (not at runtime)? (Select 2)",
+      "options": [
+        "RUN",
+        "CMD",
+        "COPY",
+        "ENTRYPOINT"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "RUN and COPY execute during image build (docker build). CMD and ENTRYPOINT define what runs when the container starts (docker run).",
+      "keyPoints": [
+        "Build-time: FROM, RUN, COPY, ADD, WORKDIR",
+        "Runtime: CMD, ENTRYPOINT",
+        "RUN = executes a command, creates a layer",
+        "COPY = copies files into the image"
+      ],
+      "reference": "https://docs.docker.com/reference/dockerfile/",
+      "tags": [
+        "az204::containers::dockerfile-basics"
+      ]
+    },
+    {
+      "id": "RCTR-035",
+      "type": "multi-select",
+      "question": "Which TWO ACR authentication methods are recommended for production workloads? (Select 2)",
+      "options": [
+        "Admin account",
+        "Service principal",
+        "Managed identity",
+        "Anonymous pull"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "Service principal and managed identity are the recommended methods for production. Service principal for CI/CD, managed identity for Azure services. Admin account is not recommended — shared credentials with no RBAC.",
+      "keyPoints": [
+        "Service principal = CI/CD, RBAC roles",
+        "Managed identity = Azure services, no passwords",
+        "Admin account = not for production",
+        "Anonymous pull = for public images only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-authentication",
+      "tags": [
+        "az204::containers::acr-authentication"
+      ]
+    },
+    {
+      "id": "RCTR-036",
+      "type": "multi-select",
+      "question": "Which TWO resources are shared by all container apps within the same Container Apps environment? (Select 2)",
+      "options": [
+        "Container images",
+        "Virtual network",
+        "Deployment slots",
+        "Log Analytics workspace"
+      ],
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "Virtual network and Log Analytics workspace are shared resources in a Container Apps environment. Container images are individual to each app. Deployment slots are an App Service feature, not Container Apps.",
+      "keyPoints": [
+        "Shared: VNet, Log Analytics, Dapr components",
+        "Container images = individual to each app",
+        "Deployment slots = App Service, not Container Apps",
+        "Apps in the same env can talk to each other"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/environment",
+      "tags": [
+        "az204::containers::container-apps-environment"
+      ]
+    },
+    {
+      "id": "RCTR-037",
+      "type": "ordering",
+      "question": "Arrange the steps to build and push a Docker image to ACR in the correct order.",
+      "orderItems": [
+        "Create an ACR registry with az acr create",
+        "Log in to ACR with az acr login --name myacr",
+        "Build the Docker image locally with docker build -t myapp:v1 .",
+        "Tag the image with ACR login server: docker tag myapp:v1 myacr.azurecr.io/myapp:v1",
+        "Push the image: docker push myacr.azurecr.io/myapp:v1"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "The order: 1) create the registry, 2) log in, 3) build the image, 4) tag it with the registry address, 5) push. Without logging in first, the push will fail with an auth error.",
+      "keyPoints": [
+        "Create registry first, then log in",
+        "Tag is required with the login server (.azurecr.io)",
+        "Push without login = authorization error",
+        "Alternative: az acr build (no local Docker needed)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-registry/container-registry-get-started-docker-cli",
+      "tags": [
+        "az204::containers::acr-push-pull"
+      ]
+    },
+    {
+      "id": "RCTR-038",
+      "type": "ordering",
+      "question": "Arrange the steps for Container Apps zero-downtime deployment in single revision mode.",
+      "orderItems": [
+        "Old revision continues receiving 100% of traffic",
+        "New revision is provisioned and scales up",
+        "New revision passes startup and readiness probes",
+        "Traffic switches to the new revision",
+        "Old revision is deprovisioned"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "Zero-downtime deployment: the old revision keeps serving traffic while the new one spins up. Traffic only switches after the new revision passes all probes. If the new revision fails, traffic stays on the old one.",
+      "keyPoints": [
+        "Old revision serves traffic until the very end",
+        "New revision scales up and passes probes first",
+        "On failure, traffic stays on the old revision",
+        "Zero-downtime is automatic in single mode"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/revisions",
+      "tags": [
+        "az204::containers::container-apps-zero-downtime"
+      ]
+    },
+    {
+      "id": "RCTR-039",
+      "type": "ordering",
+      "question": "Arrange the steps to deploy a container to ACI using Azure CLI.",
+      "orderItems": [
+        "Create a resource group with az group create",
+        "Build and push image to ACR",
+        "Create the container with az container create specifying image, CPU, memory, and ports",
+        "Verify deployment with az container show",
+        "Access the application via the FQDN"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "The order: 1) create a resource group, 2) prepare the image in a registry, 3) create the container with parameters, 4) check the status, 5) open the app via FQDN.",
+      "keyPoints": [
+        "Resource group comes first",
+        "Image must be in an accessible registry",
+        "az container create = the main command",
+        "FQDN: myapp.<region>.azurecontainer.io"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-quickstart",
+      "tags": [
+        "az204::containers::aci-cli"
+      ]
+    },
+    {
+      "id": "RCTR-040",
+      "type": "ordering",
+      "question": "Arrange the steps to configure HTTP auto-scaling in Azure Container Apps.",
+      "orderItems": [
+        "Create a Container Apps environment",
+        "Deploy the container app with az containerapp create",
+        "Enable external ingress for the app",
+        "Configure HTTP scale rule with concurrency threshold",
+        "Set min and max replica counts"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "The order: 1) create the environment, 2) deploy the app, 3) enable ingress (HTTP scaling won't work without it), 4) configure the scale rule, 5) set min/max replicas.",
+      "keyPoints": [
+        "Environment is created first",
+        "Ingress is required for HTTP scaling",
+        "Without ingress, the app won't receive HTTP requests",
+        "Default: 0-10 replicas"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/scale-app",
+      "tags": [
+        "az204::containers::container-apps-scaling"
+      ]
+    },
+    {
+      "id": "RCTR-041",
+      "type": "ordering",
+      "question": "Arrange the steps of a multi-stage Docker build for a .NET application.",
+      "orderItems": [
+        "FROM sdk image AS build stage",
+        "COPY source files and restore dependencies",
+        "RUN dotnet publish to compile the app",
+        "FROM runtime image (final stage)",
+        "COPY --from=build the compiled output",
+        "Set ENTRYPOINT to run the application"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "explanation": "Multi-stage build: 1) start with the SDK image, 2) copy code and restore dependencies, 3) compile, 4) switch to the runtime image, 5) copy only the compiled output, 6) set the entry point.",
+      "keyPoints": [
+        "Build stage = SDK image (large)",
+        "Final stage = runtime image (small)",
+        "COPY --from=build = grabs files from the previous stage",
+        "Final image has no SDK and no source code"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/core/docker/build-container",
+      "tags": [
+        "az204::containers::multistage-build"
+      ]
+    },
+    {
+      "id": "RCTR-042",
+      "type": "code-hotarea",
+      "question": "This Dockerfile builds a .NET 8 application. Click on the line(s) with errors.",
+      "codeLines": [
+        "FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build",
+        "WORKDIR /src",
+        "COPY *.csproj .",
+        "RUN dotnet restore",
+        "COPY . .",
+        "RUN dotnet publish -c Release -o /app",
+        "FROM mcr.microsoft.com/dotnet/sdk:8.0",
+        "WORKDIR /app",
+        "COPY --from=build /app .",
+        "ENTRYPOINT [\"dotnet\", \"myapp.dll\"]"
+      ],
+      "language": "dockerfile",
+      "answer": [
+        6
+      ],
+      "explanation": "Line 7 uses sdk:8.0 instead of aspnet:8.0 for the final stage. In a multi-stage build, the final image should be the runtime (aspnet), not the SDK. The SDK image is ~700MB, aspnet is ~200MB. It works, but the image will be huge with unnecessary tools.",
+      "keyPoints": [
+        "Final stage = runtime image (aspnet), not SDK",
+        "SDK = for building, aspnet = for running",
+        "mcr.microsoft.com/dotnet/aspnet:8.0 is the correct image",
+        "SDK image: ~700MB, aspnet: ~200MB"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/dotnet/core/docker/build-container",
+      "tags": [
+        "az204::containers::dockerfile-multistage"
+      ]
+    },
+    {
+      "id": "RCTR-043",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates an ACI container. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az acr create --resource-group myRG --name myacr --sku Standard",
+        "az acr login --name myacr",
+        "docker build -t myapp:v1 .",
+        "docker tag myapp:v1 myacr.azurecr.io/myapp:v1",
+        "docker push myacr.azurecr.io/myapp:v1",
+        "az container create --name mycontainer --image myacr.azurecr.io/myapp:v1 --cpu 1 --memory 1.5 --ports 80"
+      ],
+      "language": "bash",
+      "answer": [
+        6
+      ],
+      "explanation": "Line 7 is missing --resource-group. The az container create command REQUIRES the --resource-group parameter. Without it, the command fails. It also lacks --registry-login-server and credentials for pulling from ACR.",
+      "keyPoints": [
+        "az container create requires --resource-group",
+        "For ACR pull you need: --registry-login-server + credentials",
+        "Or use managed identity with AcrPull role",
+        "Without auth, ACI can't pull from a private ACR"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-instances/container-instances-using-azure-container-registry",
+      "tags": [
+        "az204::containers::aci-cli"
+      ]
+    },
+    {
+      "id": "RCTR-044",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script configures Container Apps scaling. Click on the line(s) with errors.",
+      "codeLines": [
+        "az containerapp env create --name myEnv --resource-group myRG --location eastus",
+        "az containerapp create \\",
+        "  --name myapi \\",
+        "  --resource-group myRG \\",
+        "  --environment myEnv \\",
+        "  --image myacr.azurecr.io/myapi:v1 \\",
+        "  --min-replicas 0 --max-replicas 10 \\",
+        "  --scale-rule-name my-http-rule \\",
+        "  --scale-rule-type http \\",
+        "  --scale-rule-http-concurrency 50"
+      ],
+      "language": "bash",
+      "answer": [],
+      "explanation": "There are no errors in this script! All parameters are correct: environment created, container app with HTTP scale rule, min 0 max 10 replicas, threshold of 50 concurrent requests. This is a trick — not all code-hotarea questions have errors.",
+      "keyPoints": [
+        "Create environment first, then the container app",
+        "HTTP scale rule: --scale-rule-type http",
+        "--scale-rule-http-concurrency = scaling threshold",
+        "min 0 = scale to zero when idle"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/container-apps/scale-app",
+      "tags": [
+        "az204::containers::container-apps-scale-cli"
+      ]
+    },
+    {
+      "id": "RCTR-045",
+      "type": "code-hotarea",
+      "question": "This Dockerfile has issues. Click on the line(s) with errors.",
+      "codeLines": [
+        "FROM node:18-alpine",
+        "WORKDIR /app",
+        "COPY package*.json ./",
+        "RUN npm install",
+        "COPY . .",
+        "EXPOSE 3000",
+        "RUN node server.js"
+      ],
+      "language": "dockerfile",
+      "answer": [
+        6
+      ],
+      "explanation": "Line 7 uses RUN instead of CMD or ENTRYPOINT. RUN executes during image BUILD, not when the container starts. The server will start during build and block the process. Correct: CMD [\"node\", \"server.js\"].",
+      "keyPoints": [
+        "RUN = during image build (build time)",
+        "CMD = when container starts (runtime)",
+        "ENTRYPOINT = main container command",
+        "RUN node server.js will block docker build"
+      ],
+      "reference": "https://docs.docker.com/reference/dockerfile/",
+      "tags": [
+        "az204::containers::dockerfile-basics"
+      ]
+    }
+  ]
+}
