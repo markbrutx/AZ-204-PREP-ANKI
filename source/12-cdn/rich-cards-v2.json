@@ -1,0 +1,524 @@
+{
+  "domain": "12-cdn",
+  "deckName": "AZ-204-PREP-ANKI::12-CDN",
+  "cards": [
+    {
+      "id": "RCDN-001",
+      "type": "single-choice",
+      "question": "What is the primary purpose of Azure CDN?",
+      "options": [
+        "To host web applications globally with auto-scaling",
+        "To cache static content at edge locations close to users for faster delivery",
+        "To provide DNS resolution for custom domains",
+        "To encrypt data at rest in Azure Storage accounts"
+      ],
+      "answer": "B",
+      "explanation": "Azure CDN is a network of servers spread across the world (called Points of Presence / POP). It caches your content closer to users so files load faster. Instead of going back to the original server every time, users get a copy from the nearest POP.",
+      "keyPoints": [
+        "CDN caches static content on edge servers",
+        "POP = Point of Presence — the closest node to the user",
+        "Reduces latency and offloads the origin server"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+      "tags": ["az204::cdn::overview"]
+    },
+    {
+      "id": "RCDN-002",
+      "type": "single-choice",
+      "question": "You create an Azure CDN profile. What do you need to create next to start serving cached content?",
+      "options": [
+        "A Traffic Manager profile",
+        "A CDN endpoint pointing to an origin server",
+        "An Azure Front Door rule set",
+        "A DNS zone with an A record"
+      ],
+      "answer": "B",
+      "explanation": "A CDN Profile is a container for endpoints. To make CDN work, you create a CDN Endpoint that points to an origin server (where to pull content from). The endpoint gives you a URL like mysite.azureedge.net.",
+      "keyPoints": [
+        "CDN Profile = container for endpoints + provider selection",
+        "CDN Endpoint = URL for serving cached content",
+        "Endpoint points to an origin (where to pull files from)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+      "tags": ["az204::cdn::profiles-endpoints"]
+    },
+    {
+      "id": "RCDN-003",
+      "type": "single-choice",
+      "question": "What is the default TTL (Time to Live) for general web delivery in Azure CDN when the origin server does not set Cache-Control headers?",
+      "options": [
+        "1 hour",
+        "1 day",
+        "7 days",
+        "30 days"
+      ],
+      "answer": "C",
+      "explanation": "When the origin server doesn't send a Cache-Control header, Azure CDN uses a default TTL of 7 days for general web delivery. For large file optimization it's 1 day, and for media streaming it's 1 year.",
+      "keyPoints": [
+        "General web delivery = 7 days by default",
+        "Large file optimization = 1 day",
+        "Media streaming = 1 year"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-manage-expiration-of-cloud-service-content",
+      "tags": ["az204::cdn::ttl-defaults"]
+    },
+    {
+      "id": "RCDN-004",
+      "type": "single-choice",
+      "question": "When both Cache-Control and Expires HTTP headers are present in an origin response, which one does Azure CDN honor?",
+      "options": [
+        "Expires always takes precedence",
+        "Cache-Control always takes precedence",
+        "The header with the longer TTL wins",
+        "Azure CDN ignores both and uses its default TTL"
+      ],
+      "answer": "B",
+      "explanation": "Cache-Control (HTTP 1.1) always wins over Expires (HTTP 1.0) when both headers are present. This is standard HTTP behavior — the newer header takes priority.",
+      "keyPoints": [
+        "Cache-Control (HTTP 1.1) > Expires (HTTP 1.0)",
+        "ETag > Last-Modified for cache validation",
+        "max-age in Cache-Control sets TTL in seconds"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-how-caching-works",
+      "tags": ["az204::cdn::cache-headers"]
+    },
+    {
+      "id": "RCDN-005",
+      "type": "single-choice",
+      "question": "You want Azure CDN to use a TTL of 24 hours only when the origin server does not send any cache headers. Which caching behavior should you configure?",
+      "options": [
+        "Bypass cache",
+        "Override",
+        "Set if missing",
+        "Cache every unique URL"
+      ],
+      "answer": "C",
+      "explanation": "\"Set if missing\" respects the origin's headers when they exist. If the origin does NOT send caching headers, then your specified TTL kicks in. \"Override\" ignores origin headers completely. \"Bypass\" disables caching altogether.",
+      "keyPoints": [
+        "Set if missing = respects origin, applies your TTL only if origin is silent",
+        "Override = always overwrites the origin's TTL",
+        "Bypass cache = caching is off"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-caching-rules",
+      "tags": ["az204::cdn::caching-behavior"]
+    },
+    {
+      "id": "RCDN-006",
+      "type": "single-choice",
+      "question": "What is the priority order when Azure CDN determines caching behavior for a request?",
+      "options": [
+        "Origin headers > Global rule > Custom rule > Default",
+        "Custom caching rule > Global caching rule > Origin headers > Default (7 days)",
+        "Default > Origin headers > Global rule > Custom rule",
+        "Global rule > Custom rule > Origin headers > Default"
+      ],
+      "answer": "B",
+      "explanation": "Priority goes from most specific to most general: Custom rule (for a specific path) > Global rule (for the whole endpoint) > Origin headers > Default (7 days). The more specific the rule, the higher its priority.",
+      "keyPoints": [
+        "Custom rule — highest priority",
+        "Global rule — one per endpoint",
+        "Origin headers — used if no CDN rules exist",
+        "Default 7 days — used if nothing is configured"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-caching-rules",
+      "tags": ["az204::cdn::caching-rules"]
+    },
+    {
+      "id": "RCDN-007",
+      "type": "single-choice",
+      "question": "In Azure CDN, what happens when query string caching is set to 'Ignore query strings' (default) and a user requests /page?v=2 after /page?v=1 was cached?",
+      "options": [
+        "CDN returns a 404 error because the versions differ",
+        "CDN fetches /page?v=2 from origin and caches it separately",
+        "CDN returns the cached version from /page?v=1",
+        "CDN purges the old cache and fetches /page?v=2"
+      ],
+      "answer": "C",
+      "explanation": "In \"Ignore query strings\" mode, CDN ignores the query string when looking up the cache. The first request gets cached, and all following requests with any query strings get the same cached version back.",
+      "keyPoints": [
+        "Ignore query strings = one cache entry for all query string variants",
+        "Cache every unique URL = each query string gets its own cache entry",
+        "Bypass = requests with query strings are never cached"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-query-string",
+      "tags": ["az204::cdn::query-string-caching"]
+    },
+    {
+      "id": "RCDN-008",
+      "type": "single-choice",
+      "question": "Your company deploys a critical bug fix to a JavaScript file served via Azure CDN. Users still receive the old cached version. What should you do FIRST?",
+      "options": [
+        "Delete the CDN endpoint and recreate it",
+        "Purge the CDN endpoint to remove cached content from edge nodes",
+        "Change the CDN pricing tier to force a refresh",
+        "Disable and re-enable HTTPS on the custom domain"
+      ],
+      "answer": "B",
+      "explanation": "Purge removes cached content from ALL CDN edge servers before the TTL expires. The next request goes to the origin for a fresh copy. This is the fastest way to force a content update.",
+      "keyPoints": [
+        "Purge = remove cache from all POPs before TTL expires",
+        "Purge does NOT clear the user's browser cache",
+        "Best practice = URL versioning (style.css?v=2)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-purge-endpoint",
+      "tags": ["az204::cdn::purge"]
+    },
+    {
+      "id": "RCDN-009",
+      "type": "single-choice",
+      "question": "What is the difference between purging and preloading content in Azure CDN?",
+      "options": [
+        "Purging adds content to cache; preloading removes it",
+        "Purging removes content from edge caches; preloading pre-fills edge caches before user requests",
+        "Both operations clear the cache, but preloading also clears browser caches",
+        "Purging works on all tiers; preloading only works with Azure Front Door"
+      ],
+      "answer": "B",
+      "explanation": "Purge = REMOVE content from edge server caches. The next request goes to origin. Preload = LOAD content INTO edge server caches BEFORE users request it. Great before a product launch.",
+      "keyPoints": [
+        "Purge = delete from cache (available on all tiers)",
+        "Preload = pre-fill cache (not available on all tiers)",
+        "Preload limit: 10 requests/minute, 50 paths at once"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-preload-endpoint",
+      "tags": ["az204::cdn::purge-vs-preload"]
+    },
+    {
+      "id": "RCDN-010",
+      "type": "single-choice",
+      "question": "You need to restrict access to your CDN content so that users from certain countries cannot access video files. Which Azure CDN feature should you use?",
+      "options": [
+        "Azure CDN token authentication",
+        "CDN query string filtering",
+        "Geo-filtering rules on the CDN endpoint",
+        "Azure CDN custom headers"
+      ],
+      "answer": "C",
+      "explanation": "Geo-filtering lets you allow or block access to CDN content based on the user's country/region. Rules apply to specified paths (e.g., /videos/*) recursively.",
+      "keyPoints": [
+        "Geo-filtering = block by country/region",
+        "Rules apply recursively to subfolders",
+        "Only one rule per path",
+        "Changes propagate in ~10 minutes"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-restrict-access-by-country-region",
+      "tags": ["az204::cdn::geo-filtering"]
+    },
+    {
+      "id": "RCDN-011",
+      "type": "single-choice",
+      "question": "You want to enable HTTPS on a custom domain mapped to your Azure CDN endpoint. Which approach requires storing a certificate in Azure Key Vault?",
+      "options": [
+        "CDN-managed certificate",
+        "Bring Your Own Certificate (BYOC)",
+        "Let's Encrypt auto-provisioned certificate",
+        "Self-signed certificate uploaded to CDN"
+      ],
+      "answer": "B",
+      "explanation": "BYOC (Bring Your Own Certificate) means you manage the certificate yourself and store it in Azure Key Vault. CDN-managed certificate means Azure gets and renews the certificate automatically (via DigiCert) — no Key Vault needed.",
+      "keyPoints": [
+        "CDN-managed = free, automatic, does NOT work for apex/root domains",
+        "BYOC = your certificate in Key Vault, works for root domains",
+        "HTTPS enablement takes 6-8 hours"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-custom-ssl",
+      "tags": ["az204::cdn::custom-domain-https"]
+    },
+    {
+      "id": "RCDN-012",
+      "type": "single-choice",
+      "question": "Azure CDN can compress files on the fly at the POP server. What happens when the client supports both gzip and brotli compression?",
+      "options": [
+        "Azure CDN always uses gzip for compatibility",
+        "Azure CDN uses brotli because it takes precedence over gzip",
+        "Azure CDN sends the uncompressed file and lets the client choose",
+        "Azure CDN compresses with both formats and sends the smaller one"
+      ],
+      "answer": "B",
+      "explanation": "When the client supports both gzip and brotli, Azure CDN picks brotli — it compresses better (smaller file size). Brotli takes priority over gzip.",
+      "keyPoints": [
+        "Brotli > gzip when the client supports both",
+        "File must be > 1 KB and < 8 MB for compression",
+        "Don't compress already-compressed formats (ZIP, MP3, JPG)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-improve-performance",
+      "tags": ["az204::cdn::compression"]
+    },
+    {
+      "id": "RCDN-013",
+      "type": "single-choice",
+      "question": "Which HTTP methods can be cached by Azure CDN?",
+      "options": [
+        "GET, POST, and PUT",
+        "GET and HEAD only",
+        "All HTTP methods are cached",
+        "GET, HEAD, and OPTIONS"
+      ],
+      "answer": "B",
+      "explanation": "Azure CDN only caches GET and HEAD requests. POST, PUT, DELETE, and other methods are never cached because they modify data on the server.",
+      "keyPoints": [
+        "Only GET and HEAD are cached",
+        "Requests with an Authorization header are NEVER cached",
+        "Maximum cached file size = 300 GB"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-how-caching-works",
+      "tags": ["az204::cdn::cacheable-content"]
+    },
+    {
+      "id": "RCDN-014",
+      "type": "single-choice",
+      "question": "Microsoft is retiring Azure CDN Standard from Microsoft (classic). What is the recommended replacement?",
+      "options": [
+        "Azure Traffic Manager",
+        "Azure Application Gateway",
+        "Azure Front Door Standard/Premium",
+        "Azure Load Balancer"
+      ],
+      "answer": "C",
+      "explanation": "Microsoft recommends migrating from classic Azure CDN to Azure Front Door Standard/Premium. Front Door includes all CDN features plus WAF, global load balancing, and URL-based routing.",
+      "keyPoints": [
+        "Azure CDN (classic) → Azure Front Door Standard/Premium",
+        "Front Door = CDN + WAF + load balancing + URL routing",
+        "Front Door supports session affinity and SSL offloading"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+      "tags": ["az204::cdn::front-door-comparison"]
+    },
+    {
+      "id": "RCDN-015",
+      "type": "multi-select",
+      "question": "Which TWO of the following are valid origin types that Azure CDN can pull content from? (Select 2)",
+      "options": [
+        "Azure Blob Storage account",
+        "Azure SQL Database",
+        "Any publicly accessible web server (including non-Azure)",
+        "Azure Cosmos DB direct endpoint"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Azure CDN can pull content from Azure Storage (Blob), Azure Web App, Azure Cloud Service, and ANY publicly accessible web server (even non-Azure). SQL Database and Cosmos DB are databases — they don't serve static content directly.",
+      "keyPoints": [
+        "Supported origins: Blob Storage, Web App, Cloud Service, any public URL",
+        "The origin must be a publicly accessible HTTP/HTTPS server",
+        "Databases are NOT valid CDN origins"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+      "tags": ["az204::cdn::origins"]
+    },
+    {
+      "id": "RCDN-016",
+      "type": "multi-select",
+      "question": "Which THREE features does Azure Front Door provide beyond basic CDN caching? (Select 3)",
+      "options": [
+        "Web Application Firewall (WAF)",
+        "Global load balancing across backends",
+        "Automatic database replication",
+        "URL-based routing"
+      ],
+      "answer": ["A", "B", "D"],
+      "explanation": "Azure Front Door is an advanced CDN with extra powers: WAF (protects against attacks), global load balancing (routes to the best backend), and URL-based routing (different paths go to different backends). Database replication is a completely different thing.",
+      "keyPoints": [
+        "WAF = protection against DDoS, SQL injection, XSS",
+        "Global load balancing = routes to the nearest/healthiest backend",
+        "URL routing = /api/* → backend A, /static/* → storage",
+        "Also: SSL offloading, session affinity"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+      "tags": ["az204::cdn::front-door-comparison"]
+    },
+    {
+      "id": "RCDN-017",
+      "type": "multi-select",
+      "question": "Which TWO query string caching modes cause Azure CDN to fetch content from the origin for every unique query string variation? (Select 2)",
+      "options": [
+        "Ignore query strings",
+        "Bypass caching for query strings",
+        "Cache every unique URL",
+        "Override query string cache"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Bypass — requests with query strings are NEVER cached, every one goes to origin. Cache every unique URL — each unique query string is cached separately, so the first request for each variant hits origin. Ignore — caches once and serves the same copy for all variants.",
+      "keyPoints": [
+        "Bypass = every request with a query string → origin (no caching)",
+        "Cache every unique URL = ?v=1 and ?v=2 are separate cache entries",
+        "Ignore = one cache entry for all query string variants"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-query-string",
+      "tags": ["az204::cdn::query-string-caching"]
+    },
+    {
+      "id": "RCDN-018",
+      "type": "multi-select",
+      "question": "Which TWO of the following are requirements for Azure CDN file compression? (Select 2)",
+      "options": [
+        "File must be larger than 1 KB",
+        "File must be larger than 10 KB",
+        "File MIME type must be in the compression list",
+        "Origin server must support brotli encoding"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "CDN compression needs two things: the file must be > 1 KB (tiny files don't benefit from compression) and the file's MIME type must be on the allowed compression list. The origin does NOT need to support brotli — CDN compresses on its own.",
+      "keyPoints": [
+        "Minimum 1 KB, maximum 8 MB",
+        "MIME type must be in the compression list",
+        "CDN compresses ON THE FLY at the POP server",
+        "Origin doesn't need to compress anything itself"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-improve-performance",
+      "tags": ["az204::cdn::compression"]
+    },
+    {
+      "id": "RCDN-019",
+      "type": "ordering",
+      "question": "Arrange the steps of the CDN caching flow when a user requests a file for the first time (cache miss).",
+      "orderItems": [
+        "User requests a file via CDN URL (e.g., mysite.azureedge.net/image.png)",
+        "DNS routes the request to the nearest POP (edge server)",
+        "POP checks its cache and finds no cached copy (cache miss)",
+        "POP fetches the file from the origin server",
+        "POP caches the file and returns it to the user"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First, the user requests a file via the CDN URL. DNS sends the request to the nearest POP. The POP checks its cache — the file isn't there (cache miss). The POP goes to the origin server for the file. The POP caches the file and sends it to the user.",
+      "keyPoints": [
+        "DNS automatically routes to the nearest POP",
+        "Cache miss = first request, file isn't in cache yet",
+        "After caching, following requests = cache hit (fast)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-how-caching-works",
+      "tags": ["az204::cdn::caching-flow"]
+    },
+    {
+      "id": "RCDN-020",
+      "type": "ordering",
+      "question": "Arrange the steps to enable HTTPS on a custom domain using a CDN-managed certificate.",
+      "orderItems": [
+        "Map custom domain to CDN endpoint with CNAME record",
+        "Enable HTTPS on the custom domain in the Azure portal",
+        "Domain validation is performed automatically via CNAME",
+        "DigiCert issues the certificate and deploys to edge nodes",
+        "HTTPS is active on the custom domain"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First you need a CNAME pointing to the CDN endpoint. Then you enable HTTPS in the portal. Azure automatically validates the domain through the CNAME. DigiCert issues a certificate and deploys it to edge servers (up to 6 hours). HTTPS is ready to go.",
+      "keyPoints": [
+        "CNAME must point to the endpoint BEFORE enabling HTTPS",
+        "Validation is automatic if CNAME is already set up",
+        "The whole process takes up to 6-8 hours",
+        "Certificate renews automatically"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-custom-ssl",
+      "tags": ["az204::cdn::https-process"]
+    },
+    {
+      "id": "RCDN-021",
+      "type": "ordering",
+      "question": "Arrange the steps to set up Azure CDN for an Azure Storage account from scratch.",
+      "orderItems": [
+        "Create an Azure Storage account with Blob service enabled",
+        "Create a CDN profile and select a pricing tier (provider)",
+        "Create a CDN endpoint pointing to the Storage account as origin",
+        "Configure caching rules and query string behavior",
+        "Map a custom domain to the CDN endpoint (optional)"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "First you need a Storage account with Blobs. Then create a CDN Profile (pick a provider). Then create an Endpoint pointing to Storage as the origin. Configure caching rules. Optionally map your custom domain.",
+      "keyPoints": [
+        "Storage account must exist BEFORE creating CDN",
+        "Provider is chosen at the Profile level",
+        "Endpoint gives you a URL like name.azureedge.net",
+        "Custom domain is an optional final step"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-overview",
+      "tags": ["az204::cdn::setup"]
+    },
+    {
+      "id": "RCDN-022",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates a CDN profile and endpoint. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az cdn profile create --name myCDNProfile --resource-group myRG --sku Standard_Microsoft",
+        "az cdn endpoint create --name myEndpoint --profile-name myCDNProfile --resource-group myRG",
+        "az cdn endpoint purge --name myEndpoint --profile-name myCDNProfile --resource-group myRG --content-paths '/*'",
+        "az cdn custom-domain create --name myCustomDomain --endpoint-name myEndpoint --profile-name myCDNProfile --resource-group myRG --hostname www.contoso.com"
+      ],
+      "language": "bash",
+      "answer": [2],
+      "explanation": "Line 3 is missing the required --origin parameter. The az cdn endpoint create command REQUIRES --origin (the origin server URL). Without it, the CDN endpoint doesn't know where to pull content from.",
+      "keyPoints": [
+        "az cdn endpoint create requires --origin <url>",
+        "Origin = public URL of the source server",
+        "--sku is set at the profile level, not the endpoint",
+        "Purge and custom-domain are separate commands"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/cdn/endpoint",
+      "tags": ["az204::cdn::cli"]
+    },
+    {
+      "id": "RCDN-023",
+      "type": "code-hotarea",
+      "question": "This C# code configures Cache-Control headers for an ASP.NET response served via Azure CDN. Click on the line(s) with errors.",
+      "codeLines": [
+        "public IActionResult GetData()",
+        "{",
+        "    Response.Headers[\"Cache-Control\"] = \"public, max-age=3600\";",
+        "    Response.Headers[\"Expires\"] = DateTime.UtcNow.AddHours(1).ToString(\"R\");",
+        "    Response.Headers[\"Cache-Control\"] = \"private, no-store\";",
+        "    return Ok(new { data = \"cached content\" });",
+        "}"
+      ],
+      "language": "csharp",
+      "answer": [4],
+      "explanation": "Line 5 overwrites Cache-Control with 'private, no-store', which BLOCKS CDN caching. If you want CDN to cache the content, the header must be 'public'. The 'private' directive means only the browser can cache it — CDN cannot.",
+      "keyPoints": [
+        "public = CDN and browser can cache",
+        "private = browser only, CDN does NOT cache",
+        "no-store = nobody caches anything",
+        "Second Cache-Control overwrites the first one"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-how-caching-works",
+      "tags": ["az204::cdn::cache-control-code"]
+    },
+    {
+      "id": "RCDN-024",
+      "type": "single-choice",
+      "question": "You purge the path /images/* from your Azure CDN endpoint. A user still sees the old version of /images/logo.png. What is the most likely cause?",
+      "options": [
+        "The CDN purge has not propagated to all edge nodes yet",
+        "The user's browser has the file cached locally",
+        "Wildcard purge does not work with Azure CDN",
+        "The origin server is still serving the old file"
+      ],
+      "answer": "B",
+      "explanation": "CDN purge only removes files from CDN edge server caches. The user's browser might still have the old version in ITS OWN local cache. The user needs to clear their browser cache or do a hard refresh (Ctrl+F5).",
+      "keyPoints": [
+        "CDN purge does NOT clear browser cache",
+        "Solution: URL versioning (logo.png?v=2)",
+        "Hard refresh (Ctrl+F5) bypasses browser cache"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-purge-endpoint",
+      "tags": ["az204::cdn::cache-invalidation"]
+    },
+    {
+      "id": "RCDN-025",
+      "type": "single-choice",
+      "question": "Which purge path format would remove ALL cached content from an Azure CDN endpoint?",
+      "options": [
+        "/all",
+        "/*",
+        "/purge-all",
+        "/clear"
+      ],
+      "answer": "B",
+      "explanation": "The wildcard path /* removes ALL files from the endpoint's cache. Single file: /images/logo.png. Folder: /images/*. Entire endpoint: /*. The path / only clears the root.",
+      "keyPoints": [
+        "/* = clear entire endpoint cache",
+        "/images/* = clear the images folder and subfolders",
+        "/file.js = clear a single file",
+        "Query strings in purge paths are ignored"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/cdn/cdn-purge-endpoint",
+      "tags": ["az204::cdn::purge-formats"]
+    }
+  ]
+}
