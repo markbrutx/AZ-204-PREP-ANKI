@@ -1,0 +1,758 @@
+{
+  "domain": "08-api-management",
+  "deckName": "AZ-204-PREP-ANKI::08-API Management",
+  "cards": [
+    {
+      "id": "RAPIM-001",
+      "type": "single-choice",
+      "question": "Your company needs a fully managed API gateway that scales to zero and charges per API call. Which APIM tier should you choose?",
+      "options": [
+        "Developer tier",
+        "Consumption tier",
+        "Basic v2 tier",
+        "Standard tier"
+      ],
+      "answer": "B",
+      "explanation": "Consumption tier is the only serverless tier. It scales down to zero when there's no traffic, and you only pay per API call. Developer tier is for testing (no SLA). Basic v2 and Standard charge by the hour.",
+      "keyPoints": [
+        "Consumption = serverless, pay-per-call",
+        "No built-in cache, no Developer Portal",
+        "No VNet, no static IP",
+        "Auto-scales automatically"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-features",
+      "tags": [
+        "az204::api-management::tiers"
+      ]
+    },
+    {
+      "id": "RAPIM-002",
+      "type": "single-choice",
+      "question": "Which three main components make up Azure API Management?",
+      "options": [
+        "API Gateway, Management Plane, Developer Portal",
+        "Load Balancer, API Gateway, Key Vault",
+        "API Gateway, Azure Front Door, Developer Portal",
+        "Management Plane, Application Gateway, Azure Monitor"
+      ],
+      "answer": "A",
+      "explanation": "APIM has three parts: API Gateway (receives requests, applies policies), Management Plane (configure APIs via portal/CLI/API), and Developer Portal (a website for developers to browse docs, test APIs, and get keys).",
+      "keyPoints": [
+        "API Gateway = runtime, processes every request",
+        "Management Plane = configuration via portal/CLI/REST",
+        "Developer Portal = auto-generated site for API consumers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts",
+      "tags": [
+        "az204::api-management::components"
+      ]
+    },
+    {
+      "id": "RAPIM-003",
+      "type": "single-choice",
+      "question": "You want to deploy an APIM gateway in your on-premises Kubernetes cluster while managing it from Azure. What should you use?",
+      "options": [
+        "APIM VNet injection",
+        "Azure Application Gateway",
+        "Self-hosted gateway",
+        "Azure Front Door"
+      ],
+      "answer": "C",
+      "explanation": "Self-hosted gateway is a Linux container you can deploy in your own infrastructure (on-prem, Kubernetes, other clouds). You still manage everything from a single control plane in Azure. Only available in Developer and Premium tiers.",
+      "keyPoints": [
+        "Self-hosted gateway = Docker container",
+        "Available in Developer and Premium tiers",
+        "Managed from Azure control plane",
+        "Built for hybrid/multi-cloud scenarios"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/self-hosted-gateway-overview",
+      "tags": [
+        "az204::api-management::self-hosted-gateway"
+      ]
+    },
+    {
+      "id": "RAPIM-004",
+      "type": "single-choice",
+      "question": "In which APIM policy section should you place the validate-jwt policy to check JWT tokens on incoming requests?",
+      "options": [
+        "<backend>",
+        "<outbound>",
+        "<inbound>",
+        "<on-error>"
+      ],
+      "answer": "C",
+      "explanation": "validate-jwt goes in <inbound> because you need to check the token BEFORE sending the request to the backend. If the token is invalid, the request gets rejected right away without hitting the backend.",
+      "keyPoints": [
+        "inbound = processes the incoming request",
+        "validate-jwt checks the JWT from the Authorization header",
+        "Returns 401 if the token is invalid",
+        "Placing it in inbound is the best practice"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy",
+      "tags": [
+        "az204::api-management::validate-jwt"
+      ]
+    },
+    {
+      "id": "RAPIM-005",
+      "type": "single-choice",
+      "question": "What HTTP status code does the rate-limit policy return when the call limit is exceeded?",
+      "options": [
+        "401 Unauthorized",
+        "403 Forbidden",
+        "429 Too Many Requests",
+        "503 Service Unavailable"
+      ],
+      "answer": "C",
+      "explanation": "When the call limit is exceeded, rate-limit returns 429 Too Many Requests. This is the standard HTTP code for throttling. The client should wait and retry later.",
+      "keyPoints": [
+        "429 = Too Many Requests",
+        "rate-limit works per subscription",
+        "rate-limit-by-key works by any key (IP, header, etc.)",
+        "Counter resets at the end of the renewal-period"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/rate-limit-policy",
+      "tags": [
+        "az204::api-management::rate-limit"
+      ]
+    },
+    {
+      "id": "RAPIM-006",
+      "type": "single-choice",
+      "question": "What is the difference between rate-limit and quota policies in APIM?",
+      "options": [
+        "rate-limit controls bandwidth, quota controls call count",
+        "rate-limit controls short-term speed (calls per seconds), quota controls long-term volume (calls per days/weeks)",
+        "rate-limit applies per API, quota applies per subscription only",
+        "rate-limit is for Premium tier only, quota works in all tiers"
+      ],
+      "answer": "B",
+      "explanation": "rate-limit is short-term throttling: it limits how fast you can call the API (calls per seconds). quota is a long-term cap: it limits the total number of calls over hours/days/weeks. Think of it this way: rate-limit = speed limit on a road, quota = monthly gas budget.",
+      "keyPoints": [
+        "rate-limit = speed (calls/seconds)",
+        "quota = total volume (calls/days/weeks)",
+        "Often used together",
+        "Both go in <inbound>"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-policies",
+      "tags": [
+        "az204::api-management::rate-vs-quota"
+      ]
+    },
+    {
+      "id": "RAPIM-007",
+      "type": "single-choice",
+      "question": "What does the <base /> element do in APIM policy XML?",
+      "options": [
+        "Sets the base URL for backend service",
+        "Defines the base authentication scheme",
+        "Controls policy inheritance — inserts parent scope policies at that position",
+        "Resets all policy settings to default values"
+      ],
+      "answer": "C",
+      "explanation": "<base /> controls policy inheritance. When you define policies at the API level, <base /> tells APIM WHERE to insert parent-level policies (Global, Product). If you remove <base />, parent policies will NOT run at all.",
+      "keyPoints": [
+        "<base /> = insert parent scope policies here",
+        "Without <base />, parent policies are skipped",
+        "You can place it before or after your own policies",
+        "Best practice: always include <base />"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/set-edit-policies",
+      "tags": [
+        "az204::api-management::base-element"
+      ]
+    },
+    {
+      "id": "RAPIM-008",
+      "type": "single-choice",
+      "question": "You need to store a backend API key securely and reference it across multiple APIM policies. What should you use?",
+      "options": [
+        "Policy expressions with hardcoded values",
+        "Named Values with Key Vault reference",
+        "Application settings in App Service",
+        "Azure Managed Identity directly in policy XML"
+      ],
+      "answer": "B",
+      "explanation": "Named Values are global key-value pairs in APIM. The Key Vault type automatically syncs a secret from Azure Key Vault. You reference them in policies with {{named-value-name}}. Never hardcode secrets in policy XML!",
+      "keyPoints": [
+        "Named Values = global variables in APIM",
+        "Three types: Plain, Secret, Key Vault",
+        "Key Vault type auto-syncs with Key Vault",
+        "Usage in policies: {{value-name}}"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-properties",
+      "tags": [
+        "az204::api-management::named-values"
+      ]
+    },
+    {
+      "id": "RAPIM-009",
+      "type": "single-choice",
+      "question": "What happens when an error occurs during inbound policy processing in APIM?",
+      "options": [
+        "The remaining inbound policies continue, then the error is logged",
+        "The request is forwarded to backend with an error header",
+        "Execution skips remaining steps and jumps to the <on-error> section",
+        "The gateway returns 500 without any policy processing"
+      ],
+      "answer": "C",
+      "explanation": "When an error happens in any section (inbound, backend, outbound), all remaining steps are skipped and execution jumps to <on-error>. There you can handle the error: log it, return a custom response. Use context.LastError for error details.",
+      "keyPoints": [
+        "Error → skip remaining steps → jump to <on-error>",
+        "context.LastError gives you error details",
+        "You can return a custom response from on-error",
+        "on-error is optional — without it, a default error response is sent"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-error-handling-policies",
+      "tags": [
+        "az204::api-management::on-error"
+      ]
+    },
+    {
+      "id": "RAPIM-010",
+      "type": "single-choice",
+      "question": "What is the difference between API Versions and Revisions in APIM?",
+      "options": [
+        "Versions are for internal testing, Revisions are for public release",
+        "Versions present different API contracts simultaneously, Revisions make safe non-breaking changes privately",
+        "Versions use path-based routing only, Revisions use header-based routing only",
+        "Versions are free, Revisions require Premium tier"
+      ],
+      "answer": "B",
+      "explanation": "Versions are different API contracts running side by side (v1 and v2 at the same time). Consumers pick which version to use. Revisions are safe edits: you edit privately, test, then make it current. Like Git branches for your API. Versions = breaking changes, Revisions = safe edits.",
+      "keyPoints": [
+        "Versions = different contracts (v1, v2) side by side",
+        "Revisions = private edits, like Git branches",
+        "Versioning schemes: path (/v1/), header, query string",
+        "Revision → test → make current"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-key-concepts",
+      "tags": [
+        "az204::api-management::versions-revisions"
+      ]
+    },
+    {
+      "id": "RAPIM-011",
+      "type": "single-choice",
+      "question": "Which APIM tier is the ONLY one that supports multi-region deployment?",
+      "options": [
+        "Standard v2",
+        "Premium v2",
+        "Premium (classic)",
+        "Standard (classic)"
+      ],
+      "answer": "C",
+      "explanation": "Only Premium (classic) supports multi-region deployment. This lets you deploy the API Gateway in multiple Azure regions for lower latency and higher availability. Premium v2 supports availability zones but NOT multi-region.",
+      "keyPoints": [
+        "Multi-region = Premium (classic) only",
+        "All regions share the same configuration",
+        "Premium v2 = availability zones, but NO multi-region",
+        "Premium (classic) = most expensive tier"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-features",
+      "tags": [
+        "az204::api-management::multi-region"
+      ]
+    },
+    {
+      "id": "RAPIM-012",
+      "type": "single-choice",
+      "question": "How does a consumer authenticate API calls to an APIM-protected API by default?",
+      "options": [
+        "OAuth 2.0 bearer token in Authorization header",
+        "Subscription key in Ocp-Apim-Subscription-Key header or query parameter",
+        "Client certificate in TLS handshake",
+        "Basic authentication with username and password"
+      ],
+      "answer": "B",
+      "explanation": "By default, APIM uses subscription keys. The key is passed in the Ocp-Apim-Subscription-Key header or as a query parameter ?subscription-key={key}. Each subscription has two keys (primary and secondary) so you can rotate them without downtime.",
+      "keyPoints": [
+        "Header: Ocp-Apim-Subscription-Key",
+        "Query: ?subscription-key={key}",
+        "Two keys per subscription (primary + secondary)",
+        "Scope: All APIs / Single API / Product"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-subscriptions",
+      "tags": [
+        "az204::api-management::subscriptions"
+      ]
+    },
+    {
+      "id": "RAPIM-013",
+      "type": "single-choice",
+      "question": "You want your frontend team to start developing against your API before the backend is built. Which APIM policy should you use?",
+      "options": [
+        "return-response",
+        "mock-response",
+        "set-backend-service",
+        "rewrite-uri"
+      ],
+      "answer": "B",
+      "explanation": "mock-response returns a fake response straight from the gateway, without calling the backend. APIM generates the mock from your OpenAPI schema (examples or response definitions). The request never reaches the backend. Perfect for prototyping.",
+      "keyPoints": [
+        "mock-response = fake response, no backend call",
+        "Goes in <inbound>",
+        "Generates mock from OpenAPI schema",
+        "Pipeline execution stops after mock-response"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/mock-response-policy",
+      "tags": [
+        "az204::api-management::mock-response"
+      ]
+    },
+    {
+      "id": "RAPIM-014",
+      "type": "single-choice",
+      "question": "What are the possible values for the exists-action attribute in the set-header policy?",
+      "options": [
+        "add, remove, replace, ignore",
+        "override, skip, append, delete",
+        "create, update, upsert, drop",
+        "set, unset, merge, clear"
+      ],
+      "answer": "B",
+      "explanation": "set-header policy supports 4 actions: override (replace the value), skip (don't touch it if it exists), append (add another value), delete (remove the header). A common use is deleting server headers like X-Powered-By.",
+      "keyPoints": [
+        "override = replace the value",
+        "skip = don't change if header exists",
+        "append = add to existing values",
+        "delete = remove the header"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/set-header-policy",
+      "tags": [
+        "az204::api-management::set-header"
+      ]
+    },
+    {
+      "id": "RAPIM-015",
+      "type": "single-choice",
+      "question": "Which APIM feature allows teams to independently manage their own APIs while sharing a single developer portal?",
+      "options": [
+        "Products",
+        "Workspaces",
+        "API Revisions",
+        "Named Values"
+      ],
+      "answer": "B",
+      "explanation": "Workspaces are isolated areas where teams independently create, manage, and publish their own APIs. The central team keeps overall control, and all APIs show up on a single Developer Portal. Available only in Premium and Premium v2.",
+      "keyPoints": [
+        "Workspaces = federated API management",
+        "Isolated access via Azure RBAC",
+        "Single Developer Portal for everyone",
+        "Only Premium and Premium v2"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/workspaces-overview",
+      "tags": [
+        "az204::api-management::workspaces"
+      ]
+    },
+    {
+      "id": "RAPIM-016",
+      "type": "single-choice",
+      "question": "In which policy section should you place the cache-store policy?",
+      "options": [
+        "<inbound>",
+        "<backend>",
+        "<outbound>",
+        "<on-error>"
+      ],
+      "answer": "C",
+      "explanation": "cache-store goes in <outbound> because you're caching the RESPONSE from the backend. Its partner, cache-lookup, goes in <inbound> — it checks if a cached response exists before calling the backend. If a cache hit is found, the backend is NOT called.",
+      "keyPoints": [
+        "cache-lookup → <inbound> (checks the cache)",
+        "cache-store → <outbound> (saves the response)",
+        "Built-in cache is NOT available in Consumption tier",
+        "duration is in seconds"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/cache-lookup-policy",
+      "tags": [
+        "az204::api-management::caching"
+      ]
+    },
+    {
+      "id": "RAPIM-017",
+      "type": "single-choice",
+      "question": "Which APIM tier does NOT include the Developer Portal?",
+      "options": [
+        "Developer tier",
+        "Basic tier",
+        "Standard tier",
+        "Consumption tier"
+      ],
+      "answer": "D",
+      "explanation": "Consumption tier does NOT include the Developer Portal. That's because Consumption is a serverless tier with a minimal feature set: no cache, no portal, no VNet, no static IP. All other tiers include the Developer Portal.",
+      "keyPoints": [
+        "Consumption = no Developer Portal",
+        "Developer Portal is included in all other tiers",
+        "The portal can be customized and self-hosted",
+        "The portal is auto-generated"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-features",
+      "tags": [
+        "az204::api-management::developer-portal"
+      ]
+    },
+    {
+      "id": "RAPIM-018",
+      "type": "single-choice",
+      "question": "What is the purpose of the ip-filter policy in APIM?",
+      "options": [
+        "Routes requests based on client IP to different backends",
+        "Restricts API access to specific IP addresses (allow-list or deny-list)",
+        "Logs client IP addresses for analytics",
+        "Masks client IP in the forwarded request to backend"
+      ],
+      "answer": "B",
+      "explanation": "ip-filter restricts API access by IP address. You can create an allow-list (only specified IPs) or a deny-list (block specified IPs). Blocked requests get a 403 Forbidden response.",
+      "keyPoints": [
+        "action=allow → only specified IPs can access",
+        "action=forbid → block specified IPs",
+        "Supports single IPs and IP ranges",
+        "Blocked requests get 403"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/ip-filter-policy",
+      "tags": [
+        "az204::api-management::ip-filter"
+      ]
+    },
+    {
+      "id": "RAPIM-019",
+      "type": "multi-select",
+      "question": "Which two APIM tiers support VNet injection for full network isolation? (Select 2)",
+      "options": [
+        "Standard (classic)",
+        "Developer (classic)",
+        "Basic v2",
+        "Premium (classic)"
+      ],
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "VNet injection (full network isolation — inbound + outbound) is only available in Developer, Premium (classic), and Premium v2. Developer is for testing, Premium is for production. Standard v2 supports outbound VNet integration but NOT full injection.",
+      "keyPoints": [
+        "VNet injection = Developer, Premium, Premium v2",
+        "VNet integration (outbound only) = Standard v2, Premium v2",
+        "Injection = full isolation, inbound + outbound",
+        "Integration = outbound to backend only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-features",
+      "tags": [
+        "az204::api-management::vnet"
+      ]
+    },
+    {
+      "id": "RAPIM-020",
+      "type": "multi-select",
+      "question": "Which two policies are typically used together for response caching in APIM? (Select 2)",
+      "options": [
+        "cache-lookup",
+        "cache-store",
+        "set-header",
+        "return-response"
+      ],
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "cache-lookup and cache-store work as a pair. cache-lookup (in <inbound>) checks the cache — if a response is found, the backend is NOT called. cache-store (in <outbound>) saves the backend response to the cache for future requests.",
+      "keyPoints": [
+        "cache-lookup → <inbound> — checks the cache",
+        "cache-store → <outbound> — saves the response",
+        "Cache hit → backend is skipped",
+        "duration sets cache lifetime in seconds"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/cache-lookup-policy",
+      "tags": [
+        "az204::api-management::caching"
+      ]
+    },
+    {
+      "id": "RAPIM-021",
+      "type": "multi-select",
+      "question": "Which two features are NOT available in the APIM Consumption tier? (Select 2)",
+      "options": [
+        "Subscription keys",
+        "Built-in response cache",
+        "Rate-limit policy",
+        "Developer Portal"
+      ],
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "Consumption tier does NOT have built-in cache (you need an external cache) or Developer Portal. Subscription keys and rate-limit policy are available (but rate-limit-by-key is NOT available in Consumption).",
+      "keyPoints": [
+        "Consumption: no built-in cache",
+        "Consumption: no Developer Portal",
+        "Consumption: no VNet, no static IP",
+        "rate-limit-by-key also does NOT work in Consumption"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-features",
+      "tags": [
+        "az204::api-management::consumption-tier"
+      ]
+    },
+    {
+      "id": "RAPIM-022",
+      "type": "multi-select",
+      "question": "Which three subscription scopes are available in APIM? (Select 3)",
+      "options": [
+        "All APIs",
+        "Single API",
+        "Product",
+        "Operation"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "APIM has three subscription scopes: All APIs (access to every API), Single API (one specific API), and Product (all APIs in a product). Per-operation subscriptions do NOT exist.",
+      "keyPoints": [
+        "All APIs = access to every API in APIM",
+        "Single API = access to one API",
+        "Product = access to all APIs in a product",
+        "Two keys per subscription for rotation"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-subscriptions",
+      "tags": [
+        "az204::api-management::subscriptions"
+      ]
+    },
+    {
+      "id": "RAPIM-023",
+      "type": "multi-select",
+      "question": "Which two types of Named Values can store sensitive data securely in APIM? (Select 2)",
+      "options": [
+        "Plain",
+        "Secret",
+        "Key Vault",
+        "Environment"
+      ],
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "Secret values are encrypted and hidden in the portal (shown as *****). Key Vault values reference a secret in Azure Key Vault and auto-sync. Plain values are regular text, visible to everyone. The Environment type doesn't exist in APIM.",
+      "keyPoints": [
+        "Plain = regular text, visible to everyone",
+        "Secret = encrypted, hidden in portal",
+        "Key Vault = references Azure Key Vault",
+        "Key Vault auto-syncs with the vault"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-properties",
+      "tags": [
+        "az204::api-management::named-values"
+      ]
+    },
+    {
+      "id": "RAPIM-024",
+      "type": "multi-select",
+      "question": "Which two of these are built-in user groups in APIM? (Select 2)",
+      "options": [
+        "Administrators",
+        "Contributors",
+        "Developers",
+        "Operators"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "APIM has three built-in groups: Administrators (manage the APIM instance), Developers (Developer Portal users who subscribe to APIs), and Guests (unauthenticated portal visitors, read-only). Contributors and Operators are NOT built-in APIM groups.",
+      "keyPoints": [
+        "Administrators = manage APIM",
+        "Developers = portal users with subscriptions",
+        "Guests = unauthenticated visitors",
+        "You can create custom groups too"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-create-groups",
+      "tags": [
+        "az204::api-management::groups"
+      ]
+    },
+    {
+      "id": "RAPIM-025",
+      "type": "ordering",
+      "question": "Arrange the APIM policy sections in the order they execute during a normal (non-error) API request.",
+      "orderItems": [
+        "inbound",
+        "backend",
+        "outbound",
+        "on-error (only if error occurs)"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "explanation": "Policies run in a strict order: inbound (process the incoming request), backend (before sending to backend), outbound (process the backend response). on-error only runs if something goes wrong — then all remaining sections are skipped.",
+      "keyPoints": [
+        "inbound → backend → outbound",
+        "on-error = only when an error happens",
+        "Error skips all remaining steps",
+        "The order is fixed, you can't change it"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies",
+      "tags": [
+        "az204::api-management::policy-sections"
+      ]
+    },
+    {
+      "id": "RAPIM-026",
+      "type": "ordering",
+      "question": "Arrange the APIM policy scopes from broadest to narrowest.",
+      "orderItems": [
+        "Global (all APIs)",
+        "Product (all APIs in a product)",
+        "API (all operations in one API)",
+        "Operation (single operation)"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "explanation": "Policies apply from the broadest scope to the narrowest: Global → Product → API → Operation. Use <base /> to inherit policies from the parent scope. There's also a Workspace scope between Global and Product.",
+      "keyPoints": [
+        "Global = broadest scope",
+        "Operation = narrowest scope",
+        "<base /> controls inheritance",
+        "Workspace scope exists between Global and Product"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/api-management-howto-policies",
+      "tags": [
+        "az204::api-management::policy-scopes"
+      ]
+    },
+    {
+      "id": "RAPIM-027",
+      "type": "ordering",
+      "question": "Arrange the steps to create and publish an API in APIM using the Azure portal.",
+      "orderItems": [
+        "Create an APIM instance",
+        "Import API definition (OpenAPI/Swagger)",
+        "Configure policies (rate-limit, CORS, etc.)",
+        "Add the API to a Product",
+        "Publish the Product to make it visible on Developer Portal"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "First create the APIM instance, then import the API (from OpenAPI, WSDL, etc.), configure policies, add the API to a Product, and publish the Product. The API only becomes visible on the Developer Portal after the Product is published.",
+      "keyPoints": [
+        "APIM instance → Import API → Policies → Product → Publish",
+        "Product must be Published to be visible",
+        "Protected Product requires a subscription",
+        "Open Product is accessible without a subscription"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/import-and-publish",
+      "tags": [
+        "az204::api-management::products"
+      ]
+    },
+    {
+      "id": "RAPIM-028",
+      "type": "code-hotarea",
+      "question": "This APIM policy XML attempts to validate JWT tokens and apply rate limiting. Click on the line(s) with errors.",
+      "codeLines": [
+        "<policies>",
+        "  <inbound>",
+        "    <base />",
+        "    <rate-limit calls=\"100\" renewal-period=\"60\" />",
+        "    <validate-jwt header-name=\"Authorization\">",
+        "      <openid-config url=\"https://login.microsoftonline.com/{tenant}/.well-known/openid-configuration\" />",
+        "    </validate-jwt>",
+        "  </inbound>",
+        "  <outbound>",
+        "    <cache-store duration=\"300\" />"
+      ],
+      "language": "xml",
+      "answer": [
+        3
+      ],
+      "explanation": "Line 4: rate-limit should come AFTER validate-jwt. If you put rate-limit before token validation, unauthenticated requests count against the limit and waste your quota. Best practice: authenticate first (validate-jwt), then throttle (rate-limit).",
+      "keyPoints": [
+        "validate-jwt should come BEFORE rate-limit",
+        "Unauthenticated requests shouldn't consume the rate limit",
+        "Policy order within a section matters",
+        "Best practice: auth → throttle → transform"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/validate-jwt-policy",
+      "tags": [
+        "az204::api-management::validate-jwt"
+      ]
+    },
+    {
+      "id": "RAPIM-029",
+      "type": "code-hotarea",
+      "question": "This APIM policy XML attempts to configure CORS. Click on the line(s) with errors.",
+      "codeLines": [
+        "<policies>",
+        "  <inbound>",
+        "    <base />",
+        "    <cors allow-credentials=\"true\">",
+        "      <allowed-origins>",
+        "        <origin>*</origin>",
+        "      </allowed-origins>",
+        "      <allowed-methods>",
+        "        <method>GET</method>",
+        "      </allowed-methods>"
+      ],
+      "language": "xml",
+      "answer": [
+        5
+      ],
+      "explanation": "Line 6: you can't use wildcard (*) for origins when allow-credentials=\"true\". Browsers block CORS requests with credentials if origin = *. You must list specific domains, like <origin>https://myapp.com</origin>.",
+      "keyPoints": [
+        "allow-credentials=true + origin=* = error",
+        "You must list specific domains",
+        "Browsers block wildcard + credentials",
+        "CORS policy goes in <inbound>"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/api-management/cors-policy",
+      "tags": [
+        "az204::api-management::cors"
+      ]
+    },
+    {
+      "id": "RAPIM-030",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates an APIM instance. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az apim create \\",
+        "  --name my-apim \\",
+        "  --resource-group myRG \\",
+        "  --sku-name Consumption \\",
+        "  --publisher-name \"Contoso\"",
+        "az apim api create \\",
+        "  --resource-group myRG --service-name my-apim \\",
+        "  --api-id my-api --path /api \\",
+        "  --display-name \"My API\""
+      ],
+      "language": "bash",
+      "answer": [
+        5
+      ],
+      "explanation": "Line 6: az apim create REQUIRES the --publisher-email parameter. Without it, the command fails. Both publisher-name and publisher-email are mandatory when creating an APIM instance.",
+      "keyPoints": [
+        "az apim create requires --publisher-email",
+        "publisher-name and publisher-email are both mandatory",
+        "--sku-name sets the tier (Consumption, Developer, etc.)",
+        "--name must be globally unique"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/apim",
+      "tags": [
+        "az204::api-management::cli"
+      ]
+    }
+  ]
+}
