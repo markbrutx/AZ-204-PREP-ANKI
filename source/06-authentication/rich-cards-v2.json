@@ -1,0 +1,881 @@
+{
+  "domain": "06-authentication",
+  "deckName": "AZ-204-PREP-ANKI::06-Authentication",
+  "cards": [
+    {
+      "id": "RAUTH-001",
+      "type": "single-choice",
+      "question": "Your company builds a web app that must sign in users from any Microsoft Entra organization. Which value should you use for the tenant parameter in the authorization endpoint?",
+      "options": [
+        "common",
+        "organizations",
+        "consumers",
+        "Your specific tenant GUID"
+      ],
+      "answer": "B",
+      "explanation": "organizations allows sign-in ONLY for work/school accounts from ANY Microsoft Entra organization. common allows both work/school AND personal accounts. consumers is personal accounts only. A specific GUID locks it to one single tenant.",
+      "keyPoints": [
+        "organizations = any organization, no personal accounts",
+        "common = organizations + personal accounts",
+        "consumers = personal Microsoft accounts only",
+        "Specific GUID = one tenant only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow",
+      "tags": [
+        "az204::authentication::tenant-values"
+      ]
+    },
+    {
+      "id": "RAUTH-002",
+      "type": "single-choice",
+      "question": "A background service needs to read all users from Microsoft Graph without any user interaction. Which OAuth 2.0 flow should you use?",
+      "options": [
+        "Authorization Code flow",
+        "Device Code flow",
+        "Client Credentials flow",
+        "On-Behalf-Of flow"
+      ],
+      "answer": "C",
+      "explanation": "Client Credentials flow is the only flow for server-to-server communication without a user present. The service authenticates with its own client_id + secret/certificate and gets a token with application permissions.",
+      "keyPoints": [
+        "Client Credentials = daemon/service with no user",
+        "Authorization Code = user signs in interactively",
+        "Device Code = devices without a browser",
+        "On-Behalf-Of = API calls another API on behalf of a user"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow",
+      "tags": [
+        "az204::authentication::client-credentials-flow"
+      ]
+    },
+    {
+      "id": "RAUTH-003",
+      "type": "single-choice",
+      "question": "You are building a Single-Page Application (SPA) that signs in users and calls Microsoft Graph. Which MSAL class should you use?",
+      "options": [
+        "ConfidentialClientApplication",
+        "PublicClientApplication",
+        "ManagedIdentityApplication",
+        "ClientCredentialApplication"
+      ],
+      "answer": "B",
+      "explanation": "PublicClientApplication is for apps running on a user's device (SPA, desktop, mobile). A SPA can't safely store a client secret, so it's a public client. ConfidentialClientApplication is for server-side apps that CAN keep secrets safe.",
+      "keyPoints": [
+        "SPA, desktop, mobile = PublicClientApplication",
+        "Web server, daemon = ConfidentialClientApplication",
+        "SPA MUST use PKCE",
+        "Redirect URI type 'spa' enables CORS"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/msal-overview",
+      "tags": [
+        "az204::authentication::msal-public-client"
+      ]
+    },
+    {
+      "id": "RAUTH-004",
+      "type": "single-choice",
+      "question": "What is the purpose of the state parameter in an OAuth 2.0 authorization request?",
+      "options": [
+        "Stores the user's session data on the server",
+        "Encrypts the authorization code during transit",
+        "Prevents Cross-Site Request Forgery (CSRF) attacks",
+        "Specifies the token lifetime in seconds"
+      ],
+      "answer": "C",
+      "explanation": "state is a random unique value your app generates and sends in the authorization request. The identity platform returns it in the response. Your app checks they match — this protects against CSRF attacks (someone hijacking the response).",
+      "keyPoints": [
+        "state = CSRF protection",
+        "Your app generates a random value",
+        "Identity platform returns it back",
+        "If they don't match — someone intercepted the response"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow",
+      "tags": [
+        "az204::authentication::state-parameter"
+      ]
+    },
+    {
+      "id": "RAUTH-005",
+      "type": "single-choice",
+      "question": "In the Client Credentials flow, why must you use the .default scope suffix?",
+      "options": [
+        "It requests the minimum set of permissions",
+        "It enables dynamic consent for the application",
+        "There is no user to consent, so it returns all admin-granted application permissions",
+        "It automatically refreshes the token before expiration"
+      ],
+      "answer": "C",
+      "explanation": "In Client Credentials flow there's no user to consent to specific scopes. .default tells the identity platform: 'give me a token with ALL application permissions the admin already approved for this resource'.",
+      "keyPoints": [
+        ".default = all pre-approved application permissions",
+        "You can't request individual scopes in client credentials",
+        "You can't mix scopes from different resources",
+        "Example: https://graph.microsoft.com/.default"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow",
+      "tags": [
+        "az204::authentication::default-scope"
+      ]
+    },
+    {
+      "id": "RAUTH-006",
+      "type": "single-choice",
+      "question": "What is the difference between an Application Object and a Service Principal in Microsoft Entra ID?",
+      "options": [
+        "Application Object is the runtime instance; Service Principal is the template",
+        "Application Object is the global template; Service Principal is the per-tenant instance",
+        "Application Object stores secrets; Service Principal stores permissions",
+        "They are identical — just different names for the same resource"
+      ],
+      "answer": "B",
+      "explanation": "Application Object is the global template (cookie cutter). Created once during registration. Service Principal is the actual instance in each tenant (the cookie). In a multi-tenant app, every tenant that consents gets its own service principal.",
+      "keyPoints": [
+        "Application Object = one per app, lives in the home tenant",
+        "Service Principal = one per tenant that uses the app",
+        "Multi-tenant: consent creates a service principal in the new tenant",
+        "Analogy: cookie cutter (App Object) -> cookie (Service Principal)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/application-model",
+      "tags": [
+        "az204::authentication::app-vs-service-principal"
+      ]
+    },
+    {
+      "id": "RAUTH-007",
+      "type": "single-choice",
+      "question": "An app has delegated permission Files.Read.All. A regular user signs in. What files can the app access?",
+      "options": [
+        "All files in the entire tenant",
+        "Only the signed-in user's own files",
+        "Files shared with the user plus their own files",
+        "No files until admin consent is granted"
+      ],
+      "answer": "B",
+      "explanation": "Effective permissions = intersection of app permissions AND user privileges. The app has Files.Read.All, but a regular user can only read THEIR OWN files. Intersection = only that user's files.",
+      "keyPoints": [
+        "Delegated permissions = intersection of app + user rights",
+        "Application permissions = full access, no intersection",
+        "Regular user != admin, their rights are limited",
+        "This is a safety net: app never gets more access than the user has"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview",
+      "tags": [
+        "az204::authentication::effective-permissions"
+      ]
+    },
+    {
+      "id": "RAUTH-008",
+      "type": "single-choice",
+      "question": "Which token type should a web API validate when receiving a request from a client application?",
+      "options": [
+        "ID token",
+        "Refresh token",
+        "Access token",
+        "Session token"
+      ],
+      "answer": "C",
+      "explanation": "Access token is the authorization token the client sends to the API in the Authorization: Bearer header. The API validates the signature, audience, issuer, and expiration. ID token is for authenticating the user in the client app — you NEVER send it to an API.",
+      "keyPoints": [
+        "Access token = authorization, sent to APIs",
+        "ID token = authentication, used by the client app",
+        "Refresh token = getting a new access token",
+        "An API should NEVER accept an ID token"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens",
+      "tags": [
+        "az204::authentication::token-types"
+      ]
+    },
+    {
+      "id": "RAUTH-009",
+      "type": "single-choice",
+      "question": "A developer catches MsalUiRequiredException when calling AcquireTokenSilent. What should the app do next?",
+      "options": [
+        "Retry AcquireTokenSilent with a longer timeout",
+        "Fall back to AcquireTokenInteractive to prompt the user",
+        "Generate a new client secret and retry",
+        "Clear the token cache and call AcquireTokenForClient"
+      ],
+      "answer": "B",
+      "explanation": "MsalUiRequiredException means: the cache is empty or the refresh token expired — user interaction is needed. The correct action is to call AcquireTokenInteractive so the user signs in again.",
+      "keyPoints": [
+        "AcquireTokenSilent checks cache -> refresh token",
+        "If both fail -> MsalUiRequiredException",
+        "Fallback: AcquireTokenInteractive (user signs in again)",
+        "Standard pattern: silent first, interactive if needed"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/msal-overview",
+      "tags": [
+        "az204::authentication::msal-silent"
+      ]
+    },
+    {
+      "id": "RAUTH-010",
+      "type": "single-choice",
+      "question": "Which JWT claim in an access token identifies the API the token is intended for?",
+      "options": [
+        "iss (issuer)",
+        "sub (subject)",
+        "aud (audience)",
+        "tid (tenant ID)"
+      ],
+      "answer": "C",
+      "explanation": "aud (audience) tells you WHICH API this token is meant for. The API must check that aud matches its own app ID URI. If it doesn't match — the token was issued for a different service and must be rejected.",
+      "keyPoints": [
+        "aud = which API the token is for",
+        "iss = who issued the token",
+        "sub = who the user/application is",
+        "The API MUST validate aud"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens",
+      "tags": [
+        "az204::authentication::jwt-claims"
+      ]
+    },
+    {
+      "id": "RAUTH-011",
+      "type": "single-choice",
+      "question": "Your IoT device has no browser and needs to sign in a user to access Azure resources. Which OAuth 2.0 flow should you use?",
+      "options": [
+        "Authorization Code with PKCE",
+        "Client Credentials flow",
+        "Device Code flow",
+        "Implicit flow"
+      ],
+      "answer": "C",
+      "explanation": "Device Code flow is for devices without a browser (IoT, Smart TV, printers). The device shows a code, the user enters it on another device (phone/PC) and signs in. The device keeps polling the /token endpoint until the user finishes.",
+      "keyPoints": [
+        "Device Code = devices without a browser",
+        "User signs in on a DIFFERENT device",
+        "The code is valid for 15 minutes",
+        "The device polls the /token endpoint"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code",
+      "tags": [
+        "az204::authentication::device-code-flow"
+      ]
+    },
+    {
+      "id": "RAUTH-012",
+      "type": "single-choice",
+      "question": "Which type of consent is required for application permissions in Microsoft Entra ID?",
+      "options": [
+        "User consent at first sign-in",
+        "Admin consent only",
+        "Dynamic consent from the resource owner",
+        "No consent is needed for application permissions"
+      ],
+      "answer": "B",
+      "explanation": "Application permissions give the app access to ALL resources in the tenant (not on behalf of a user). Only an admin can approve such broad access. User consent only works for low-privilege delegated permissions.",
+      "keyPoints": [
+        "Application permissions = admin consent only",
+        "Delegated (low privilege) = user consent is OK",
+        "Admin can consent on behalf of the whole organization",
+        "Application permissions = tenant-wide access"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview",
+      "tags": [
+        "az204::authentication::admin-consent"
+      ]
+    },
+    {
+      "id": "RAUTH-013",
+      "type": "single-choice",
+      "question": "What is the default lifetime of an access token issued by Microsoft Identity Platform?",
+      "options": [
+        "15-30 minutes",
+        "60-90 minutes",
+        "4-8 hours",
+        "24 hours"
+      ],
+      "answer": "B",
+      "explanation": "The default access token lifetime is 60-90 minutes. After it expires, you need a new one via a refresh token or a new sign-in. With CAE (Continuous Access Evaluation), tokens live 20-28 hours but can be revoked instantly.",
+      "keyPoints": [
+        "Access token = 60-90 minutes by default",
+        "ID token = 1 hour",
+        "Refresh token (SPA) = 24 hours",
+        "CAE tokens = 20-28 hours, but revocable"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens",
+      "tags": [
+        "az204::authentication::token-lifetime"
+      ]
+    },
+    {
+      "id": "RAUTH-014",
+      "type": "single-choice",
+      "question": "A web API receives a request with a JWT access token. Which claim should the API check FIRST to ensure the token is meant for this specific API?",
+      "options": [
+        "scp (scopes)",
+        "aud (audience)",
+        "appid (application ID)",
+        "tid (tenant ID)"
+      ],
+      "answer": "B",
+      "explanation": "aud (audience) is the FIRST thing the API checks. This claim contains the app ID URI of the resource. If aud doesn't match your API — the token was meant for a different service and must be rejected. Only after checking aud does it make sense to look at scopes and other claims.",
+      "keyPoints": [
+        "aud = the most important check for an API",
+        "Then check: iss, exp, nbf, signature",
+        "scp = delegated permissions of the user",
+        "roles = application permissions of the app"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens",
+      "tags": [
+        "az204::authentication::token-validation"
+      ]
+    },
+    {
+      "id": "RAUTH-015",
+      "type": "single-choice",
+      "question": "What is PKCE (Proof Key for Code Exchange) used for in OAuth 2.0?",
+      "options": [
+        "Encrypting the access token payload",
+        "Preventing authorization code interception attacks",
+        "Enabling single sign-on across multiple apps",
+        "Rotating client secrets automatically"
+      ],
+      "answer": "B",
+      "explanation": "PKCE (pronounced 'pixy') protects against authorization code interception. The client generates a random code_verifier, hashes it with SHA-256 into a code_challenge, sends the challenge in the auth request, and the verifier in the token request. The server checks that the hashes match.",
+      "keyPoints": [
+        "PKCE = protection against authorization code interception",
+        "code_verifier -> SHA-256 -> code_challenge",
+        "Required for SPAs, recommended for all clients",
+        "Replaces the need for a client secret in public clients"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow",
+      "tags": [
+        "az204::authentication::pkce"
+      ]
+    },
+    {
+      "id": "RAUTH-016",
+      "type": "single-choice",
+      "question": "Your middle-tier API receives a request from a web app on behalf of a user. The API needs to call Microsoft Graph as that same user. Which OAuth 2.0 flow should the API use?",
+      "options": [
+        "Authorization Code flow",
+        "Client Credentials flow",
+        "On-Behalf-Of flow",
+        "Device Code flow"
+      ],
+      "answer": "C",
+      "explanation": "On-Behalf-Of (OBO) flow is when a middle-tier API receives the user's access token and exchanges it for a new token to call another API as THAT SAME user. Client Credentials won't work here because you'd lose the user's identity.",
+      "keyPoints": [
+        "OBO = API -> API on behalf of a user",
+        "The incoming access token gets exchanged for a new one",
+        "Preserves the user's context (delegated permissions)",
+        "Client Credentials = loses the user's identity"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-on-behalf-of-flow",
+      "tags": [
+        "az204::authentication::on-behalf-of"
+      ]
+    },
+    {
+      "id": "RAUTH-017",
+      "type": "single-choice",
+      "question": "Which Microsoft Graph endpoint returns the profile of the currently signed-in user?",
+      "options": [
+        "GET /v1.0/users",
+        "GET /v1.0/me",
+        "GET /v1.0/profile",
+        "GET /v1.0/user/current"
+      ],
+      "answer": "B",
+      "explanation": "GET /v1.0/me returns the profile of the CURRENT signed-in user. /v1.0/users lists ALL users in the organization (requires higher permissions). The /profile and /user/current endpoints don't exist.",
+      "keyPoints": [
+        "/me = current user (needs User.Read scope)",
+        "/users = all users (needs User.Read.All)",
+        "/me/messages = current user's mail",
+        "Base URL: https://graph.microsoft.com"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/graph/overview",
+      "tags": [
+        "az204::authentication::microsoft-graph"
+      ]
+    },
+    {
+      "id": "RAUTH-018",
+      "type": "single-choice",
+      "question": "What is the nonce claim in an ID token used for?",
+      "options": [
+        "Identifying the token issuer",
+        "Preventing token replay attacks",
+        "Encoding the user's email address",
+        "Setting the token expiration time"
+      ],
+      "answer": "B",
+      "explanation": "nonce is a random value your app generates and sends in the authorization request. The identity platform puts the same value into the ID token. Your app checks they match — this protects against replay attacks (reusing an old token).",
+      "keyPoints": [
+        "nonce = protection against token replay attacks",
+        "Your app generates it and sends it in /authorize",
+        "Identity platform puts it into the ID token",
+        "Mismatch = someone tried to reuse an old token"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/id-tokens",
+      "tags": [
+        "az204::authentication::nonce-claim"
+      ]
+    },
+    {
+      "id": "RAUTH-019",
+      "type": "single-choice",
+      "question": "What happens when Continuous Access Evaluation (CAE) is enabled and a user's account is disabled?",
+      "options": [
+        "The access token remains valid until its normal expiration",
+        "The resource can reject the token immediately, before expiration",
+        "MSAL automatically revokes all cached tokens",
+        "The user must manually revoke the token in Azure Portal"
+      ],
+      "answer": "B",
+      "explanation": "With CAE, the resource (like Microsoft Graph) can reject a token BEFORE it expires if a critical event happens (account disabled, password changed). Without CAE, the token stays valid for the full 60-90 minutes even if the account is already blocked.",
+      "keyPoints": [
+        "CAE = instant revocation on critical events",
+        "CAE tokens live 20-28 hours (longer than normal)",
+        "Without CAE: token is valid until exp, even if account is blocked",
+        "CAE reduces the number of refresh requests"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens",
+      "tags": [
+        "az204::authentication::continuous-access-evaluation"
+      ]
+    },
+    {
+      "id": "RAUTH-020",
+      "type": "single-choice",
+      "question": "Which of the following is the most secure way for a confidential client to authenticate in the Client Credentials flow?",
+      "options": [
+        "Client secret string",
+        "X.509 certificate",
+        "Basic authentication header",
+        "API key in query string"
+      ],
+      "answer": "B",
+      "explanation": "X.509 certificate is more secure than a client secret. The app creates and signs a JWT assertion using the certificate's private key. The server verifies the signature with the public key. A secret is just a plain string that's easy to steal. Basic auth and API keys aren't supported.",
+      "keyPoints": [
+        "Certificate > client secret for security",
+        "Federated credential = even better (no secrets stored in Entra)",
+        "Client secret = plain string, easy to leak",
+        "3 methods: secret, certificate, federated credential"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow",
+      "tags": [
+        "az204::authentication::client-auth-methods"
+      ]
+    },
+    {
+      "id": "RAUTH-021",
+      "type": "single-choice",
+      "question": "During device code flow polling, the app receives an 'expired_token' error. What should the app do?",
+      "options": [
+        "Keep polling with a shorter interval",
+        "Display an error and start over with a new device code request",
+        "Switch to the Client Credentials flow",
+        "Retry the same device code with a new user code"
+      ],
+      "answer": "B",
+      "explanation": "expired_token means the 15-minute window for entering the code has passed. The old device code is no longer valid. You need to start over — request a new device code and show the user a new user code.",
+      "keyPoints": [
+        "expired_token = 15 minutes passed, start over",
+        "authorization_pending = user hasn't entered code yet, keep polling",
+        "authorization_declined = user said no, stop",
+        "bad_verification_code = wrong device_code"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code",
+      "tags": [
+        "az204::authentication::device-code-errors"
+      ]
+    },
+    {
+      "id": "RAUTH-022",
+      "type": "multi-select",
+      "question": "Which TWO of the following are configured during app registration in Microsoft Entra ID? (Select 2)",
+      "options": [
+        "Redirect URIs for token delivery",
+        "Azure subscription billing plan",
+        "API permissions (delegated and application)",
+        "Virtual network peering rules"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "During app registration you configure Redirect URIs (where to send tokens) and API permissions (what the app can access). Billing plans and VNet peering are completely different Azure services — nothing to do with Identity Platform.",
+      "keyPoints": [
+        "App registration: redirect URIs, permissions, client ID",
+        "Also: client secret/certificate, supported account types",
+        "Expose an API: defines your API's scopes",
+        "Billing and VNet are not part of app registration"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/application-model",
+      "tags": [
+        "az204::authentication::app-registration"
+      ]
+    },
+    {
+      "id": "RAUTH-023",
+      "type": "multi-select",
+      "question": "Which TWO statements about delegated permissions are correct? (Select 2)",
+      "options": [
+        "The app acts on behalf of the signed-in user",
+        "Only admin consent is required",
+        "Effective access is the intersection of app permissions and user privileges",
+        "They work without any signed-in user"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Delegated permissions: the app acts ON BEHALF of the user, and effective rights = intersection of app permissions and user privileges. User consent is fine for low-privilege scopes. Without a user — that's application permissions, not delegated.",
+      "keyPoints": [
+        "Delegated = on behalf of the user",
+        "Effective = intersection(app, user)",
+        "User consent is OK for low-privilege scopes",
+        "Application permissions = no user, admin consent only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview",
+      "tags": [
+        "az204::authentication::delegated-permissions"
+      ]
+    },
+    {
+      "id": "RAUTH-024",
+      "type": "multi-select",
+      "question": "Which THREE claims must a Web API validate when receiving a JWT access token? (Select 3)",
+      "options": [
+        "aud (audience) matches the API's app ID URI",
+        "iss (issuer) matches the expected authority",
+        "exp (expiration) has not passed",
+        "nonce matches the client's random value"
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "The API MUST check: aud (is this token for my API?), iss (who issued it?), exp (is it expired?). nonce is a claim from the ID token used by the client app — the API doesn't check it. The token signature also needs to be verified.",
+      "keyPoints": [
+        "aud = is this token for my API?",
+        "iss = issued by a trusted authority?",
+        "exp + nbf = is the token still valid time-wise?",
+        "nonce = only for ID tokens in the client"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/access-tokens",
+      "tags": [
+        "az204::authentication::token-validation"
+      ]
+    },
+    {
+      "id": "RAUTH-025",
+      "type": "multi-select",
+      "question": "Which TWO of the following are true about the Client Credentials flow? (Select 2)",
+      "options": [
+        "No refresh token is issued",
+        "The scope must use the .default suffix",
+        "Delegated permissions can be used",
+        "A user must sign in interactively"
+      ],
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "In Client Credentials flow: 1) NO refresh token is issued (the app just requests a new one when needed), 2) the scope MUST use .default. Delegated permissions DON'T apply (no user). No user signs in (it's a daemon/service).",
+      "keyPoints": [
+        "No refresh token — app just requests a new access token",
+        "Scope: resource/.default (e.g. graph/.default)",
+        "Only application permissions, not delegated",
+        "No user involved — server-to-server"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow",
+      "tags": [
+        "az204::authentication::client-credentials-details"
+      ]
+    },
+    {
+      "id": "RAUTH-026",
+      "type": "multi-select",
+      "question": "Which TWO are valid account types that can sign in through the Microsoft Identity Platform? (Select 2)",
+      "options": [
+        "Work and school accounts (Microsoft Entra ID)",
+        "Amazon Web Services IAM accounts",
+        "Personal Microsoft accounts (Outlook, Xbox)",
+        "Google Workspace admin accounts"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Microsoft Identity Platform supports: work/school accounts (Microsoft Entra ID) and personal Microsoft accounts (Outlook.com, Xbox). AWS IAM and Google Workspace are accounts from OTHER providers — they don't authenticate directly through Microsoft Identity Platform.",
+      "keyPoints": [
+        "Microsoft Entra ID = work/school accounts",
+        "Personal Microsoft = Outlook.com, Xbox, Skype",
+        "Azure AD B2C = social/local accounts (Google, Facebook)",
+        "AWS and Google Workspace are different identity providers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-overview",
+      "tags": [
+        "az204::authentication::identity-platform"
+      ]
+    },
+    {
+      "id": "RAUTH-027",
+      "type": "multi-select",
+      "question": "Which TWO statements correctly describe the difference between static and dynamic consent? (Select 2)",
+      "options": [
+        "Static consent declares all permissions upfront in app registration",
+        "Dynamic consent is required for application permissions",
+        "Dynamic consent lets apps request permissions incrementally at runtime",
+        "Static consent only works with personal Microsoft accounts"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "Static consent: ALL permissions declared upfront in app registration. Dynamic consent: the app requests ONLY the permissions it needs at runtime and can add more gradually. Dynamic consent works only with delegated permissions (not application). Application permissions always require static consent.",
+      "keyPoints": [
+        "Static = all permissions declared upfront in app registration",
+        "Dynamic = request permissions as needed at runtime",
+        "Dynamic = delegated permissions only",
+        "Application permissions = always static + admin consent"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/permissions-consent-overview",
+      "tags": [
+        "az204::authentication::consent-types"
+      ]
+    },
+    {
+      "id": "RAUTH-028",
+      "type": "multi-select",
+      "question": "Which TWO of the following correctly describe MSAL (Microsoft Authentication Library)? (Select 2)",
+      "options": [
+        "MSAL replaces the deprecated ADAL library",
+        "MSAL only supports the v1.0 endpoint",
+        "MSAL handles token caching and automatic refresh",
+        "MSAL requires manual JWT parsing and validation"
+      ],
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "MSAL: 1) replaces the deprecated ADAL library, 2) automatically caches tokens and refreshes them via the refresh token. MSAL works with the v2.0 endpoint (NOT v1.0 — that was ADAL). MSAL does all the heavy lifting — no need to parse JWTs manually.",
+      "keyPoints": [
+        "MSAL = replacement for ADAL (ADAL is deprecated)",
+        "MSAL = v2.0 endpoint, ADAL = v1.0",
+        "Auto-caching + auto-refresh of tokens",
+        "Available for .NET, JS, Python, Java, Go, and more"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/msal-overview",
+      "tags": [
+        "az204::authentication::msal-overview"
+      ]
+    },
+    {
+      "id": "RAUTH-029",
+      "type": "ordering",
+      "question": "Arrange the steps of the OAuth 2.0 Authorization Code flow in the correct order.",
+      "orderItems": [
+        "App redirects user to /authorize endpoint with client_id, scope, and state",
+        "User signs in and consents to permissions",
+        "Identity platform returns authorization code to redirect URI",
+        "App sends authorization code to /token endpoint with client secret or PKCE verifier",
+        "Identity platform returns access token, refresh token, and ID token"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "Authorization Code flow: 1) App redirects to /authorize, 2) User signs in and consents, 3) Identity platform returns the code to the redirect URI, 4) App exchanges the code for tokens via /token endpoint, 5) Gets access + refresh + ID tokens.",
+      "keyPoints": [
+        "/authorize = get the authorization code",
+        "/token = exchange code for tokens",
+        "PKCE instead of client secret for public clients",
+        "state parameter protects against CSRF"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow",
+      "tags": [
+        "az204::authentication::auth-code-flow"
+      ]
+    },
+    {
+      "id": "RAUTH-030",
+      "type": "ordering",
+      "question": "Arrange the steps of the Device Code flow in the correct order.",
+      "orderItems": [
+        "Device requests a device code and user code from /devicecode endpoint",
+        "Device displays the user code and URL (microsoft.com/devicelogin) to the user",
+        "User opens the URL on a separate device and enters the code",
+        "User signs in and consents on the separate device",
+        "Device polls /token endpoint and receives access + refresh tokens"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "explanation": "Device Code flow: 1) Device requests device code + user code, 2) Shows the code and URL to the user, 3) User opens the URL on another device and enters the code, 4) User signs in and consents, 5) The device gets tokens via polling.",
+      "keyPoints": [
+        "For devices WITHOUT a browser (IoT, TV)",
+        "User signs in on a DIFFERENT device",
+        "Polling with a set interval (don't spam!)",
+        "User code is valid for 15 minutes"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code",
+      "tags": [
+        "az204::authentication::device-code-flow"
+      ]
+    },
+    {
+      "id": "RAUTH-031",
+      "type": "ordering",
+      "question": "Arrange the steps to register and configure an app in Microsoft Entra ID in the correct order.",
+      "orderItems": [
+        "Navigate to Microsoft Entra admin center > App registrations",
+        "Create new registration with name and supported account types",
+        "Note the Application (client) ID generated automatically",
+        "Configure redirect URIs for token delivery",
+        "Add API permissions (delegated or application)",
+        "Create a client secret or upload a certificate for confidential clients"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "explanation": "App registration steps: 1) Go to Entra admin center, 2) Create registration (name, account types), 3) Note the client ID, 4) Set up redirect URIs, 5) Add API permissions, 6) Create secret/certificate if it's a server app.",
+      "keyPoints": [
+        "Client ID is generated automatically",
+        "Redirect URI = where to send the token back",
+        "SPA redirect URI = type 'spa' (enables CORS)",
+        "Secret/certificate only needed for confidential clients"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/application-model",
+      "tags": [
+        "az204::authentication::app-registration"
+      ]
+    },
+    {
+      "id": "RAUTH-032",
+      "type": "ordering",
+      "question": "Arrange the MSAL token acquisition pattern in the recommended order.",
+      "orderItems": [
+        "Call GetAccountsAsync() to check for cached accounts",
+        "Try AcquireTokenSilent with the cached account",
+        "Catch MsalUiRequiredException if silent fails",
+        "Fall back to AcquireTokenInteractive for user sign-in"
+      ],
+      "answer": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "explanation": "Recommended MSAL pattern: 1) Check cached accounts, 2) Try silent (cache -> refresh token), 3) If MsalUiRequiredException — cache is empty/expired, 4) Call Interactive — user signs in again. Silent first, interactive as fallback.",
+      "keyPoints": [
+        "Always try silent first — fewer prompts for the user",
+        "Silent = cache -> refresh token automatically",
+        "MsalUiRequiredException = user interaction needed",
+        "This pattern is required knowledge for the AZ-204 exam"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/msal-overview",
+      "tags": [
+        "az204::authentication::msal-pattern"
+      ]
+    },
+    {
+      "id": "RAUTH-033",
+      "type": "code-hotarea",
+      "question": "This C# code configures MSAL for a daemon app using client credentials. Click on the line(s) with errors.",
+      "codeLines": [
+        "var app = PublicClientApplicationBuilder",
+        "    .Create(clientId)",
+        "    .WithClientSecret(clientSecret)",
+        "    .WithAuthority(new Uri($\"https://login.microsoftonline.com/{tenantId}\"))",
+        "    .Build();",
+        "",
+        "var scopes = new[] { \"https://graph.microsoft.com/.default\" };",
+        "var result = await app.AcquireTokenForClient(scopes).ExecuteAsync();"
+      ],
+      "language": "csharp",
+      "answer": [
+        0
+      ],
+      "explanation": "Line 1: PublicClientApplicationBuilder is WRONG for a daemon app. A daemon is a server app with a client secret = CONFIDENTIAL client. You need ConfidentialClientApplicationBuilder. PublicClientApplication is for SPAs, desktop, and mobile apps.",
+      "keyPoints": [
+        "Daemon/service = ConfidentialClientApplicationBuilder",
+        "SPA/desktop/mobile = PublicClientApplicationBuilder",
+        "A public client CANNOT use WithClientSecret",
+        "AcquireTokenForClient = only for ConfidentialClient"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/msal-overview",
+      "tags": [
+        "az204::authentication::msal-confidential-client"
+      ]
+    },
+    {
+      "id": "RAUTH-034",
+      "type": "code-hotarea",
+      "question": "This C# code acquires a token silently using MSAL.NET. Click on the line(s) with errors.",
+      "codeLines": [
+        "var accounts = await app.GetAccountsAsync();",
+        "try {",
+        "    var result = await app",
+        "        .AcquireTokenInteractive(scopes)",
+        "        .WithAccount(accounts.FirstOrDefault())",
+        "        .ExecuteAsync();",
+        "} catch (MsalUiRequiredException) {",
+        "    var result = await app.AcquireTokenInteractive(scopes).ExecuteAsync();",
+        "}"
+      ],
+      "language": "csharp",
+      "answer": [
+        3
+      ],
+      "explanation": "Line 4: AcquireTokenInteractive instead of AcquireTokenSilent. The whole point is to try SILENTLY first, and only go interactive if it fails. Here it calls interactive right away, meaning the user ALWAYS sees a sign-in window.",
+      "keyPoints": [
+        "Pattern: AcquireTokenSilent first, then Interactive",
+        "Silent = checks cache + refresh token",
+        "Interactive = opens a sign-in window for the user",
+        "Without silent, the user signs in EVERY time"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/entra/identity-platform/msal-overview",
+      "tags": [
+        "az204::authentication::msal-silent-pattern"
+      ]
+    },
+    {
+      "id": "RAUTH-035",
+      "type": "code-hotarea",
+      "question": "This C# code calls Microsoft Graph API to get the current user's profile. Click on the line(s) with errors.",
+      "codeLines": [
+        "var httpClient = new HttpClient();",
+        "httpClient.DefaultRequestHeaders.Authorization =",
+        "    new AuthenticationHeaderValue(\"Basic\", accessToken);",
+        "var response = await httpClient.GetAsync(",
+        "    \"https://graph.microsoft.com/v1.0/me\");",
+        "var content = await response.Content.ReadAsStringAsync();"
+      ],
+      "language": "csharp",
+      "answer": [
+        2
+      ],
+      "explanation": "Line 3: 'Basic' instead of 'Bearer'. Microsoft Graph API requires the Authorization: Bearer {token} header. Basic authentication is a completely different method (username:password in base64). OAuth 2.0 ALWAYS uses Bearer tokens.",
+      "keyPoints": [
+        "OAuth 2.0 = Authorization: Bearer {token}",
+        "Basic = username:password in base64 (NOT for OAuth)",
+        "Microsoft Graph accepts ONLY Bearer tokens",
+        "Common exam trick: Basic vs Bearer"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/graph/overview",
+      "tags": [
+        "az204::authentication::graph-api-call"
+      ]
+    }
+  ]
+}
