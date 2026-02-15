@@ -1,0 +1,647 @@
+{
+  "domain": "10-message-solutions",
+  "deckName": "AZ-204-PREP-ANKI::10-Message Solutions",
+  "cards": [
+    {
+      "id": "RMSG-001",
+      "type": "single-choice",
+      "question": "What is Azure Service Bus?",
+      "options": [
+        "A simple HTTP-based queue service that is part of Azure Storage",
+        "A fully managed enterprise message broker supporting queues and topics with AMQP protocol",
+        "An event streaming platform for real-time analytics",
+        "A serverless compute service triggered by HTTP requests"
+      ],
+      "answer": "B",
+      "explanation": "Azure Service Bus is a fully managed enterprise message broker. It supports two patterns: queues (point-to-point) and topics/subscriptions (publish-subscribe). It uses the AMQP 1.0 protocol. It's PaaS — you don't manage any hardware.",
+      "keyPoints": [
+        "Service Bus = PaaS message broker",
+        "Supports queues and topics",
+        "Uses AMQP 1.0 protocol (+ HTTP)",
+        "Triple-replicated storage"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-messaging-overview",
+      "tags": ["az204::message-solutions::service-bus-overview"]
+    },
+    {
+      "id": "RMSG-002",
+      "type": "single-choice",
+      "question": "Your application requires topics and subscriptions for publish-subscribe messaging. Which is the minimum Service Bus pricing tier you must use?",
+      "options": [
+        "Free tier",
+        "Basic tier",
+        "Standard tier",
+        "Premium tier"
+      ],
+      "answer": "C",
+      "explanation": "Topics and subscriptions are only available on Standard and Premium tiers. Basic tier supports ONLY queues — no topics, no duplicate detection, no sessions.",
+      "keyPoints": [
+        "Basic = queues only",
+        "Standard = queues + topics + shared resources",
+        "Premium = dedicated resources + large messages up to 100 MB"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-premium-messaging",
+      "tags": ["az204::message-solutions::service-bus-tiers"]
+    },
+    {
+      "id": "RMSG-003",
+      "type": "single-choice",
+      "question": "A developer needs to process messages and ensure that if processing fails, the message becomes available to other consumers. Which receive mode should they use?",
+      "options": [
+        "ReceiveAndDelete mode",
+        "PeekLock mode",
+        "AutoComplete mode",
+        "BatchReceive mode"
+      ],
+      "answer": "B",
+      "explanation": "PeekLock is the default mode. The message gets locked while you process it. If processing fails, you call Abandon — the message unlocks and becomes available to others. ReceiveAndDelete removes the message immediately — if processing crashes, the message is gone forever.",
+      "keyPoints": [
+        "PeekLock = at-least-once delivery",
+        "ReceiveAndDelete = at-most-once delivery",
+        "Default lock timeout = 30 seconds",
+        "Complete = delete, Abandon = unlock"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-queues-topics-subscriptions#receive-modes",
+      "tags": ["az204::message-solutions::receive-modes"]
+    },
+    {
+      "id": "RMSG-004",
+      "type": "single-choice",
+      "question": "What is the default lock duration for a message in PeekLock mode in Azure Service Bus?",
+      "options": [
+        "10 seconds",
+        "30 seconds",
+        "60 seconds",
+        "5 minutes"
+      ],
+      "answer": "B",
+      "explanation": "The default lock lasts 30 seconds. If you don't call Complete within that time, the message unlocks and becomes available to other receivers. You can extend the lock by calling RenewMessageLockAsync.",
+      "keyPoints": [
+        "Default lock = 30 seconds",
+        "Lock can be extended via RenewMessageLockAsync",
+        "ServiceBusProcessor supports auto lock renewal"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-queues-topics-subscriptions#receive-modes",
+      "tags": ["az204::message-solutions::lock-timeout"]
+    },
+    {
+      "id": "RMSG-005",
+      "type": "single-choice",
+      "question": "What happens when a message exceeds the MaxDeliveryCount in Azure Service Bus?",
+      "options": [
+        "The message is automatically deleted",
+        "The message is moved to the dead-letter queue",
+        "The message is sent back to the sender",
+        "The message is forwarded to another queue"
+      ],
+      "answer": "B",
+      "explanation": "When the delivery attempt count exceeds MaxDeliveryCount (default 10), the message automatically moves to the dead-letter queue (DLQ). It stays there until you explicitly retrieve it. TTL does not apply inside the DLQ.",
+      "keyPoints": [
+        "MaxDeliveryCount default = 10",
+        "DLQ = secondary sub-queue for 'dead' messages",
+        "DLQ path: <queue>/$deadletterqueue",
+        "Messages in the DLQ are not auto-deleted"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dead-letter-queues",
+      "tags": ["az204::message-solutions::dead-letter-queue"]
+    },
+    {
+      "id": "RMSG-006",
+      "type": "single-choice",
+      "question": "How does duplicate detection work in Azure Service Bus?",
+      "options": [
+        "It compares the full message body of incoming messages",
+        "It tracks MessageId values within a configurable time window and silently drops duplicates",
+        "It uses a hash of the message body to identify duplicates",
+        "It requires the sender to explicitly mark messages as potential duplicates"
+      ],
+      "answer": "B",
+      "explanation": "Duplicate detection tracks the MessageId of all sent messages within a time window. If a message with the same MessageId arrives — it gets silently dropped. The sender does not get an error. Only MessageId is checked, not the message body.",
+      "keyPoints": [
+        "Only MessageId is checked (not body)",
+        "Default window = 10 minutes (range: 20 sec to 7 days)",
+        "NOT available on Basic tier",
+        "With partitioning: MessageId + PartitionKey"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/duplicate-detection",
+      "tags": ["az204::message-solutions::duplicate-detection"]
+    },
+    {
+      "id": "RMSG-007",
+      "type": "single-choice",
+      "question": "A developer needs guaranteed FIFO ordering of messages in Azure Service Bus. What feature must be enabled?",
+      "options": [
+        "Message deferral",
+        "Message sessions",
+        "Auto-forwarding",
+        "Duplicate detection"
+      ],
+      "answer": "B",
+      "explanation": "Message sessions give you guaranteed FIFO ordering. Each message gets a SessionId, and all messages with the same SessionId are processed strictly in order by one receiver. Without sessions, Service Bus gives approximate FIFO, but not guaranteed.",
+      "keyPoints": [
+        "Sessions = guaranteed FIFO",
+        "Without sessions = approximate FIFO",
+        "One receiver locks the entire session",
+        "SessionId groups related messages together"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-sessions",
+      "tags": ["az204::message-solutions::message-sessions"]
+    },
+    {
+      "id": "RMSG-008",
+      "type": "single-choice",
+      "question": "A receiver gets a message but cannot process it yet because a prerequisite message has not arrived. What Service Bus feature should the receiver use?",
+      "options": [
+        "Abandon the message",
+        "Dead-letter the message",
+        "Defer the message",
+        "Schedule the message for later delivery"
+      ],
+      "answer": "C",
+      "explanation": "Deferral means the receiver can't process a message right now but doesn't want to lose it. A deferred message stays in the queue but won't be delivered again through normal receive. You can only retrieve it by its sequence number using ReceiveDeferredMessageAsync.",
+      "keyPoints": [
+        "Defer = set aside, but don't lose",
+        "Retrieve only by sequence number",
+        "ReceiveDeferredMessageAsync(sequenceNumber)",
+        "Abandon = unlock for redelivery to anyone"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-deferral",
+      "tags": ["az204::message-solutions::message-deferral"]
+    },
+    {
+      "id": "RMSG-009",
+      "type": "single-choice",
+      "question": "You want to submit a message to a Service Bus queue that should only become visible to receivers at 3:00 AM UTC. Which approach should you use?",
+      "options": [
+        "Set the TimeToLive property to delay delivery",
+        "Set the ScheduledEnqueueTimeUtc property on the message",
+        "Use message deferral to hold the message",
+        "Set the LockDuration to keep the message hidden"
+      ],
+      "answer": "B",
+      "explanation": "ScheduledEnqueueTimeUtc is a message property that tells Service Bus: 'don't show this message to receivers until the specified time'. You can also use the ScheduleMessageAsync method on the sender. TTL is time-to-live, not a delay. Deferral is receiver-side, not sender-side.",
+      "keyPoints": [
+        "ScheduledEnqueueTimeUtc = delayed visibility",
+        "ScheduleMessageAsync() = alternative method",
+        "Scheduled messages participate in duplicate detection"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/message-sequencing#scheduled-messages",
+      "tags": ["az204::message-solutions::scheduled-delivery"]
+    },
+    {
+      "id": "RMSG-010",
+      "type": "single-choice",
+      "question": "What is the maximum number of auto-forward hops allowed in Azure Service Bus before a message is dead-lettered?",
+      "options": [
+        "2 hops",
+        "3 hops",
+        "4 hops",
+        "10 hops"
+      ],
+      "answer": "C",
+      "explanation": "Auto-forwarding lets you chain queues or subscriptions within one namespace. The maximum is 4 hops. If exceeded, the message lands in the DLQ with reason MaxTransferHopCountExceeded.",
+      "keyPoints": [
+        "Auto-forwarding = chain queues within one namespace",
+        "Maximum 4 hops",
+        "Exceeding limit → DLQ with MaxTransferHopCountExceeded"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-auto-forwarding",
+      "tags": ["az204::message-solutions::auto-forwarding"]
+    },
+    {
+      "id": "RMSG-011",
+      "type": "single-choice",
+      "question": "Which .NET class provides an event-driven approach to continuously process messages from a Service Bus queue?",
+      "options": [
+        "ServiceBusReceiver",
+        "ServiceBusSender",
+        "ServiceBusProcessor",
+        "ServiceBusClient"
+      ],
+      "answer": "C",
+      "explanation": "ServiceBusProcessor is the event-driven receiver that automatically processes messages. You register handlers for ProcessMessageAsync and ProcessErrorAsync, call StartProcessingAsync — and it runs in the background. ServiceBusReceiver is the manual pull approach.",
+      "keyPoints": [
+        "ServiceBusProcessor = event-driven (automatic)",
+        "ServiceBusReceiver = manual pull",
+        "ServiceBusSender = sends messages",
+        "ServiceBusClient = factory for creating sender/receiver/processor"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues",
+      "tags": ["az204::message-solutions::sdk-receive"]
+    },
+    {
+      "id": "RMSG-012",
+      "type": "single-choice",
+      "question": "What is the recommended lifetime management approach for ServiceBusClient in .NET?",
+      "options": [
+        "Create a new instance for each message operation",
+        "Create a new instance per HTTP request in a web app",
+        "Register as a singleton and reuse for the application lifetime",
+        "Create separate instances for each queue or topic"
+      ],
+      "answer": "C",
+      "explanation": "ServiceBusClient (and its sender/receiver) should be cached as a singleton for the entire app lifetime. Creating a new client per operation is wasteful because each time a new AMQP connection is established.",
+      "keyPoints": [
+        "ServiceBusClient = singleton",
+        "Register in DI container as singleton",
+        "Always call DisposeAsync on shutdown",
+        "Use AmqpWebSockets if ports 5671/5672 are blocked"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues",
+      "tags": ["az204::message-solutions::sdk-best-practices"]
+    },
+    {
+      "id": "RMSG-013",
+      "type": "single-choice",
+      "question": "What is the maximum message size for Azure Queue Storage?",
+      "options": [
+        "16 KB",
+        "64 KB",
+        "256 KB",
+        "1 MB"
+      ],
+      "answer": "B",
+      "explanation": "Azure Queue Storage supports messages up to 64 KB (48 KB with Base64 encoding). That's much smaller than Service Bus (256 KB Standard, 100 MB Premium). Queue Storage is a simple, cheap service for basic scenarios.",
+      "keyPoints": [
+        "Queue Storage = 64 KB max (48 KB with Base64)",
+        "Service Bus Standard = 256 KB max",
+        "Service Bus Premium = 100 MB max",
+        "Queue Storage = part of Azure Storage Account"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/storage/queues/storage-queues-introduction",
+      "tags": ["az204::message-solutions::queue-storage-overview"]
+    },
+    {
+      "id": "RMSG-014",
+      "type": "single-choice",
+      "question": "Your company needs a messaging solution that stores over 100 GB of messages in a single queue. Which Azure service should you choose?",
+      "options": [
+        "Azure Service Bus with Premium tier",
+        "Azure Queue Storage",
+        "Azure Event Hubs",
+        "Azure Event Grid"
+      ],
+      "answer": "B",
+      "explanation": "Azure Queue Storage can hold up to 5 PiB of messages (storage account limit). Service Bus is limited to 1-80 GB per queue. If you need to store huge volumes of messages — Queue Storage is the only option.",
+      "keyPoints": [
+        "Queue Storage = up to 5 PiB",
+        "Service Bus = 1-80 GB per queue",
+        "Queue Storage = cheaper for large volumes",
+        "Queue Storage = HTTP/HTTPS protocol"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted",
+      "tags": ["az204::message-solutions::storage-vs-servicebus"]
+    },
+    {
+      "id": "RMSG-015",
+      "type": "single-choice",
+      "question": "Which subscription filter type in Service Bus is the most efficient for matching on specific property values like CorrelationId?",
+      "options": [
+        "Boolean filter",
+        "SQL filter",
+        "Correlation filter",
+        "XPath filter"
+      ],
+      "answer": "C",
+      "explanation": "Correlation filter is the most efficient because it does a direct property comparison (CorrelationId, Subject, To, ContentType, and custom properties). SQL filter uses SQL-like syntax and is slower. XPath filters don't exist in Service Bus.",
+      "keyPoints": [
+        "Correlation filter = fastest",
+        "SQL filter = flexible, but slower",
+        "Boolean filter = TrueFilter (all) / FalseFilter (none)",
+        "Each rule can have an action to modify metadata"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/topic-filters",
+      "tags": ["az204::message-solutions::subscription-filters"]
+    },
+    {
+      "id": "RMSG-016",
+      "type": "single-choice",
+      "question": "Which Azure RBAC role allows an identity to ONLY send messages to a Service Bus queue?",
+      "options": [
+        "Azure Service Bus Data Owner",
+        "Azure Service Bus Data Sender",
+        "Azure Service Bus Data Receiver",
+        "Contributor"
+      ],
+      "answer": "B",
+      "explanation": "Azure Service Bus Data Sender is the role for sending messages only. Data Receiver is for receiving only. Data Owner gives full access (send + receive + manage). Contributor is a general role for resource management, but not for sending/receiving messages on the data plane.",
+      "keyPoints": [
+        "Data Sender = send only",
+        "Data Receiver = receive only",
+        "Data Owner = full access",
+        "Use RBAC instead of SAS keys when possible"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-authentication-and-authorization",
+      "tags": ["az204::message-solutions::authentication"]
+    },
+    {
+      "id": "RMSG-017",
+      "type": "single-choice",
+      "question": "Service Bus transactions allow grouping multiple operations. Which scope limitation applies to these transactions?",
+      "options": [
+        "Transactions can span multiple namespaces",
+        "Transactions can span multiple entities within a namespace",
+        "Transactions are scoped to operations against a single entity",
+        "Transactions require Premium tier only"
+      ],
+      "answer": "C",
+      "explanation": "Transactions in Service Bus are scoped to a single entity (queue or topic). You can't create a transaction spanning two different queues. But within one transaction you can: receive a message, send a result, and complete the original — all atomically.",
+      "keyPoints": [
+        "Transaction = one entity (queue/topic)",
+        "Cannot span multiple entities",
+        "Supports receive + send + complete atomically",
+        "Available on Standard and Premium"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-transactions",
+      "tags": ["az204::message-solutions::transactions"]
+    },
+    {
+      "id": "RMSG-018",
+      "type": "single-choice",
+      "question": "In the competing consumers pattern, how is load balancing achieved?",
+      "options": [
+        "A load balancer distributes messages to consumers in round-robin fashion",
+        "Multiple consumers pull messages from the same queue, each message processed by exactly one consumer",
+        "The queue duplicates each message to all connected consumers",
+        "Consumers register priority levels and higher-priority consumers get messages first"
+      ],
+      "answer": "B",
+      "explanation": "Competing consumers means multiple workers read from the same queue. Each message gets locked (PeekLock) and processed by exactly one worker. The queue acts as a natural load balancer — workers pull messages at their own pace.",
+      "keyPoints": [
+        "Each message = one consumer",
+        "Queue = natural load balancer",
+        "Horizontal scaling: add more workers",
+        "Works in both Storage Queues and Service Bus"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/architecture/patterns/competing-consumers",
+      "tags": ["az204::message-solutions::competing-consumers"]
+    },
+    {
+      "id": "RMSG-019",
+      "type": "multi-select",
+      "question": "Which TWO features are available in Azure Service Bus but NOT in Azure Queue Storage? (Select 2)",
+      "options": [
+        "Dead-letter queue",
+        "HTTP/HTTPS access",
+        "Duplicate detection",
+        "Storing millions of messages"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Dead-letter queue and duplicate detection exist ONLY in Service Bus. Queue Storage uses HTTP/HTTPS (that's its thing). Both services can store millions of messages.",
+      "keyPoints": [
+        "Service Bus: DLQ, duplicate detection, sessions, transactions, topics",
+        "Queue Storage: HTTP/HTTPS, up to 5 PiB, server-side logs",
+        "Both store millions of messages",
+        "Queue Storage is CHEAPER for simple scenarios"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted",
+      "tags": ["az204::message-solutions::storage-vs-servicebus"]
+    },
+    {
+      "id": "RMSG-020",
+      "type": "multi-select",
+      "question": "Which THREE reasons can cause a message to be sent to the Service Bus dead-letter queue? (Select 3)",
+      "options": [
+        "MaxDeliveryCount exceeded",
+        "Message TTL expired",
+        "Message body is too large to send",
+        "Application explicitly calls DeadLetterMessageAsync"
+      ],
+      "answer": ["A", "B", "D"],
+      "explanation": "Messages land in the DLQ for several reasons: exceeding MaxDeliveryCount, TTL expiration (TTLExpiredException), or an explicit DeadLetterMessageAsync call in code. If a message is too large — it gets rejected at send time (error), not routed to the DLQ.",
+      "keyPoints": [
+        "MaxDeliveryCountExceeded = most common reason",
+        "TTLExpiredException = message expired",
+        "DeadLetterMessageAsync = app explicitly sends to DLQ",
+        "HeaderSizeExceeded and SessionId is null also route to DLQ"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dead-letter-queues",
+      "tags": ["az204::message-solutions::dead-letter-reasons"]
+    },
+    {
+      "id": "RMSG-021",
+      "type": "multi-select",
+      "question": "Which TWO features require at least Standard tier in Azure Service Bus? (Select 2)",
+      "options": [
+        "Queues",
+        "Topics and subscriptions",
+        "Duplicate detection",
+        "Shared Access Signatures"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Topics/subscriptions and duplicate detection are only available on Standard and Premium tiers. Queues and SAS are available on all tiers, including Basic.",
+      "keyPoints": [
+        "Basic = queues + SAS only",
+        "Standard = + topics + duplicate detection + sessions",
+        "Premium = + dedicated resources + 100 MB messages + JMS 2.0"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-premium-messaging",
+      "tags": ["az204::message-solutions::service-bus-tiers"]
+    },
+    {
+      "id": "RMSG-022",
+      "type": "multi-select",
+      "question": "Which TWO subscription filter types does Azure Service Bus support? (Select 2)",
+      "options": [
+        "XPath filter",
+        "SQL filter",
+        "Regular expression filter",
+        "Correlation filter"
+      ],
+      "answer": ["B", "D"],
+      "explanation": "Service Bus supports three filter types: Boolean (TrueFilter/FalseFilter), SQL filter, and Correlation filter. XPath and Regular expression filters are NOT supported.",
+      "keyPoints": [
+        "SQL filter = SQL-like syntax on properties",
+        "Correlation filter = direct property match (faster)",
+        "Boolean filter = TrueFilter (all) / FalseFilter (none)",
+        "Subscriptions have TrueFilter by default"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/topic-filters",
+      "tags": ["az204::message-solutions::subscription-filters"]
+    },
+    {
+      "id": "RMSG-023",
+      "type": "multi-select",
+      "question": "Your company is choosing between Azure Queue Storage and Service Bus. Which TWO scenarios favor choosing Queue Storage? (Select 2)",
+      "options": [
+        "You need to store over 80 GB of messages in a queue",
+        "You need guaranteed FIFO ordering",
+        "You need server-side transaction logs for auditing",
+        "You need atomic transactions across send and receive"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Queue Storage is the right pick when you need to store more than 80 GB of messages (up to 5 PiB) and when you need server-side logs of all operations. FIFO guarantees and transactions are Service Bus features.",
+      "keyPoints": [
+        "Queue Storage: >80 GB messages, server-side logs, simple HTTP access",
+        "Service Bus: FIFO (sessions), transactions, DLQ, duplicate detection",
+        "Queue Storage is cheaper for simple scenarios"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted",
+      "tags": ["az204::message-solutions::when-storage-queues"]
+    },
+    {
+      "id": "RMSG-024",
+      "type": "multi-select",
+      "question": "Which TWO authentication methods does Azure Service Bus support? (Select 2)",
+      "options": [
+        "API key in query string",
+        "Shared Access Signatures (SAS)",
+        "OAuth 2.0 client credentials flow",
+        "Microsoft Entra ID with RBAC"
+      ],
+      "answer": ["B", "D"],
+      "explanation": "Service Bus supports SAS (key-based) and Microsoft Entra ID (RBAC). The recommended approach is Entra ID with DefaultAzureCredential. API key in query string and OAuth client credentials flow are not directly supported as Service Bus authentication methods.",
+      "keyPoints": [
+        "SAS = keys with Send, Listen, Manage rights",
+        "Entra ID = RBAC with Data Owner/Sender/Receiver roles",
+        "Managed Identity works via DefaultAzureCredential",
+        "Recommendation: Entra ID over SAS"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-authentication-and-authorization",
+      "tags": ["az204::message-solutions::authentication"]
+    },
+    {
+      "id": "RMSG-025",
+      "type": "ordering",
+      "question": "Arrange the steps to send a message to a Service Bus queue using the .NET SDK in the correct order.",
+      "orderItems": [
+        "Create a ServiceBusClient with connection string or DefaultAzureCredential",
+        "Create a ServiceBusSender for the target queue",
+        "Create a ServiceBusMessage with the payload",
+        "Call SendMessageAsync to send the message",
+        "Dispose the sender and client with DisposeAsync"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "The SDK workflow: first create a client (ServiceBusClient), then a sender for the specific queue, create a message, send it, and finally release resources via DisposeAsync.",
+      "keyPoints": [
+        "ServiceBusClient = entry point, create once",
+        "CreateSender(queueName) = sender for a specific queue",
+        "ServiceBusMessage = the message object",
+        "Always call DisposeAsync"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues",
+      "tags": ["az204::message-solutions::sdk-send"]
+    },
+    {
+      "id": "RMSG-026",
+      "type": "ordering",
+      "question": "Arrange the steps to process a message using PeekLock mode in the correct order.",
+      "orderItems": [
+        "Receiver requests a message from the queue",
+        "Service Bus locks the message and delivers it to the receiver",
+        "Receiver processes the message business logic",
+        "Receiver calls CompleteMessageAsync to remove the message from the queue"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "PeekLock is a two-phase process: first the message is locked and delivered, then processed, and if everything is OK — Complete is called to delete it. If processing crashes — the lock expires and the message unlocks for redelivery.",
+      "keyPoints": [
+        "Lock = message invisible to other receivers",
+        "Complete = delete from queue (success)",
+        "Abandon = unlock (redelivery)",
+        "DeadLetter = send to DLQ (unrecoverable error)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-queues-topics-subscriptions#receive-modes",
+      "tags": ["az204::message-solutions::receive-modes"]
+    },
+    {
+      "id": "RMSG-027",
+      "type": "ordering",
+      "question": "Arrange the steps to create a Service Bus namespace, topic, and subscription using Azure CLI in the correct order.",
+      "orderItems": [
+        "Create a resource group with az group create",
+        "Create a Service Bus namespace with az servicebus namespace create --sku Standard",
+        "Create a topic with az servicebus topic create",
+        "Create a subscription on the topic with az servicebus topic subscription create"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "The creation order: first a resource group, then a namespace (must be Standard or Premium for topics), then a topic, and finally a subscription on that topic.",
+      "keyPoints": [
+        "Resource group → Namespace → Topic → Subscription",
+        "Topics require --sku Standard or Premium",
+        "Basic tier does NOT support topics",
+        "Namespace name must be unique across Azure"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/servicebus",
+      "tags": ["az204::message-solutions::cli-commands"]
+    },
+    {
+      "id": "RMSG-028",
+      "type": "code-hotarea",
+      "question": "This C# code attempts to send a batch of messages to a Service Bus queue. Click on the line(s) with errors.",
+      "codeLines": [
+        "var client = new ServiceBusClient(connectionString);",
+        "var sender = client.CreateSender(\"myqueue\");",
+        "var batch = sender.CreateMessageBatchAsync();",
+        "batch.TryAddMessage(new ServiceBusMessage(\"Hello 1\"));",
+        "batch.TryAddMessage(new ServiceBusMessage(\"Hello 2\"));",
+        "await sender.SendMessagesAsync(batch);",
+        "await sender.DisposeAsync();",
+        "await client.DisposeAsync();"
+      ],
+      "language": "csharp",
+      "answer": [2],
+      "explanation": "Line 3: CreateMessageBatchAsync is an async method — it needs await. Without await, the batch variable will be of type Task<ServiceBusMessageBatch>, not ServiceBusMessageBatch. The TryAddMessage and SendMessagesAsync calls will fail with a compile error.",
+      "keyPoints": [
+        "CreateMessageBatchAsync REQUIRES await",
+        "var batch = await sender.CreateMessageBatchAsync()",
+        "TryAddMessage returns bool — check the result",
+        "SendMessagesAsync sends the entire batch atomically"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues",
+      "tags": ["az204::message-solutions::sdk-send"]
+    },
+    {
+      "id": "RMSG-029",
+      "type": "code-hotarea",
+      "question": "This C# code sets up a ServiceBusProcessor. Click on the line(s) with errors.",
+      "codeLines": [
+        "var client = new ServiceBusClient(connectionString);",
+        "var processor = client.CreateProcessor(\"myqueue\");",
+        "processor.ProcessMessageAsync += async (args) => {",
+        "    string body = args.Message.Body.ToString();",
+        "    Console.WriteLine(body);",
+        "    await args.CompleteMessageAsync(args.Message);",
+        "};",
+        "await processor.StartProcessingAsync();"
+      ],
+      "language": "csharp",
+      "answer": [7],
+      "explanation": "Line 8: before calling StartProcessingAsync, you must register a ProcessErrorAsync handler. Without it, you get an InvalidOperationException — Service Bus requires both handlers: ProcessMessageAsync AND ProcessErrorAsync.",
+      "keyPoints": [
+        "ProcessMessageAsync AND ProcessErrorAsync — both required",
+        "Missing ProcessErrorAsync → InvalidOperationException",
+        "ProcessErrorAsync handles transport and processing errors",
+        "StartProcessingAsync starts background processing"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-dotnet-get-started-with-queues",
+      "tags": ["az204::message-solutions::sdk-receive"]
+    },
+    {
+      "id": "RMSG-030",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates a Service Bus namespace with topics support. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az servicebus namespace create \\",
+        "  --name myNamespace \\",
+        "  --resource-group myRG \\",
+        "  --sku Basic",
+        "az servicebus topic create \\",
+        "  --name orders-topic \\",
+        "  --namespace-name myNamespace \\",
+        "  --resource-group myRG"
+      ],
+      "language": "bash",
+      "answer": [4],
+      "explanation": "Line 5: --sku Basic does NOT support topics. To create topics, you need at least Standard tier. Basic tier only supports queues — no topics, no duplicate detection, no sessions.",
+      "keyPoints": [
+        "Basic tier = queues only",
+        "Standard tier = queues + topics + duplicate detection",
+        "Premium tier = dedicated + large messages + JMS",
+        "The topic create command will fail on a Basic namespace"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/service-bus-messaging/service-bus-premium-messaging",
+      "tags": ["az204::message-solutions::cli-commands"]
+    }
+  ]
+}
