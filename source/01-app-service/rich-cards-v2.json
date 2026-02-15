@@ -1,0 +1,974 @@
+{
+  "domain": "01-app-service",
+  "deckName": "AZ-204-PREP-ANKI::01-App Service",
+  "cards": [
+    {
+      "id": "RAS-001",
+      "type": "single-choice",
+      "question": "Your company needs a web app that auto-scales based on CPU usage. What is the MINIMUM App Service tier that supports autoscale?",
+      "options": [
+        "Basic (B1)",
+        "Free (F1)",
+        "Standard (S1)",
+        "Shared (D1)"
+      ],
+      "answer": "C",
+      "explanation": "Standard tier is the cheapest tier that supports autoscale. Free, Shared, and Basic do NOT support autoscale. Standard scales up to 10 instances, Premium up to 30.",
+      "keyPoints": [
+        "Free/Shared/Basic = no autoscale",
+        "Standard = autoscale up to 10 instances",
+        "Premium = autoscale up to 30 instances",
+        "Isolated = up to 100 instances"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/manage-scale-up",
+      "tags": ["az204::app-service::scaling"]
+    },
+    {
+      "id": "RAS-002",
+      "type": "single-choice",
+      "question": "You deploy a .NET 8 web app to Azure App Service. After 20 minutes of no traffic, users report slow response on the first request. What setting should you enable?",
+      "options": [
+        "Session Affinity (ARR Affinity)",
+        "Always On",
+        "WebSockets",
+        "HTTP/2"
+      ],
+      "answer": "B",
+      "explanation": "Always On sends a GET request to the app root every 5 minutes so it stays loaded in memory. Without Always On, the app goes to sleep after 20 minutes of no traffic — and the next request gets a cold start.",
+      "keyPoints": [
+        "Always On = GET request every 5 minutes",
+        "Without Always On — app sleeps after 20 minutes",
+        "Available starting from Basic tier",
+        "Required for Continuous WebJobs"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/configure-common",
+      "tags": ["az204::app-service::configuration"]
+    },
+    {
+      "id": "RAS-003",
+      "type": "single-choice",
+      "question": "You have 5 web apps in the same App Service Plan. You scale out to 3 instances. How many VM instances are running in total?",
+      "options": [
+        "15 instances (5 apps × 3 instances)",
+        "3 instances (all apps share the same VMs)",
+        "5 instances (one per app)",
+        "8 instances (5 + 3)"
+      ],
+      "answer": "B",
+      "explanation": "All apps in one App Service Plan share the same VM instances. When you scale the Plan to 3 instances, all 5 apps run on each of the 3 instances. Total: 3 VMs.",
+      "keyPoints": [
+        "App Service Plan = a set of VM instances",
+        "All apps in a plan share the same resources",
+        "Scale out adds VMs for the ENTIRE plan",
+        "For independent scaling — use a separate plan"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans",
+      "tags": ["az204::app-service::plans"]
+    },
+    {
+      "id": "RAS-004",
+      "type": "single-choice",
+      "question": "You need to deploy your app to a staging environment, test it, and then swap into production with zero downtime. What is the MINIMUM tier that supports deployment slots?",
+      "options": [
+        "Basic (B1)",
+        "Premium (P1)",
+        "Standard (S1)",
+        "Free (F1)"
+      ],
+      "answer": "C",
+      "explanation": "Standard tier is the cheapest tier with deployment slots. Standard gives up to 5 slots, Premium up to 20. Free, Shared, and Basic do NOT support slots.",
+      "keyPoints": [
+        "Standard = up to 5 deployment slots",
+        "Premium = up to 20 deployment slots",
+        "Isolated = up to 20 deployment slots",
+        "Free/Shared/Basic = 0 slots"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-005",
+      "type": "single-choice",
+      "question": "During a deployment slot swap, what happens FIRST?",
+      "options": [
+        "DNS routing rules are switched between slots",
+        "Production settings are applied to the source (staging) slot",
+        "The staging slot receives production traffic",
+        "The old production app is deleted"
+      ],
+      "answer": "B",
+      "explanation": "The first swap step: target slot (production) settings get applied to the source slot (staging). This triggers a restart of the staging slot. Only after a successful warm-up do the routing rules switch.",
+      "keyPoints": [
+        "Step 1: Production settings → staging (restart)",
+        "Step 2: Wait for all instances to restart",
+        "Step 3: Warm-up (HTTP requests)",
+        "Step 4: Swap routing rules"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-006",
+      "type": "single-choice",
+      "question": "You have a connection string that should point to different databases in staging and production slots. How do you prevent it from being swapped?",
+      "options": [
+        "Store it in Azure Key Vault",
+        "Mark it as a deployment slot setting",
+        "Use a different App Service Plan for each slot",
+        "Encrypt it with a managed certificate"
+      ],
+      "answer": "B",
+      "explanation": "Marking a setting as a 'deployment slot setting' ties it to that specific slot — it does NOT move during a swap. Perfect for connection strings pointing to different databases.",
+      "keyPoints": [
+        "Slot-specific settings stay in their slot",
+        "By default, settings move during a swap",
+        "Works for app settings and connection strings",
+        "In CLI: --slot-settings flag"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots", "az204::app-service::app-settings"]
+    },
+    {
+      "id": "RAS-007",
+      "type": "single-choice",
+      "question": "Which App Service Authentication (Easy Auth) feature runs WITHOUT any code changes in your application?",
+      "options": [
+        "Custom JWT token validation middleware",
+        "Built-in authentication/authorization module",
+        "MSAL library integration",
+        "Azure AD B2C custom policies"
+      ],
+      "answer": "B",
+      "explanation": "Easy Auth is a built-in authentication/authorization module that runs on the same VM as your app. It handles ALL HTTP requests before they reach your code. No SDK or code changes needed.",
+      "keyPoints": [
+        "Easy Auth = built-in middleware",
+        "Works without changing your app code",
+        "Processes requests BEFORE your code",
+        "Configured through the Azure portal"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
+      "tags": ["az204::app-service::authentication"]
+    },
+    {
+      "id": "RAS-008",
+      "type": "single-choice",
+      "question": "You want to route 15% of production traffic to a staging slot for A/B testing. Which feature should you use?",
+      "options": [
+        "Auto swap",
+        "Traffic routing (traffic splitting)",
+        "Load balancer rules",
+        "Custom domain mapping"
+      ],
+      "answer": "B",
+      "explanation": "Traffic routing lets you send a percentage of traffic to a staging slot. Clients stick to a slot via the x-ms-routing-name cookie for 1 hour. Set it up in Deployment slots > Traffic %.",
+      "keyPoints": [
+        "Traffic routing = % of traffic to a slot",
+        "Cookie x-ms-routing-name pins the client",
+        "CLI: az webapp traffic-routing set --distribution staging=15",
+        "Used for A/B testing and canary deployments"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-009",
+      "type": "single-choice",
+      "question": "You configure application logging on a Windows App Service to the file system. After 12 hours, logs disappear. Why?",
+      "options": [
+        "The disk space was full and logs were rotated",
+        "File system logging on Windows auto-disables after 12 hours",
+        "Application Insights overwrote the logs",
+        "The App Service Plan was scaled down"
+      ],
+      "answer": "B",
+      "explanation": "On Windows, Application Logging to the file system auto-disables after 12 hours. This is by design — to prevent filling up the disk. For long-term storage, use Azure Blob Storage.",
+      "keyPoints": [
+        "Windows file system logging = 12 hours max",
+        "For long-term storage → Blob Storage",
+        "Linux — file system only (no auto-disable)",
+        "Blob Storage supports only .NET"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs",
+      "tags": ["az204::app-service::logging"]
+    },
+    {
+      "id": "RAS-010",
+      "type": "single-choice",
+      "question": "A WebJob of type 'Continuous' is not starting. What is the most likely cause?",
+      "options": [
+        "The App Service is on the Free tier",
+        "Always On is not enabled",
+        "The WebJob needs a CRON expression",
+        "WebJobs are not supported on Linux"
+      ],
+      "answer": "B",
+      "explanation": "Continuous WebJobs REQUIRE Always On to be enabled. Without it, the app goes to sleep after 20 minutes, and the Continuous WebJob stops. Always On is available starting from Basic tier.",
+      "keyPoints": [
+        "Continuous WebJobs = Always On is required",
+        "Always On = Basic tier and above",
+        "Triggered WebJobs don't need Always On",
+        "CRON is for Triggered WebJobs, not Continuous"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/webjobs-create",
+      "tags": ["az204::app-service::webjobs"]
+    },
+    {
+      "id": "RAS-011",
+      "type": "single-choice",
+      "question": "You need maximum network isolation for a compliance-critical web app. Which App Service tier should you use?",
+      "options": [
+        "Premium V3",
+        "Standard S1",
+        "Isolated V2",
+        "Basic B3"
+      ],
+      "answer": "C",
+      "explanation": "Isolated V2 runs apps on dedicated VMs inside a dedicated virtual network (VNet). This is an App Service Environment (ASE) — maximum network and compute isolation. Up to 100 instances.",
+      "keyPoints": [
+        "Isolated V2 = App Service Environment (ASE)",
+        "Dedicated VNet = full isolation",
+        "Dedicated hardware",
+        "Up to 100 instances for scale-out"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans",
+      "tags": ["az204::app-service::plans"]
+    },
+    {
+      "id": "RAS-012",
+      "type": "single-choice",
+      "question": "You set the app setting WEBSITE_TIME_ZONE on your App Service. What does this affect?",
+      "options": [
+        "The timezone displayed in Azure Portal for the app",
+        "The timezone used for CRON expressions in WebJobs",
+        "The timezone of Azure Monitor logs",
+        "The timezone of deployment slot swap timestamps"
+      ],
+      "answer": "B",
+      "explanation": "WEBSITE_TIME_ZONE controls the timezone for CRON expressions in WebJobs. By default, CRON uses UTC. If you need to run a WebJob on local time — set this value.",
+      "keyPoints": [
+        "Default CRON = UTC",
+        "WEBSITE_TIME_ZONE changes the timezone for CRON",
+        "Does not affect logs or portal",
+        "Example: 'Eastern Standard Time'"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/webjobs-create",
+      "tags": ["az204::app-service::webjobs"]
+    },
+    {
+      "id": "RAS-013",
+      "type": "single-choice",
+      "question": "You have a .NET app on App Service with nested configuration keys like 'ConnectionStrings:DefaultConnection'. On Linux, this key doesn't work. Why?",
+      "options": [
+        "Linux App Service doesn't support connection strings",
+        "Linux uses double underscore (__) instead of colon (:) for nested keys",
+        "Connection strings must use Base64 encoding on Linux",
+        "Linux requires a different JSON format"
+      ],
+      "answer": "B",
+      "explanation": "On Linux, nested config keys use double underscore (__) instead of colon (:). The colon is not a valid character in environment variable names on Linux.",
+      "keyPoints": [
+        "Linux: ConnectionStrings__DefaultConnection",
+        "Windows: ConnectionStrings:DefaultConnection",
+        "Colon is not allowed in env vars on Linux",
+        "Applies to all nested .NET configuration keys"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/configure-common",
+      "tags": ["az204::app-service::app-settings"]
+    },
+    {
+      "id": "RAS-014",
+      "type": "single-choice",
+      "question": "What is the difference between the 'server-directed' and 'client-directed' authentication flows in Easy Auth?",
+      "options": [
+        "Server-directed uses OAuth, client-directed uses SAML",
+        "Server-directed redirects the browser to the provider; client-directed uses the provider SDK and posts the token to App Service",
+        "Server-directed is for Linux only; client-directed is for Windows only",
+        "Server-directed requires MSAL; client-directed uses built-in tokens"
+      ],
+      "answer": "B",
+      "explanation": "Server-directed: App Service redirects the browser to the provider's login page (best for web apps). Client-directed: the app authenticates the user via SDK, then posts the token to /.auth/login/<provider> (best for REST APIs and mobile apps).",
+      "keyPoints": [
+        "Server-directed = browser redirect (for web apps)",
+        "Client-directed = SDK + POST token (for APIs/mobile)",
+        "Both use OAuth/OpenID Connect",
+        "Endpoint: /.auth/login/<provider>"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
+      "tags": ["az204::app-service::authentication"]
+    },
+    {
+      "id": "RAS-015",
+      "type": "single-choice",
+      "question": "You need a free SSL certificate for your App Service subdomain. Which option provides this?",
+      "options": [
+        "App Service Managed Certificate",
+        "Let's Encrypt manual integration",
+        "Azure Front Door certificate",
+        "Self-signed certificate"
+      ],
+      "answer": "A",
+      "explanation": "App Service Managed Certificate is a free certificate that Azure auto-renews. Available starting from Basic tier. Supports ONLY a single subdomain (no wildcard, no root domain).",
+      "keyPoints": [
+        "Managed Certificate = free + auto-renewal",
+        "Only for subdomains (no root, no wildcard)",
+        "Minimum Basic tier",
+        "App Service Certificate (paid) = root + wildcard"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/configure-ssl-bindings",
+      "tags": ["az204::app-service::ssl-tls"]
+    },
+    {
+      "id": "RAS-016",
+      "type": "single-choice",
+      "question": "What is the MINIMUM App Service tier that supports custom domains?",
+      "options": [
+        "Free (F1)",
+        "Basic (B1)",
+        "Shared (D1)",
+        "Standard (S1)"
+      ],
+      "answer": "C",
+      "explanation": "Shared (D1) is the cheapest tier that supports custom domains. Free tier does NOT support custom domains. For SSL certificates you need at least Basic tier.",
+      "keyPoints": [
+        "Free = NO custom domains",
+        "Shared = custom domains (but no SSL)",
+        "Basic = custom domains + SSL",
+        "SNI SSL = Basic+, IP SSL = Standard+"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain",
+      "tags": ["az204::app-service::custom-domains"]
+    },
+    {
+      "id": "RAS-017",
+      "type": "single-choice",
+      "question": "You want to stop ALL WebJobs in your App Service without deleting them. Which app setting should you use?",
+      "options": [
+        "WEBJOBS_DISABLE_SCHEDULE=1",
+        "WEBJOBS_STOPPED=1",
+        "WEBSITE_DISABLE_WEBJOBS=true",
+        "SCM_WEBJOBS_ENABLED=false"
+      ],
+      "answer": "B",
+      "explanation": "WEBJOBS_STOPPED=1 stops ALL WebJobs (both continuous and triggered). WEBJOBS_DISABLE_SCHEDULE=1 only disables scheduled triggered WebJobs — continuous ones keep running.",
+      "keyPoints": [
+        "WEBJOBS_STOPPED=1 → all WebJobs stopped",
+        "WEBJOBS_DISABLE_SCHEDULE=1 → only scheduled ones disabled",
+        "Mark as slot-specific to avoid conflicts during swaps",
+        "No need to delete WebJobs — just toggle on/off"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/webjobs-create",
+      "tags": ["az204::app-service::webjobs"]
+    },
+    {
+      "id": "RAS-018",
+      "type": "single-choice",
+      "question": "How does Easy Auth work differently on Linux compared to Windows App Service?",
+      "options": [
+        "On Linux it runs as a native IIS module",
+        "On Linux it runs in a separate sidecar container",
+        "On Linux it requires MSAL SDK integration",
+        "Easy Auth is not available on Linux"
+      ],
+      "answer": "B",
+      "explanation": "On Windows, Easy Auth runs as a native IIS module (in-process). On Linux/Containers, it runs in a separate sidecar container (Ambassador pattern). In both cases, every HTTP request goes through the auth module.",
+      "keyPoints": [
+        "Windows: native IIS module (in-process)",
+        "Linux: separate sidecar container",
+        "Ambassador pattern on Linux",
+        "User info is passed via HTTP headers"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
+      "tags": ["az204::app-service::authentication"]
+    },
+    {
+      "id": "RAS-019",
+      "type": "single-choice",
+      "question": "You configure autoscale with a rule: scale out when CPU > 70%, scale in when CPU < 30%. What type of autoscale rule is this?",
+      "options": [
+        "Schedule-based rule",
+        "Metric-based rule",
+        "Predictive autoscale rule",
+        "Threshold autoscale rule"
+      ],
+      "answer": "B",
+      "explanation": "Metric-based rules scale based on metrics (CPU, Memory, HTTP Queue Length, etc.). Schedule-based rules scale on a schedule (e.g., more instances during business hours). You can combine both types.",
+      "keyPoints": [
+        "Metric-based = reacts to metrics (CPU, Memory, etc.)",
+        "Schedule-based = on a schedule",
+        "You can combine both types",
+        "Configured via Azure Monitor autoscale"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-monitor/autoscale/autoscale-get-started",
+      "tags": ["az204::app-service::scaling"]
+    },
+    {
+      "id": "RAS-020",
+      "type": "single-choice",
+      "question": "You use the 'swap with preview' feature. What happens in Phase 1?",
+      "options": [
+        "Traffic is routed to the staging slot",
+        "Production settings are applied to the staging slot, which restarts for validation",
+        "The production app is backed up",
+        "DNS records are updated to point to the staging slot"
+      ],
+      "answer": "B",
+      "explanation": "Swap with preview is a two-phase swap. Phase 1: target slot (production) settings get applied to the source slot (staging), staging restarts. You can verify staging with production settings. Phase 2: complete the swap (or cancel).",
+      "keyPoints": [
+        "Phase 1: production settings → staging + restart",
+        "Between phases: verify staging",
+        "Phase 2: complete the swap or cancel",
+        "CLI: --action preview for Phase 1, --action swap for Phase 2"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-021",
+      "type": "single-choice",
+      "question": "You need to run a background task that executes once every hour on your App Service. Which WebJob type should you use?",
+      "options": [
+        "Continuous WebJob with sleep loop",
+        "Triggered WebJob with CRON schedule",
+        "Continuous WebJob with timer binding",
+        "Manual WebJob with Azure Scheduler"
+      ],
+      "answer": "B",
+      "explanation": "Triggered WebJob with a CRON expression is the right choice for scheduled tasks. CRON format: 6 fields (including seconds). Example: 0 0 * * * * = every hour. Triggered WebJobs run on a single instance.",
+      "keyPoints": [
+        "Triggered + CRON = scheduled tasks",
+        "CRON format: seconds minutes hours day month weekday",
+        "Triggered = single instance",
+        "File settings.job: {\"schedule\": \"0 0 * * * *\"}"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/webjobs-create",
+      "tags": ["az204::app-service::webjobs"]
+    },
+    {
+      "id": "RAS-022",
+      "type": "single-choice",
+      "question": "Which DNS record type should you use to map a root domain (contoso.com) to your App Service?",
+      "options": [
+        "CNAME record",
+        "A record",
+        "MX record",
+        "SRV record"
+      ],
+      "answer": "B",
+      "explanation": "For a root domain (apex domain, e.g. contoso.com) you need an A record pointing to the App Service IP address. CNAME records cannot be used for root domains per the DNS standard. For subdomains (www.contoso.com) use CNAME.",
+      "keyPoints": [
+        "Root domain (contoso.com) → A record",
+        "Subdomain (www.contoso.com) → CNAME record",
+        "You also need a TXT record for verification",
+        "TXT record: asuid.subdomain with verification ID"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain",
+      "tags": ["az204::app-service::custom-domains"]
+    },
+    {
+      "id": "RAS-023",
+      "type": "single-choice",
+      "question": "Your stateful web app stores session data in memory. Users report being redirected to different server instances and losing their session. What should you enable?",
+      "options": [
+        "Always On",
+        "WebSockets",
+        "ARR Affinity (Session Affinity)",
+        "HTTP/2"
+      ],
+      "answer": "C",
+      "explanation": "ARR Affinity (Session Affinity) pins a client to one VM instance for the entire session using a cookie. Enable it for stateful apps, disable it for stateless ones — so load is spread evenly.",
+      "keyPoints": [
+        "ARR Affinity = client pinned to one VM",
+        "Uses a cookie for pinning",
+        "Enable for stateful, disable for stateless",
+        "CLI: --client-affinity-enabled true/false"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/configure-common",
+      "tags": ["az204::app-service::configuration"]
+    },
+    {
+      "id": "RAS-024",
+      "type": "single-choice",
+      "question": "You need to configure a custom warm-up path for slot swaps. Which app setting specifies the health check path?",
+      "options": [
+        "WEBSITE_WARMUP_PATH",
+        "WEBSITE_SWAP_WARMUP_PING_PATH",
+        "ASPNETCORE_HEALTHCHECK_PATH",
+        "WEBSITE_HEALTHCHECK_MAXPINGFAILURES"
+      ],
+      "answer": "B",
+      "explanation": "WEBSITE_SWAP_WARMUP_PING_PATH sets the path for warm-up during swaps (e.g., /health). The swap waits until this endpoint responds. WEBSITE_SWAP_WARMUP_PING_STATUSES sets the expected HTTP response codes.",
+      "keyPoints": [
+        "WEBSITE_SWAP_WARMUP_PING_PATH = warm-up path",
+        "WEBSITE_SWAP_WARMUP_PING_STATUSES = accepted HTTP codes",
+        "Alternative: applicationInitialization in Web.config",
+        "Swap waits for a successful response before switching"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-025",
+      "type": "single-choice",
+      "question": "What is auto swap in Azure App Service?",
+      "options": [
+        "Automatic scaling of instances based on demand",
+        "Automatic swap of a staging slot into production after code is pushed and warmed up",
+        "Automatic failover between regions",
+        "Automatic certificate renewal for SSL"
+      ],
+      "answer": "B",
+      "explanation": "Auto swap automatically swaps a staging slot into production after code is pushed and warm-up succeeds. Great for CI/CD with zero downtime. LIMITATION: not supported on Linux and Web App for Containers.",
+      "keyPoints": [
+        "Auto swap = automatic swap after deployment",
+        "NOT supported on Linux/Containers",
+        "Works only on Windows App Service",
+        "Great for CI/CD pipelines"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-026",
+      "type": "single-choice",
+      "question": "Which connection string prefix indicates an Azure SQL Database connection in App Service?",
+      "options": [
+        "MYSQLCONNSTR_",
+        "SQLAZURECONNSTR_",
+        "CUSTOMCONNSTR_",
+        "SQLCONNSTR_"
+      ],
+      "answer": "B",
+      "explanation": "App Service adds a prefix to connection strings based on type: SQLAZURECONNSTR_ = Azure SQL, SQLCONNSTR_ = SQL Server, MYSQLCONNSTR_ = MySQL, CUSTOMCONNSTR_ = Custom.",
+      "keyPoints": [
+        "SQLAZURECONNSTR_ = Azure SQL Database",
+        "SQLCONNSTR_ = SQL Server",
+        "MYSQLCONNSTR_ = MySQL",
+        "CUSTOMCONNSTR_ = Custom type"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/configure-common",
+      "tags": ["az204::app-service::app-settings"]
+    },
+    {
+      "id": "RAS-027",
+      "type": "single-choice",
+      "question": "You want Easy Auth to return HTTP 401 for unauthenticated API requests instead of redirecting to a login page. How do you configure this?",
+      "options": [
+        "Set the action for unauthenticated requests to 'Allow anonymous'",
+        "Set the action for unauthenticated requests to 'Return HTTP 401'",
+        "Disable Easy Auth and use custom middleware",
+        "Configure a CORS policy to block unauthenticated origins"
+      ],
+      "answer": "B",
+      "explanation": "In Easy Auth settings you pick what happens for unauthenticated requests: Allow anonymous, HTTP 302 redirect, HTTP 401, HTTP 403, HTTP 404. For APIs, pick 401 — let the client decide how to handle the denial.",
+      "keyPoints": [
+        "HTTP 302 redirect — for websites",
+        "HTTP 401 Unauthorized — for REST APIs",
+        "Allow anonymous — the app decides itself",
+        "HTTP 403/404 — alternative denial options"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
+      "tags": ["az204::app-service::authentication"]
+    },
+    {
+      "id": "RAS-028",
+      "type": "multi-select",
+      "question": "Which TWO App Service features require at LEAST Standard tier? (Select 2)",
+      "options": [
+        "Custom domains",
+        "Deployment slots",
+        "Autoscale",
+        "Always On"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Deployment slots and Autoscale are only available starting from Standard tier. Custom domains work from Shared tier. Always On is available from Basic tier.",
+      "keyPoints": [
+        "Deployment slots = Standard+",
+        "Autoscale = Standard+",
+        "Custom domains = Shared+",
+        "Always On = Basic+"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans",
+      "tags": ["az204::app-service::plans"]
+    },
+    {
+      "id": "RAS-029",
+      "type": "multi-select",
+      "question": "Which TWO settings are NOT swapped during a deployment slot swap? (Select 2)",
+      "options": [
+        "App settings (not marked slot-specific)",
+        "Custom domain names",
+        "Scale settings",
+        "Handler mappings"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Custom domain names and Scale settings are NOT moved during a swap — they stay with the slot. App settings (if not marked slot-specific) and Handler mappings move with the app.",
+      "keyPoints": [
+        "NOT swapped: custom domains, scale settings, IP restrictions, diagnostics",
+        "Swapped: app settings*, connection strings*, handler mappings",
+        "* = unless marked as slot-specific",
+        "Managed identities are NOT swapped"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-030",
+      "type": "multi-select",
+      "question": "Which THREE identity providers are built into App Service Authentication (Easy Auth)? (Select 3)",
+      "options": [
+        "Microsoft Entra ID",
+        "Amazon Cognito",
+        "Google",
+        "GitHub"
+      ],
+      "answer": ["A", "C", "D"],
+      "explanation": "Easy Auth supports: Microsoft Entra ID, Facebook, Google, Twitter/X, GitHub, Apple, and any OpenID Connect provider. Amazon Cognito is NOT a built-in provider.",
+      "keyPoints": [
+        "Built-in: Entra ID, Facebook, Google, X, GitHub, Apple",
+        "Any OpenID Connect provider",
+        "Amazon Cognito = NOT built-in",
+        "Endpoint: /.auth/login/<provider>"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
+      "tags": ["az204::app-service::authentication"]
+    },
+    {
+      "id": "RAS-031",
+      "type": "multi-select",
+      "question": "Which TWO deployment methods push code directly to App Service without CI/CD? (Select 2)",
+      "options": [
+        "GitHub Actions",
+        "ZIP deploy via Azure CLI",
+        "FTP/FTPS upload",
+        "Azure Pipelines"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "ZIP deploy (via CLI or Kudu API) and FTP/FTPS are direct deployment methods without CI/CD. GitHub Actions and Azure Pipelines are CI/CD systems with automated pipelines.",
+      "keyPoints": [
+        "ZIP deploy: az webapp deploy --src-path app.zip",
+        "FTP/FTPS: direct file upload",
+        "GitHub Actions = CI/CD automation",
+        "Azure Pipelines = CI/CD automation"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-best-practices",
+      "tags": ["az204::app-service::deployment"]
+    },
+    {
+      "id": "RAS-032",
+      "type": "multi-select",
+      "question": "Which TWO types of diagnostic logs are available on BOTH Windows and Linux App Service? (Select 2)",
+      "options": [
+        "Web server logging (W3C format)",
+        "Application logging",
+        "Deployment logging",
+        "Failed request tracing"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Application logging and Deployment logging work on both Windows AND Linux. Web server logging, Detailed error messages, and Failed request tracing are Windows-only (IIS features).",
+      "keyPoints": [
+        "Windows + Linux: Application logging, Deployment logging",
+        "Windows only: Web server logging, Detailed errors, Failed request tracing",
+        "Windows-only = IIS-specific features",
+        "Linux: file system logging only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/troubleshoot-diagnostic-logs",
+      "tags": ["az204::app-service::logging"]
+    },
+    {
+      "id": "RAS-033",
+      "type": "multi-select",
+      "question": "Which TWO SSL/TLS binding types does App Service support? (Select 2)",
+      "options": [
+        "SNI SSL",
+        "Mutual TLS",
+        "IP SSL",
+        "Wildcard SSL"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "App Service supports two TLS binding types: SNI SSL (multiple certificates on one IP — Standard+) and IP SSL (dedicated IP — Standard+). Mutual TLS and Wildcard SSL are not binding types.",
+      "keyPoints": [
+        "SNI SSL = multiple certificates on one IP",
+        "IP SSL = dedicated IP address for the certificate",
+        "Both available from Basic tier (SNI) / Standard (IP)",
+        "Wildcard = a certificate type, not a binding type"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/configure-ssl-bindings",
+      "tags": ["az204::app-service::ssl-tls"]
+    },
+    {
+      "id": "RAS-034",
+      "type": "multi-select",
+      "question": "Which TWO statements about scaling in App Service are correct? (Select 2)",
+      "options": [
+        "Scale up means changing to a higher pricing tier",
+        "Scale out means adding more CPU cores to the same VM",
+        "Scale out means increasing the number of VM instances",
+        "Basic tier supports autoscale"
+      ],
+      "answer": ["A", "C"],
+      "explanation": "Scale up (vertical) = move to a higher tier with more CPU/RAM. Scale out (horizontal) = increase the number of VM instances. Basic does NOT support autoscale — only manual scaling up to 3.",
+      "keyPoints": [
+        "Scale up = change tier (more CPU/RAM/disk)",
+        "Scale out = more VM instances",
+        "Basic = manual scaling up to 3",
+        "Autoscale = Standard and above"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/manage-scale-up",
+      "tags": ["az204::app-service::scaling"]
+    },
+    {
+      "id": "RAS-035",
+      "type": "multi-select",
+      "question": "Which TWO app settings control custom warm-up during a slot swap? (Select 2)",
+      "options": [
+        "WEBSITE_SWAP_WARMUP_PING_PATH",
+        "WEBSITE_SWAP_WARMUP_PING_STATUSES",
+        "WEBSITE_WARMUP_TIMEOUT",
+        "WEBSITE_SWAP_COOLDOWN_SECONDS"
+      ],
+      "answer": ["A", "B"],
+      "explanation": "WEBSITE_SWAP_WARMUP_PING_PATH sets the path for the warm-up check (e.g., /health). WEBSITE_SWAP_WARMUP_PING_STATUSES sets the accepted HTTP response codes (e.g., 200,202). The other two settings don't exist.",
+      "keyPoints": [
+        "WEBSITE_SWAP_WARMUP_PING_PATH = ping path",
+        "WEBSITE_SWAP_WARMUP_PING_STATUSES = accepted status codes",
+        "Alternative: applicationInitialization in Web.config",
+        "Swap waits for a successful response before switching"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-036",
+      "type": "ordering",
+      "question": "Arrange the steps to deploy a web app to Azure App Service using Azure CLI in the correct order.",
+      "orderItems": [
+        "Create a resource group with az group create",
+        "Create an App Service plan with az appservice plan create",
+        "Create the web app with az webapp create",
+        "Deploy code with az webapp deploy"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "Correct order: 1) Create a resource group, 2) Create an App Service Plan (defines VM resources), 3) Create the web app in that plan, 4) Deploy your code. Each step depends on the previous one.",
+      "keyPoints": [
+        "Resource group = container for all resources",
+        "App Service Plan = compute resources",
+        "Web app = the application in the plan",
+        "Deploy = last step after everything is created"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/webapp#az-webapp-create",
+      "tags": ["az204::app-service::cli"]
+    },
+    {
+      "id": "RAS-037",
+      "type": "ordering",
+      "question": "Arrange the steps of a deployment slot swap in the correct order.",
+      "orderItems": [
+        "Target slot (production) settings are applied to source slot (staging)",
+        "Wait for all source slot instances to restart successfully",
+        "Trigger application warm-up (HTTP request to configured paths)",
+        "Swap routing rules between the two slots",
+        "Source slot now holds old production app"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Swap flow: 1) Production settings get applied to staging (triggers restart). 2) Wait for restart. 3) Warm up the app. 4) Switch routing rules. 5) Staging now holds the old production version. Zero downtime!",
+      "keyPoints": [
+        "Production settings → staging = first step",
+        "Warm-up happens BEFORE traffic switches",
+        "Target slot (production) stays online the whole time",
+        "You can roll back — just swap again"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-staging-slots",
+      "tags": ["az204::app-service::deployment-slots"]
+    },
+    {
+      "id": "RAS-038",
+      "type": "ordering",
+      "question": "Arrange the steps to configure a custom domain with SSL in Azure App Service.",
+      "orderItems": [
+        "Buy or obtain a domain name",
+        "Add a CNAME/A record and TXT verification record in DNS",
+        "Add the custom domain in App Service and validate ownership",
+        "Upload or create an SSL certificate",
+        "Bind the SSL certificate to the custom domain"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Order: 1) Buy a domain. 2) Set up DNS records (CNAME/A + TXT for verification). 3) Add the domain in App Service (Azure checks DNS). 4) Get an SSL certificate. 5) Bind the certificate to the domain.",
+      "keyPoints": [
+        "DNS records must exist BEFORE adding the domain",
+        "TXT record is needed for ownership verification",
+        "SSL is bound AFTER adding the domain",
+        "Managed Certificate — free for subdomains"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/app-service-web-tutorial-custom-domain",
+      "tags": ["az204::app-service::custom-domains", "az204::app-service::ssl-tls"]
+    },
+    {
+      "id": "RAS-039",
+      "type": "ordering",
+      "question": "Arrange the steps to enable continuous deployment from GitHub to an App Service staging slot.",
+      "orderItems": [
+        "Create a deployment slot named 'staging'",
+        "Go to Deployment Center and select GitHub as source",
+        "Authorize and choose the repository and branch",
+        "Deploy and test in the staging slot",
+        "Swap staging slot into production"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Order: 1) Create a staging slot. 2) Open Deployment Center, pick GitHub. 3) Authorize and select the repo/branch. 4) Code auto-deploys to staging — test it. 5) Swap staging → production.",
+      "keyPoints": [
+        "GitHub Actions workflow is created automatically",
+        "Deploy to staging, not production — best practice",
+        "Test before swapping",
+        "Swap = zero downtime"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/deploy-continuous-deployment",
+      "tags": ["az204::app-service::deployment"]
+    },
+    {
+      "id": "RAS-040",
+      "type": "ordering",
+      "question": "Arrange the App Service pricing tiers from cheapest to most expensive.",
+      "orderItems": [
+        "Free (F1)",
+        "Shared (D1)",
+        "Basic (B1)",
+        "Standard (S1)",
+        "Premium (P1V3)",
+        "Isolated (I1V2)"
+      ],
+      "answer": [0, 1, 2, 3, 4, 5],
+      "explanation": "Cheapest to most expensive: Free → Shared → Basic → Standard → Premium → Isolated. Each tier adds features: Free = bare minimum, Isolated = maximum isolation and scaling.",
+      "keyPoints": [
+        "Free/Shared = shared compute (shared VMs)",
+        "Basic/Standard/Premium = dedicated compute",
+        "Isolated = dedicated VMs in a dedicated VNet",
+        "Each tier adds features on top of the previous one"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans",
+      "tags": ["az204::app-service::plans", "az204::app-service::pricing"]
+    },
+    {
+      "id": "RAS-041",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates a web app. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az appservice plan create --name myPlan --resource-group myRG --sku S1",
+        "az webapp create --name myApp --plan myPlan",
+        "az webapp config set --name myApp --resource-group myRG --linux-fx-version \"DOTNET|8.0\"",
+        "az webapp deployment source config --name myApp --resource-group myRG --repo-url $gitrepo --branch main"
+      ],
+      "language": "bash",
+      "answer": [2],
+      "explanation": "Line 3 is missing --resource-group. The az webapp create command REQUIRES the --resource-group parameter. Without it, the command fails. Correct: az webapp create --name myApp --resource-group myRG --plan myPlan",
+      "keyPoints": [
+        "az webapp create requires --resource-group",
+        "Most az commands require --resource-group",
+        "--plan specifies the App Service Plan",
+        "S1 = Standard tier"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/webapp#az-webapp-create",
+      "tags": ["az204::app-service::cli"]
+    },
+    {
+      "id": "RAS-042",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script configures deployment slots and performs a swap. Click on the line(s) with errors.",
+      "codeLines": [
+        "az webapp deployment slot create --name myApp --resource-group myRG --slot staging",
+        "az webapp config appsettings set --name myApp --resource-group myRG --slot staging --settings ENV=staging",
+        "az webapp deploy --name myApp --resource-group myRG --slot staging --src-path app.zip",
+        "az webapp deployment slot swap --name myApp --resource-group myRG --slot production --target-slot staging",
+        "az webapp traffic-routing set --resource-group myRG --name myApp --distribution staging=15"
+      ],
+      "language": "bash",
+      "answer": [3],
+      "explanation": "Line 4: --slot and --target-slot are swapped. --slot should be the SOURCE (staging), and --target-slot should be the TARGET (production). Correct: --slot staging --target-slot production. Otherwise you're trying to swap production into staging.",
+      "keyPoints": [
+        "--slot = source slot (swap from)",
+        "--target-slot = target slot (swap to)",
+        "Usually: --slot staging --target-slot production",
+        "If you mix them up — the swap goes the wrong way"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/webapp/deployment/slot",
+      "tags": ["az204::app-service::deployment-slots", "az204::app-service::cli"]
+    },
+    {
+      "id": "RAS-043",
+      "type": "code-hotarea",
+      "question": "This C# code configures App Service settings programmatically. Click on the line(s) with errors.",
+      "codeLines": [
+        "var builder = WebApplication.CreateBuilder(args);",
+        "builder.Configuration.AddJsonFile(\"appsettings.json\");",
+        "builder.Configuration.AddEnvironmentVariables();",
+        "var connectionString = builder.Configuration[\"ConnectionStrings:DefaultConnection\"];",
+        "builder.Services.AddDbContext<AppDbContext>(options =>",
+        "    options.UseSqlServer(connectionString));",
+        "var app = builder.Build();",
+        "app.MapControllers();",
+        "app.Start();"
+      ],
+      "language": "csharp",
+      "answer": [8],
+      "explanation": "Line 9: app.Start() runs the app without blocking the thread — the process exits immediately. You need app.Run() — it blocks the thread and waits for shutdown. app.Start() is only used when you need to continue running code after startup.",
+      "keyPoints": [
+        "app.Run() = blocking start (for production)",
+        "app.Start() = non-blocking (process exits)",
+        "App Service needs app.Run()",
+        "The rest of the code is correct"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/aspnet/core/fundamentals/host/generic-host",
+      "tags": ["az204::app-service::configuration"]
+    },
+    {
+      "id": "RAS-044",
+      "type": "code-hotarea",
+      "question": "This settings.job file configures a WebJob CRON schedule. Click on the line(s) with errors.",
+      "codeLines": [
+        "{",
+        "  \"schedule\": \"*/15 * * * *\",",
+        "  \"is_singleton\": true,",
+        "  \"stopping_wait_time\": 60,",
+        "  \"is_in_place\": true",
+        "}"
+      ],
+      "language": "json",
+      "answer": [1],
+      "explanation": "Line 2: WebJobs CRON uses 6 fields (NCRONTAB), including seconds. \"*/15 * * * *\" has only 5 fields — seconds are missing. Correct: \"0 */15 * * * *\" (every 15 minutes, starting at 0 seconds).",
+      "keyPoints": [
+        "WebJobs CRON = 6 fields (including seconds)",
+        "Format: seconds minutes hours day month weekday",
+        "Standard CRON = 5 fields (no seconds)",
+        "Example: 0 */15 * * * * = every 15 minutes"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/webjobs-create",
+      "tags": ["az204::app-service::webjobs"]
+    },
+    {
+      "id": "RAS-045",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script configures Easy Auth for an App Service. Click on the line(s) with errors.",
+      "codeLines": [
+        "az webapp auth update --name myApp --resource-group myRG --enabled true",
+        "az webapp auth microsoft update --name myApp --resource-group myRG \\",
+        "  --client-id \"00000000-0000-0000-0000-000000000000\" \\",
+        "  --client-secret \"my-secret-value\" \\",
+        "  --issuer \"https://login.microsoftonline.com/my-tenant-id\"",
+        "az webapp auth update --name myApp --resource-group myRG \\",
+        "  --unauthenticated-client-action AllowAnonymous \\",
+        "  --token-store true"
+      ],
+      "language": "bash",
+      "answer": [3],
+      "explanation": "Line 4: client-secret is in plain text in the CLI command. This is NOT a syntax error, but a serious security mistake. The secret will be visible in bash history and logs. Use a Key Vault reference or an environment variable instead.",
+      "keyPoints": [
+        "Never put secrets in CLI commands as plain text",
+        "Use Key Vault references or env vars",
+        "bash history stores all commands",
+        "CI/CD: use pipeline secrets"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
+      "tags": ["az204::app-service::authentication", "az204::app-service::security"]
+    }
+  ]
+}
