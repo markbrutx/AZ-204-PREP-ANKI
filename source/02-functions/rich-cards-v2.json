@@ -1,0 +1,974 @@
+{
+  "domain": "02-functions",
+  "deckName": "AZ-204-PREP-ANKI::02-Functions",
+  "cards": [
+    {
+      "id": "RFN-001",
+      "type": "single-choice",
+      "question": "Your company needs a serverless compute service that runs code only when an HTTP request arrives and charges only for execution time. Which Azure service should you use?",
+      "options": [
+        "Azure App Service",
+        "Azure Functions with Consumption plan",
+        "Azure Kubernetes Service",
+        "Azure Container Instances"
+      ],
+      "answer": "B",
+      "explanation": "Azure Functions on the Consumption plan is a serverless service that runs code in response to events (including HTTP) and only charges for execution time. App Service requires a constantly running plan. AKS and ACI are container services, not pure serverless.",
+      "keyPoints": [
+        "Consumption plan = you only pay for execution time",
+        "A function runs when a trigger fires (HTTP, timer, etc.)",
+        "App Service runs all the time, even with zero requests"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-overview",
+      "tags": ["az204::functions::overview"]
+    },
+    {
+      "id": "RFN-002",
+      "type": "single-choice",
+      "question": "How many triggers can a single Azure Function have?",
+      "options": [
+        "Unlimited triggers",
+        "Exactly one trigger",
+        "Up to five triggers",
+        "At least two triggers"
+      ],
+      "answer": "B",
+      "explanation": "Every Azure Function has EXACTLY ONE trigger. The trigger defines what starts the function. If you need to react to different events, create separate functions.",
+      "keyPoints": [
+        "1 function = 1 trigger (strict rule)",
+        "You can have many bindings (input/output)",
+        "A trigger is a special input binding that starts the function"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings",
+      "tags": ["az204::functions::triggers"]
+    },
+    {
+      "id": "RFN-003",
+      "type": "single-choice",
+      "question": "You have an Azure Function with an HTTP trigger. The default authorization level is not specified in the attribute. What authorization level is applied?",
+      "options": [
+        "Anonymous — no key required",
+        "Admin — master key required",
+        "Function — function-specific key required",
+        "System — system key required"
+      ],
+      "answer": "C",
+      "explanation": "The default authorization level for an HTTP trigger is Function. This means you need a function-specific access key to call it. The key is passed in the 'code' query parameter or the 'x-functions-key' header.",
+      "keyPoints": [
+        "Default = Function level",
+        "Anonymous = no key needed",
+        "Admin = master key required",
+        "Key is passed via ?code= or x-functions-key header"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-http-webhook-trigger",
+      "tags": ["az204::functions::http-trigger"]
+    },
+    {
+      "id": "RFN-004",
+      "type": "single-choice",
+      "question": "You need to run an Azure Function every weekday at 9:30 AM UTC. Which NCRONTAB expression should you use?",
+      "options": [
+        "30 9 * * 1-5",
+        "0 30 9 * * 1-5",
+        "0 9 30 * * 1-5",
+        "0 30 9 * * *"
+      ],
+      "answer": "B",
+      "explanation": "Azure Functions uses a 6-field NCRONTAB: {second} {minute} {hour} {day} {month} {day-of-week}. For 9:30 on weekdays: 0 (second) 30 (minute) 9 (hour) * (any day) * (any month) 1-5 (Mon-Fri).",
+      "keyPoints": [
+        "NCRONTAB = 6 fields (includes seconds!)",
+        "Format: {sec} {min} {hour} {day} {month} {dow}",
+        "1-5 = Monday through Friday",
+        "Default timezone is UTC, change via WEBSITE_TIME_ZONE"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer",
+      "tags": ["az204::functions::timer-trigger"]
+    },
+    {
+      "id": "RFN-005",
+      "type": "single-choice",
+      "question": "A timer-triggered Azure Function app scales out to 5 instances. How many times does the timer fire per scheduled interval?",
+      "options": [
+        "5 times — once per instance",
+        "1 time — runtime uses a storage lock",
+        "It depends on the hosting plan",
+        "0 times — timer triggers cannot scale out"
+      ],
+      "answer": "B",
+      "explanation": "A timer trigger fires ONLY ONCE, no matter how many instances exist. The runtime uses a blob lease (storage lock) via AzureWebJobsStorage so only one instance runs the function.",
+      "keyPoints": [
+        "1 timer = 1 execution (regardless of instance count)",
+        "A blob lease is used for synchronization",
+        "The lock lives in AzureWebJobsStorage"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer",
+      "tags": ["az204::functions::timer-trigger"]
+    },
+    {
+      "id": "RFN-006",
+      "type": "single-choice",
+      "question": "Which trigger should you use to run an Azure Function when a new document is inserted into a Cosmos DB container?",
+      "options": [
+        "HTTP trigger with Cosmos DB input binding",
+        "Timer trigger polling Cosmos DB every minute",
+        "Cosmos DB trigger using change feed",
+        "Event Grid trigger with Cosmos DB subscription"
+      ],
+      "answer": "C",
+      "explanation": "The Cosmos DB trigger uses the change feed to track inserts and updates in a container. This is the native way to react to new documents. The trigger needs a leases container to track which changes have been processed.",
+      "keyPoints": [
+        "Cosmos DB trigger = change feed",
+        "Reacts to inserts and updates",
+        "Does NOT react to deletes (only soft-delete works)",
+        "Requires a leases container"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-cosmosdb-v2-trigger",
+      "tags": ["az204::functions::cosmosdb-trigger"]
+    },
+    {
+      "id": "RFN-007",
+      "type": "single-choice",
+      "question": "Your Azure Function processes messages from a Storage Queue. If the function throws an exception, what happens to the message?",
+      "options": [
+        "The message is deleted permanently",
+        "The message returns to the queue and moves to poison queue after 5 failures",
+        "The message is sent to a dead-letter queue immediately",
+        "The function app restarts automatically"
+      ],
+      "answer": "B",
+      "explanation": "When a function fails to process a Storage Queue message, the message goes back to the queue. After 5 failed attempts, the message moves to a poison queue named {queuename}-poison.",
+      "keyPoints": [
+        "Failure = message goes back to the queue",
+        "5 attempts = message moves to poison queue",
+        "Poison queue name = {queue-name}-poison",
+        "Success = message gets deleted"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-queue-trigger",
+      "tags": ["az204::functions::queue-trigger"]
+    },
+    {
+      "id": "RFN-008",
+      "type": "single-choice",
+      "question": "You need to process millions of IoT telemetry events per second with Azure Functions. Which trigger is most appropriate?",
+      "options": [
+        "Queue Storage trigger",
+        "Event Grid trigger",
+        "Event Hub trigger",
+        "Service Bus trigger"
+      ],
+      "answer": "C",
+      "explanation": "The Event Hub trigger is built for high-throughput streaming scenarios: IoT telemetry, click streams, logs. Event Hubs handles millions of events per second, using partitions and consumer groups to spread the load.",
+      "keyPoints": [
+        "Event Hub = high-throughput streaming",
+        "Millions of events per second",
+        "Partitions spread the load across instances",
+        "Queue Storage can't handle that volume"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-hubs-trigger",
+      "tags": ["az204::functions::event-hub-trigger"]
+    },
+    {
+      "id": "RFN-009",
+      "type": "single-choice",
+      "question": "What is the difference between Event Grid trigger and Queue Storage trigger for Azure Functions?",
+      "options": [
+        "Event Grid polls for events, Queue pushes messages",
+        "Event Grid pushes events to the function, Queue requires polling",
+        "Both use push model, but Event Grid is slower",
+        "There is no functional difference, only pricing differs"
+      ],
+      "answer": "B",
+      "explanation": "Event Grid uses a push model: events are SENT to the function. Queue Storage uses polling: the function periodically CHECKS the queue for new messages. Push is faster and more efficient.",
+      "keyPoints": [
+        "Event Grid = push (event comes to the function)",
+        "Queue = polling (function checks the queue)",
+        "Push is faster — no polling delay",
+        "Event Grid is great for Azure resource events"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-grid-trigger",
+      "tags": ["az204::functions::event-grid-trigger"]
+    },
+    {
+      "id": "RFN-010",
+      "type": "single-choice",
+      "question": "You need an Azure Function to react to new blobs uploaded to a container with minimal latency. Which approach is recommended?",
+      "options": [
+        "Blob trigger with storage logs polling",
+        "Blob trigger with Event Grid subscription",
+        "Timer trigger that checks for new blobs every second",
+        "HTTP trigger called by the upload client"
+      ],
+      "answer": "B",
+      "explanation": "Blob trigger with Event Grid subscription is the recommended approach. Event Grid reacts instantly to blob creation (push model). The standard Blob trigger using storage logs can have a delay of up to several minutes.",
+      "keyPoints": [
+        "Blob trigger + Event Grid = minimal latency",
+        "Blob trigger + storage logs = can have delay",
+        "Event Grid sends a notification instantly",
+        "Timer polling is an anti-pattern for this task"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-blob-trigger",
+      "tags": ["az204::functions::blob-trigger"]
+    },
+    {
+      "id": "RFN-011",
+      "type": "single-choice",
+      "question": "Which Azure Functions hosting plan should you choose if you need VNET integration with serverless pricing?",
+      "options": [
+        "Consumption plan",
+        "Flex Consumption plan",
+        "Dedicated (App Service) plan with Free tier",
+        "Container Apps with Consumption profile"
+      ],
+      "answer": "B",
+      "explanation": "Flex Consumption plan is the only serverless plan that supports VNET. The regular Consumption plan does NOT support VNET. The Premium plan supports VNET but uses pre-warmed instances (not pure serverless).",
+      "keyPoints": [
+        "Consumption = NO VNET",
+        "Flex Consumption = VNET + serverless",
+        "Premium = VNET + pre-warmed instances",
+        "Flex Consumption = Linux only"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/flex-consumption-plan",
+      "tags": ["az204::functions::hosting-plans"]
+    },
+    {
+      "id": "RFN-012",
+      "type": "single-choice",
+      "question": "What is the maximum execution timeout for a function running on the Consumption plan?",
+      "options": [
+        "5 minutes",
+        "10 minutes",
+        "30 minutes",
+        "Unlimited"
+      ],
+      "answer": "B",
+      "explanation": "On the Consumption plan, the maximum timeout is 10 minutes (default is 5 minutes). If the function runs longer, it gets killed. For long-running tasks, use the Premium plan (unlimited) or Durable Functions.",
+      "keyPoints": [
+        "Consumption: default 5 min, max 10 min",
+        "Premium: default 30 min, max unlimited",
+        "Dedicated: default 30 min, max unlimited (with Always On)",
+        "HTTP is always capped at 230 seconds by the Load Balancer"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale",
+      "tags": ["az204::functions::hosting-plans"]
+    },
+    {
+      "id": "RFN-013",
+      "type": "single-choice",
+      "question": "Your HTTP-triggered Azure Function takes 5 minutes to complete. The function runs on a Premium plan. What does the client receive?",
+      "options": [
+        "HTTP 200 with the result after 5 minutes",
+        "HTTP 502 Bad Gateway after 230 seconds",
+        "HTTP 408 Request Timeout after 60 seconds",
+        "HTTP 503 Service Unavailable immediately"
+      ],
+      "answer": "B",
+      "explanation": "The Azure Load Balancer has a hard idle timeout of 230 seconds. If an HTTP function runs longer than 230 seconds, the client gets a 502 Bad Gateway. The function keeps running, but the client already got the error. Fix: use the Durable Functions async HTTP pattern.",
+      "keyPoints": [
+        "230 seconds = Azure Load Balancer limit",
+        "Applies to all plans (even Premium)",
+        "The function keeps running after the 502",
+        "Fix: Durable Functions with a polling URL"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale",
+      "tags": ["az204::functions::limits"]
+    },
+    {
+      "id": "RFN-014",
+      "type": "single-choice",
+      "question": "Which Azure Functions plan provides pre-warmed instances to eliminate cold starts?",
+      "options": [
+        "Consumption plan",
+        "Flex Consumption plan",
+        "Premium plan",
+        "Container Apps plan"
+      ],
+      "answer": "C",
+      "explanation": "The Premium plan keeps pre-warmed instances ready to handle requests instantly. No cold start. The Consumption plan scales to zero, so cold start is unavoidable. Flex Consumption has improved cold start and an always-ready option, but pre-warmed instances are the Premium plan's thing.",
+      "keyPoints": [
+        "Premium = pre-warmed instances, no cold start",
+        "Consumption = scales to zero, cold start happens",
+        "Flex Consumption = always-ready instances (optional)",
+        "Dedicated + Always On = no cold start"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale",
+      "tags": ["az204::functions::cold-start"]
+    },
+    {
+      "id": "RFN-015",
+      "type": "single-choice",
+      "question": "What is the purpose of the AzureWebJobsStorage application setting in Azure Functions?",
+      "options": [
+        "It stores the function app source code",
+        "It connects to the storage account used by the Functions runtime for internal operations",
+        "It defines the default output binding for all functions",
+        "It configures the connection string for user data storage"
+      ],
+      "answer": "B",
+      "explanation": "AzureWebJobsStorage is a connection string to the Storage Account used by the Functions runtime itself. It stores: timer schedules, blob locks, function keys, Durable Functions state, and scale controller lease blobs.",
+      "keyPoints": [
+        "Used by the runtime, not by your code",
+        "Stores: timers, keys, leases, Durable state",
+        "Every function app NEEDS a storage account",
+        "Supports identity-based connections"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-app-settings",
+      "tags": ["az204::functions::configuration"]
+    },
+    {
+      "id": "RFN-016",
+      "type": "single-choice",
+      "question": "You want to remove the /api prefix from all HTTP-triggered function URLs. Where do you configure this?",
+      "options": [
+        "In function.json for each function",
+        "In local.settings.json",
+        "In host.json under extensions.http.routePrefix",
+        "In the Azure portal Function App settings blade"
+      ],
+      "answer": "C",
+      "explanation": "The /api prefix is set in host.json under extensions.http.routePrefix. To remove it, set the value to an empty string: \"routePrefix\": \"\". host.json is the global config for all functions in the app.",
+      "keyPoints": [
+        "host.json = global config for ALL functions",
+        "extensions.http.routePrefix = URL prefix (default: 'api')",
+        "Empty string = no prefix",
+        "function.json = config for a single function"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-host-json",
+      "tags": ["az204::functions::configuration"]
+    },
+    {
+      "id": "RFN-017",
+      "type": "single-choice",
+      "question": "What are the three function types in Durable Functions?",
+      "options": [
+        "Trigger function, Binding function, Output function",
+        "Orchestrator function, Activity function, Entity function",
+        "Starter function, Worker function, Aggregator function",
+        "Client function, Server function, Proxy function"
+      ],
+      "answer": "B",
+      "explanation": "Durable Functions has three function types: Orchestrator (defines the workflow), Activity (does the actual work), and Entity (manages a stateful object). The Orchestrator calls Activity functions and coordinates their execution.",
+      "keyPoints": [
+        "Orchestrator = workflow coordinator",
+        "Activity = work unit (I/O, API calls, computations)",
+        "Entity = stateful object (like an actor)",
+        "Orchestrator MUST be deterministic"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable"]
+    },
+    {
+      "id": "RFN-018",
+      "type": "single-choice",
+      "question": "In a Durable Functions orchestrator, you need to get the current time. Which approach is correct?",
+      "options": [
+        "DateTime.UtcNow",
+        "DateTime.Now",
+        "context.CurrentUtcDateTime",
+        "Environment.TickCount"
+      ],
+      "answer": "C",
+      "explanation": "Orchestrator functions MUST be deterministic — their code gets replayed. DateTime.Now and DateTime.UtcNow give different values on each replay, breaking determinism. context.CurrentUtcDateTime returns the same value on every replay.",
+      "keyPoints": [
+        "The orchestrator replays at every checkpoint",
+        "DateTime.Now/UtcNow = NOT deterministic",
+        "context.CurrentUtcDateTime = safe to use",
+        "Also forbidden: Guid.NewGuid(), I/O, random"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-code-constraints",
+      "tags": ["az204::functions::durable-constraints"]
+    },
+    {
+      "id": "RFN-019",
+      "type": "single-choice",
+      "question": "Which Durable Functions pattern should you use to run 100 tasks in parallel and aggregate the results?",
+      "options": [
+        "Function chaining",
+        "Fan-out/fan-in",
+        "Async HTTP APIs",
+        "Monitor pattern"
+      ],
+      "answer": "B",
+      "explanation": "Fan-out/fan-in launches many Activity functions in parallel, waits for ALL of them to finish (Task.WhenAll), and then aggregates the results. Function chaining runs tasks one after another. Async HTTP is for long-running operations with polling.",
+      "keyPoints": [
+        "Fan-out = launch parallel tasks",
+        "Fan-in = wait for all + aggregate",
+        "Task.WhenAll is the key method",
+        "Checkpointing = completed tasks don't re-run"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable-patterns"]
+    },
+    {
+      "id": "RFN-020",
+      "type": "single-choice",
+      "question": "A client calls an HTTP-triggered Durable Function to start a long-running orchestration. What HTTP status code should the client receive initially?",
+      "options": [
+        "200 OK with partial result",
+        "201 Created with orchestration ID",
+        "202 Accepted with status query URL",
+        "303 See Other with redirect URL"
+      ],
+      "answer": "C",
+      "explanation": "The async HTTP API pattern returns 202 Accepted with a link to a status URL. The client polls the status URL: it gets 202 while the orchestration is running, and 200 when it's done. This is built into Durable Functions.",
+      "keyPoints": [
+        "Start -> 202 Accepted + status URL",
+        "Polling status -> 202 (running) or 200 (done)",
+        "The status URL is generated automatically",
+        "You don't need to write your own tracking code"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable-async-http"]
+    },
+    {
+      "id": "RFN-021",
+      "type": "single-choice",
+      "question": "Which Durable Functions pattern would you use for a workflow that requires manager approval within 72 hours?",
+      "options": [
+        "Function chaining",
+        "Fan-out/fan-in",
+        "Human interaction",
+        "Monitor"
+      ],
+      "answer": "C",
+      "explanation": "The Human interaction pattern uses WaitForExternalEvent + CreateTimer. The orchestrator waits for an external event (approval) with a timeout. If approval arrives — it processes it. If the timeout fires — it escalates. On the Consumption plan, you pay NOTHING while waiting.",
+      "keyPoints": [
+        "WaitForExternalEvent = waits for an external event",
+        "CreateTimer = sets a timeout",
+        "Task.WhenAny = whichever comes first (event or timeout)",
+        "Free on Consumption plan while waiting"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable-patterns"]
+    },
+    {
+      "id": "RFN-022",
+      "type": "single-choice",
+      "question": "You need a Durable Function that polls an external API every 30 seconds with exponential backoff. Which pattern fits best?",
+      "options": [
+        "Timer trigger with fixed CRON",
+        "Monitor pattern with CreateTimer",
+        "Human interaction pattern",
+        "Aggregator pattern with entities"
+      ],
+      "answer": "B",
+      "explanation": "The Monitor pattern is a flexible recursive polling mechanism with dynamic intervals. Unlike a Timer trigger (fixed CRON), the Monitor pattern lets you change the interval (exponential backoff) and control the polling lifetime.",
+      "keyPoints": [
+        "Monitor = flexible polling with dynamic intervals",
+        "Timer trigger = fixed CRON schedule",
+        "CreateTimer sets the next check time",
+        "Supports exponential backoff"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable-patterns"]
+    },
+    {
+      "id": "RFN-023",
+      "type": "single-choice",
+      "question": "What is the recommended C# hosting model for new Azure Functions projects?",
+      "options": [
+        "In-process model with Microsoft.Azure.WebJobs",
+        "Isolated worker model with Microsoft.Azure.Functions.Worker",
+        "C# script (.csx) with function.json",
+        "Native AOT model with minimal API"
+      ],
+      "answer": "B",
+      "explanation": "The isolated worker model is the recommended model for new projects. The function runs in a separate process, supports all .NET versions (LTS and non-LTS), and has a middleware pipeline. The in-process model is retiring in Nov 2026.",
+      "keyPoints": [
+        "Isolated = separate process, recommended",
+        "In-process = same process, retiring Nov 2026",
+        "Isolated uses the [Function] attribute",
+        "In-process uses the [FunctionName] attribute"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide",
+      "tags": ["az204::functions::dotnet-models"]
+    },
+    {
+      "id": "RFN-024",
+      "type": "single-choice",
+      "question": "What is the maximum number of instances for an Azure Function app on the Consumption plan (Windows)?",
+      "options": [
+        "100 instances",
+        "200 instances",
+        "500 instances",
+        "1000 instances"
+      ],
+      "answer": "B",
+      "explanation": "On the Consumption plan (Windows), the maximum is 200 instances. On Linux it's 100. Flex Consumption supports up to 1000 instances. Premium plan allows up to 100 (Windows).",
+      "keyPoints": [
+        "Consumption Windows = max 200",
+        "Consumption Linux = max 100",
+        "Flex Consumption = max 1000",
+        "Premium Windows = max 100"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale",
+      "tags": ["az204::functions::scaling"]
+    },
+    {
+      "id": "RFN-025",
+      "type": "single-choice",
+      "question": "You need to deploy an Azure Function using an atomic, immutable deployment method. Which approach is recommended?",
+      "options": [
+        "FTP deployment with file-by-file upload",
+        "Git deployment with continuous sync",
+        "Run-from-package (WEBSITE_RUN_FROM_PACKAGE=1)",
+        "Azure CLI with az functionapp deploy"
+      ],
+      "answer": "C",
+      "explanation": "Run-from-package (WEBSITE_RUN_FROM_PACKAGE=1) is the recommended method. The ZIP package is mounted as a read-only file system. The deployment is atomic (all or nothing) and immutable (files can't be changed on the server).",
+      "keyPoints": [
+        "WEBSITE_RUN_FROM_PACKAGE=1 = run from ZIP",
+        "Atomic deployment (all or nothing)",
+        "Immutable (read-only filesystem)",
+        "Faster cold start thanks to direct ZIP reading"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-deployment-technologies",
+      "tags": ["az204::functions::deployment"]
+    },
+    {
+      "id": "RFN-026",
+      "type": "single-choice",
+      "question": "Which property in function.json defines whether a binding reads data into or writes data out of a function?",
+      "options": [
+        "type",
+        "name",
+        "direction",
+        "connection"
+      ],
+      "answer": "C",
+      "explanation": "The direction property defines the binding direction: 'in' (input data) or 'out' (output data). A trigger is a special 'in' binding. type defines the service type, name is the parameter name, connection is the connection string.",
+      "keyPoints": [
+        "direction: 'in' = input data",
+        "direction: 'out' = output data",
+        "Trigger = special 'in' binding",
+        "Key properties: type, direction, name, connection"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings",
+      "tags": ["az204::functions::function-json"]
+    },
+    {
+      "id": "RFN-027",
+      "type": "single-choice",
+      "question": "Why should you NOT use the runOnStartup property for timer triggers in production?",
+      "options": [
+        "It causes the function to run with admin privileges",
+        "It makes the function fire at unpredictable times during scale-out and restarts",
+        "It disables the CRON schedule permanently",
+        "It is not supported on the Consumption plan"
+      ],
+      "answer": "B",
+      "explanation": "runOnStartup fires the function every time the runtime starts: restarts, wake-ups from idle, scale-outs. On the Consumption plan, each scale-out = a new startup. This leads to unpredictable executions and extra costs.",
+      "keyPoints": [
+        "runOnStartup = fires on every process start",
+        "Scale-out on Consumption = new startup = new fire",
+        "Unpredictable execution times",
+        "Use only for dev/test"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-timer",
+      "tags": ["az204::functions::timer-trigger"]
+    },
+    {
+      "id": "RFN-028",
+      "type": "multi-select",
+      "question": "Which TWO Azure Functions hosting plans support VNET integration? (Select 2)",
+      "options": [
+        "Consumption plan",
+        "Premium plan",
+        "Flex Consumption plan",
+        "Free tier App Service plan"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Both the Premium plan and the Flex Consumption plan support VNET. The regular Consumption plan does NOT support VNET. The Dedicated (App Service) plan also supports VNET, but the Free tier does not.",
+      "keyPoints": [
+        "Premium = VNET + pre-warmed",
+        "Flex Consumption = VNET + serverless",
+        "Consumption = NO VNET",
+        "Dedicated plan = VNET (except Free/Shared tier)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale",
+      "tags": ["az204::functions::networking"]
+    },
+    {
+      "id": "RFN-029",
+      "type": "multi-select",
+      "question": "Which TWO actions are forbidden inside a Durable Functions orchestrator? (Select 2)",
+      "options": [
+        "Calling context.CallActivityAsync()",
+        "Using DateTime.UtcNow to get current time",
+        "Using context.CreateTimer() for delays",
+        "Making HTTP calls directly with HttpClient"
+      ],
+      "answer": ["B", "D"],
+      "explanation": "An orchestrator must be deterministic. DateTime.UtcNow gives different values on replay — this breaks determinism. HTTP calls via HttpClient are I/O, which is forbidden in the orchestrator. All I/O goes through Activity functions.",
+      "keyPoints": [
+        "Forbidden: DateTime.Now/UtcNow, Guid.NewGuid()",
+        "Forbidden: I/O (HTTP, files, DB) directly",
+        "Allowed: context.CallActivityAsync()",
+        "Allowed: context.CreateTimer(), context.CurrentUtcDateTime"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-code-constraints",
+      "tags": ["az204::functions::durable-constraints"]
+    },
+    {
+      "id": "RFN-030",
+      "type": "multi-select",
+      "question": "Which THREE trigger types use a push model to invoke Azure Functions? (Select 3)",
+      "options": [
+        "HTTP trigger",
+        "Queue Storage trigger",
+        "Event Grid trigger",
+        "Service Bus trigger"
+      ],
+      "answer": ["A", "C", "D"],
+      "explanation": "HTTP trigger receives requests directly (push). Event Grid sends events to the function (push). Service Bus pushes messages via AMQP. Queue Storage uses polling — the function periodically checks the queue.",
+      "keyPoints": [
+        "HTTP = push (request comes from outside)",
+        "Event Grid = push (events are sent)",
+        "Service Bus = push (via AMQP)",
+        "Queue Storage = polling (function checks the queue)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings",
+      "tags": ["az204::functions::triggers"]
+    },
+    {
+      "id": "RFN-031",
+      "type": "multi-select",
+      "question": "Which TWO features are unique to the Flex Consumption plan compared to the standard Consumption plan? (Select 2)",
+      "options": [
+        "Pay-per-execution pricing",
+        "Per-function scaling",
+        "Windows OS support",
+        "Up to 1000 instances"
+      ],
+      "answer": ["B", "D"],
+      "explanation": "Flex Consumption is unique for per-function scaling (each function scales independently) and support for up to 1000 instances. Pay-per-execution exists in both plans. Flex Consumption runs ONLY on Linux (not Windows).",
+      "keyPoints": [
+        "Flex: per-function scaling (regular = per-app)",
+        "Flex: max 1000 instances (regular = 200 on Windows)",
+        "Flex: Linux only",
+        "Flex: improved cold start + always-ready option"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/flex-consumption-plan",
+      "tags": ["az204::functions::hosting-plans"]
+    },
+    {
+      "id": "RFN-032",
+      "type": "multi-select",
+      "question": "Which TWO statements about Azure Functions bindings are correct? (Select 2)",
+      "options": [
+        "A function can have multiple output bindings",
+        "A function must have at least one input binding",
+        "Bindings are configured using connection strings in host.json",
+        "Input bindings read data into the function without writing connection code"
+      ],
+      "answer": ["A", "D"],
+      "explanation": "A function can have multiple output bindings (e.g., send to a queue AND write to Cosmos DB). Input bindings declaratively read data without you writing connection code. Bindings are optional — only the trigger is required. Connection strings live in app settings, not host.json.",
+      "keyPoints": [
+        "Output bindings = can have multiple",
+        "Input bindings = declarative data reading",
+        "Bindings are optional (only trigger is required)",
+        "Connection strings go in app settings / local.settings.json"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings",
+      "tags": ["az204::functions::bindings"]
+    },
+    {
+      "id": "RFN-033",
+      "type": "multi-select",
+      "question": "Which TWO Durable Functions patterns involve waiting for external events? (Select 2)",
+      "options": [
+        "Function chaining",
+        "Human interaction",
+        "Async HTTP APIs",
+        "Fan-out/fan-in"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Human interaction waits for an external event (manager approval) via WaitForExternalEvent. Async HTTP APIs waits for a long-running operation to finish — the client polls the status URL. Function chaining and Fan-out/fan-in execute internally without waiting for external events.",
+      "keyPoints": [
+        "Human interaction = WaitForExternalEvent + timeout",
+        "Async HTTP = client polls the status URL",
+        "Chaining = sequential execution",
+        "Fan-out/fan-in = parallel execution"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable-patterns"]
+    },
+    {
+      "id": "RFN-034",
+      "type": "multi-select",
+      "question": "Which TWO settings are stored in the AzureWebJobsStorage account? (Select 2)",
+      "options": [
+        "Function app source code packages",
+        "Timer trigger schedule state and locks",
+        "Application Insights telemetry data",
+        "Durable Functions orchestration state"
+      ],
+      "answer": ["B", "D"],
+      "explanation": "AzureWebJobsStorage stores timer state (schedules, locks) and Durable Functions state (task hubs, checkpoints). Source code is stored separately (or in Run-from-package). Application Insights sends data to its own workspace.",
+      "keyPoints": [
+        "Timer state + locks = AzureWebJobsStorage",
+        "Durable Functions state = AzureWebJobsStorage",
+        "Function keys = AzureWebJobsStorage",
+        "Scale controller leases = AzureWebJobsStorage"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-app-settings",
+      "tags": ["az204::functions::configuration"]
+    },
+    {
+      "id": "RFN-035",
+      "type": "multi-select",
+      "question": "Which TWO characteristics describe the Service Bus trigger compared to Queue Storage trigger? (Select 2)",
+      "options": [
+        "Lower cost per message",
+        "Support for sessions and ordering",
+        "Support for duplicate detection",
+        "Simpler setup with fewer configuration options"
+      ],
+      "answer": ["B", "C"],
+      "explanation": "Service Bus supports sessions (guarantees processing order) and duplicate detection (prevents reprocessing). Queue Storage is simpler and cheaper, but lacks these advanced features.",
+      "keyPoints": [
+        "Service Bus: sessions, duplicate detection, dead-letter, transactions",
+        "Queue Storage: simpler, cheaper, basic queues",
+        "Service Bus: enterprise messaging",
+        "Queue Storage: simple scenarios"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-service-bus-trigger",
+      "tags": ["az204::functions::service-bus-trigger"]
+    },
+    {
+      "id": "RFN-036",
+      "type": "multi-select",
+      "question": "You need to deploy Azure Functions to run inside a virtual network with container support. Which TWO hosting options support this? (Select 2)",
+      "options": [
+        "Consumption plan",
+        "Premium plan with Docker",
+        "Dedicated (App Service) plan with custom containers",
+        "Container Apps environment"
+      ],
+      "answer": ["C", "D"],
+      "explanation": "Dedicated plan with custom containers and Container Apps both support containers + VNET. The Premium plan supports VNET but does NOT support custom Docker images directly (it uses the standard runtime). The Consumption plan supports neither containers nor VNET.",
+      "keyPoints": [
+        "Container Apps = containers + VNET + serverless scaling",
+        "Dedicated plan = containers + VNET + manual/auto scale",
+        "Premium = VNET, but standard runtime only",
+        "Consumption = no containers, no VNET"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-scale",
+      "tags": ["az204::functions::hosting-plans"]
+    },
+    {
+      "id": "RFN-037",
+      "type": "ordering",
+      "question": "Arrange the steps to create and deploy an Azure Function app using Azure CLI in the correct order.",
+      "orderItems": [
+        "Create a resource group with az group create",
+        "Create a storage account with az storage account create",
+        "Create a function app with az functionapp create",
+        "Deploy function code with func azure functionapp publish"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "First, create a resource group (logical grouping). Then a storage account (required by the runtime). Next, the function app (links to the storage and resource group). Finally, deploy the code using Azure Functions Core Tools.",
+      "keyPoints": [
+        "Resource group = container for all resources",
+        "Storage account = mandatory dependency",
+        "Function app references the storage account",
+        "func publish = deploy code to Azure"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/functionapp",
+      "tags": ["az204::functions::cli"]
+    },
+    {
+      "id": "RFN-038",
+      "type": "ordering",
+      "question": "Arrange the steps of the Durable Functions async HTTP API pattern in the correct order.",
+      "orderItems": [
+        "Client sends POST request to start orchestration",
+        "Function returns 202 Accepted with status query URL",
+        "Client polls the status URL periodically",
+        "Orchestration completes and returns 200 OK with result"
+      ],
+      "answer": [0, 1, 2, 3],
+      "explanation": "Client sends POST -> gets 202 with a status URL -> polls the status URL (gets 202 while running) -> when the orchestration finishes, gets 200 with the result. This whole mechanism is built into Durable Functions.",
+      "keyPoints": [
+        "POST -> starts orchestration",
+        "202 Accepted = still running",
+        "200 OK = completed",
+        "Status URL is generated automatically"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable-async-http"]
+    },
+    {
+      "id": "RFN-039",
+      "type": "ordering",
+      "question": "Arrange the steps to develop and test an Azure Function locally using Core Tools in the correct order.",
+      "orderItems": [
+        "Install Azure Functions Core Tools (npm install -g azure-functions-core-tools@4)",
+        "Initialize a new project with func init",
+        "Create a new function with func new",
+        "Configure local.settings.json with connection strings",
+        "Run the function locally with func start"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "Install Core Tools -> initialize the project (choose runtime) -> create a function (choose template) -> set up connection strings in local.settings.json -> run locally with func start.",
+      "keyPoints": [
+        "Core Tools v4 = current version",
+        "func init = creates project with host.json",
+        "func new = creates a function from a template",
+        "local.settings.json does NOT get deployed to Azure"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-develop-local",
+      "tags": ["az204::functions::local-dev"]
+    },
+    {
+      "id": "RFN-040",
+      "type": "ordering",
+      "question": "Arrange the Durable Functions human interaction pattern steps in the correct order.",
+      "orderItems": [
+        "Orchestrator sends approval request notification",
+        "Orchestrator starts a timeout timer with CreateTimer",
+        "Orchestrator waits using Task.WhenAny(approval, timeout)",
+        "If approval received first, process the approval",
+        "If timeout fires first, escalate the request"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "The orchestrator sends a notification -> starts a timer (timeout) -> waits with Task.WhenAny: whichever comes first — approval or timeout -> processes the result. WaitForExternalEvent costs no resources while waiting.",
+      "keyPoints": [
+        "WaitForExternalEvent = wait for external event",
+        "CreateTimer = timeout",
+        "Task.WhenAny = whichever comes first",
+        "Consumption plan: free while waiting"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-overview",
+      "tags": ["az204::functions::durable-patterns"]
+    },
+    {
+      "id": "RFN-041",
+      "type": "ordering",
+      "question": "Arrange the steps of how a Queue Storage trigger processes a message in the correct order.",
+      "orderItems": [
+        "A new message arrives in the Azure Storage Queue",
+        "Functions runtime dequeues the message",
+        "The function code processes the message",
+        "On success, the message is deleted from the queue",
+        "On failure after 5 retries, the message moves to poison queue"
+      ],
+      "answer": [0, 1, 2, 3, 4],
+      "explanation": "A message lands in the queue -> the runtime dequeues it -> the function processes it -> on success, the message is deleted. On failure, the message goes back to the queue. After 5 failures, it moves to the poison queue.",
+      "keyPoints": [
+        "The runtime dequeues the message automatically",
+        "Success = deleted from queue",
+        "Failure = back to the queue",
+        "5 attempts = poison queue ({name}-poison)"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-bindings-storage-queue-trigger",
+      "tags": ["az204::functions::queue-trigger"]
+    },
+    {
+      "id": "RFN-042",
+      "type": "code-hotarea",
+      "question": "This C# code defines a Durable Functions orchestrator. Click on the line(s) with errors.",
+      "codeLines": [
+        "[Function(\"MyOrchestrator\")]",
+        "public static async Task<string> Run(",
+        "    [OrchestrationTrigger] TaskOrchestrationContext ctx)",
+        "{",
+        "    var timestamp = DateTime.UtcNow;",
+        "    var result1 = await ctx.CallActivityAsync<string>(\"Step1\", null);",
+        "    var result2 = await ctx.CallActivityAsync<string>(\"Step2\", result1);",
+        "    return result2;",
+        "}"
+      ],
+      "language": "csharp",
+      "answer": [4],
+      "explanation": "Line 5 uses DateTime.UtcNow inside an orchestrator — this breaks determinism! On replay, the orchestrator gets a different time, causing an error. Use ctx.CurrentUtcDateTime instead.",
+      "keyPoints": [
+        "DateTime.UtcNow in an orchestrator = error",
+        "Correct: ctx.CurrentUtcDateTime",
+        "The orchestrator replays at every checkpoint",
+        "Also forbidden: Random, Guid.NewGuid(), I/O"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-code-constraints",
+      "tags": ["az204::functions::durable-constraints"]
+    },
+    {
+      "id": "RFN-043",
+      "type": "code-hotarea",
+      "question": "This Azure CLI script creates a Function App. Click on the line(s) with errors.",
+      "codeLines": [
+        "az group create --name myRG --location eastus",
+        "az storage account create --name mystorage \\",
+        "  --resource-group myRG --sku Standard_LRS",
+        "az functionapp create --name myFuncApp \\",
+        "  --consumption-plan-location eastus \\",
+        "  --runtime node --functions-version 4 \\",
+        "  --storage-account mystorage"
+      ],
+      "language": "bash",
+      "answer": [3],
+      "explanation": "Line 4 (az functionapp create) is missing the required --resource-group parameter. Without it, the command fails. Correct: az functionapp create --name myFuncApp --resource-group myRG ...",
+      "keyPoints": [
+        "az functionapp create REQUIRES --resource-group",
+        "Also required: --name, --storage-account",
+        "--consumption-plan-location = Consumption plan",
+        "For Premium: use --plan instead of --consumption-plan-location"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/cli/azure/functionapp",
+      "tags": ["az204::functions::cli"]
+    },
+    {
+      "id": "RFN-044",
+      "type": "code-hotarea",
+      "question": "This function.json defines bindings for an Azure Function. Click on the line(s) with errors.",
+      "codeLines": [
+        "\"bindings\": [",
+        "  {",
+        "    \"type\": \"httpTrigger\",",
+        "    \"direction\": \"out\",",
+        "    \"authLevel\": \"function\",",
+        "    \"name\": \"req\"",
+        "  },",
+        "  { \"type\": \"http\", \"direction\": \"out\", \"name\": \"$return\" }",
+        "]"
+      ],
+      "language": "json",
+      "answer": [3],
+      "explanation": "Line 4: httpTrigger must have direction: \"in\", not \"out\". A trigger is an INCOMING event that starts the function. Direction \"out\" means output data, which makes no sense for a trigger.",
+      "keyPoints": [
+        "Trigger = direction: 'in' (always)",
+        "HTTP response = direction: 'out'",
+        "type + direction + name = required properties",
+        "Trigger = special input binding"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/functions-triggers-bindings",
+      "tags": ["az204::functions::function-json"]
+    },
+    {
+      "id": "RFN-045",
+      "type": "code-hotarea",
+      "question": "This C# code defines an HTTP-triggered Azure Function in the isolated worker model. Click on the line(s) with errors.",
+      "codeLines": [
+        "using Microsoft.Azure.Functions.Worker;",
+        "",
+        "[FunctionName(\"HttpExample\")]",
+        "public static async Task<HttpResponseData> Run(",
+        "    [HttpTrigger(AuthorizationLevel.Function, \"get\")] HttpRequestData req,",
+        "    FunctionContext context)",
+        "{",
+        "    var response = req.CreateResponse(HttpStatusCode.OK);",
+        "    await response.WriteStringAsync(\"Hello!\");",
+        "    return response;"
+      ],
+      "language": "csharp",
+      "answer": [2],
+      "explanation": "Line 3: in the isolated worker model, you use the [Function] attribute, NOT [FunctionName]. [FunctionName] belongs to the old in-process model (Microsoft.Azure.WebJobs). Correct: [Function(\"HttpExample\")].",
+      "keyPoints": [
+        "Isolated model: [Function] (Functions.Worker)",
+        "In-process model: [FunctionName] (WebJobs)",
+        "Isolated: HttpRequestData / HttpResponseData",
+        "In-process: HttpRequest / IActionResult"
+      ],
+      "reference": "https://learn.microsoft.com/en-us/azure/azure-functions/dotnet-isolated-process-guide",
+      "tags": ["az204::functions::dotnet-models"]
+    }
+  ]
+}
